@@ -1,0 +1,1 @@
+FleetEase is a lightweight vehicle management app designed for both individuals and organizations. It helps users keep track of vehicle maintenance, report issues, and manage important deadlines effortlessly.

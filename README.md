@@ -10,13 +10,7 @@ Návod na vytvoření commitu:
 https://app.tango.us/app/workflow/Git-commits-bc05ce81768a4bec901643f2dc2f68b9
 
 Návod na spojení dvou větví:
-
-
-Návod na přípravu práce s Frontendem:
-
-
-Návod na přípravu práce s Backendem:
-
+https://app.tango.us/app/workflow/Git-pull-requests-c0af8de973734db48b4c6c264822b453
 
 Návod na instalaci databáze PostgreSQL:
 

@@ -22,3 +22,7 @@ Návod na instalaci databáze PostgreSQL:
 
 
 Návod na vytvoření databáze:
+
+
+Best Practices pro Backend a Frontend:
+https://app.tango.us/app/workflow/Best-Practice-55277d5977ae42e8aa152c08909109b8

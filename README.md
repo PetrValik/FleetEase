@@ -9,6 +9,9 @@ https://app.tango.us/app/workflow/Git-branches-dd9b1a4656d549b5842af8da01970452
 Návod na vytvoření commitu:
 https://app.tango.us/app/workflow/Git-commits-bc05ce81768a4bec901643f2dc2f68b9
 
+Návod na nahrání změn z jiné větve:
+https://app.tango.us/app/workflow/Merge-from-another-Branch-23cc79ec99504c528ce99a23ea698107
+
 Návod na spojení dvou větví:
 https://app.tango.us/app/workflow/Git-pull-requests-c0af8de973734db48b4c6c264822b453
 

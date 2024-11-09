@@ -1,0 +1,18 @@
+# Konfigurace štítků pro různé části projektu
+
+# Štítek pro změny ve složce backend
+backend:
+  - 'backend/**'
+
+# Štítek pro změny v souborech ve složce src
+src-files:
+  - 'src/**'
+
+# Štítek pro změny v souborech package.json
+dependencies:
+  - 'package.json'
+
+# Štítek pro změny v dokumentaci
+docs:
+  - '**/*.md'
+  - 'docs/**'

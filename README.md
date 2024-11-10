@@ -16,7 +16,7 @@ Návod na spojení dvou větví:
 https://app.tango.us/app/workflow/Git-pull-requests-c0af8de973734db48b4c6c264822b453
 
 Návod na instalaci databáze PostgreSQL:
-
+https://app.tango.us/app/workflow/Instalace-datab-ze-8b5cb7bee2d643299b00a64f36683106
 
 Návod na vytvoření databáze:
 

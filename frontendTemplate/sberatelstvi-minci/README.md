@@ -18,6 +18,7 @@ Aplikace bude dostupná na adrese [http://localhost:3000](http://localhost:3000)
 - Uživatelské profily
 
 ## Struktura projektu
+```
  src/src/
   ├── components/    # Znovupoužitelné komponenty
   ├── routes/       # Komponenty pro jednotlivé stránky
@@ -25,6 +26,7 @@ Aplikace bude dostupná na adrese [http://localhost:3000](http://localhost:3000)
   ├── styles/       # CSS soubory
   ├── App.js        # Hlavní komponenta aplikace
   └── index.js      # Vstupní bod aplikace
+```
 
 ## Dostupné skripty
 - `npm start` - Spustí aplikaci v vývojovém režimu

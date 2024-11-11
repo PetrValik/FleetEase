@@ -2,14 +2,14 @@
 cd backendTemplate
 
 ## Instalace závislostí:
- npm installnpm install
+ npm install
 
 ## Spuštění aplikace
 Pro spuštění aplikace v vývojovém režimu použijte:
 
- npm startnpm start
+ npm start
 
-Aplikace bude dostupná na adrese [http://localhost:3000](http://localhost:3000).
+Aplikace bude dostupná na adrese (http://localhost:3000).
 
 ## Hlavní funkce
 - CRUD operace pro entity
@@ -51,9 +51,9 @@ Pro vývoj doporučujeme použít `npm run dev`, který spustí aplikaci s autom
 ## Testování
 Testy můžete spustit příkazem:
 
- npm testnpm test
+ npm test
 
 ## Produkční nasazení
 Pro vytvoření produkční verze (pokud je podporováno) použijte:
 
- npm run buildnpm run build
+ npm run build

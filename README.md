@@ -20,6 +20,6 @@ https://app.tango.us/app/workflow/Instalace-datab-ze-8b5cb7bee2d643299b00a64f366
 
 Návod na vytvoření databáze:
 Bylo zařízeno na společném týmovém callu.
-
+gddfgdf
 Best Practices pro Backend a Frontend:
 https://app.tango.us/app/workflow/Best-Practice-55277d5977ae42e8aa152c08909109b8

@@ -3,29 +3,25 @@ const cors = require("cors");
 const app = express();
 const port = 3001;
 
-// Jednotlivé controllery budou nahrány sem
-//const userController = require("./src/controllers/user"); 
+// Import controllerů
+const userController = require("./src/controllers/user");
+const countriesController = require("./src/controllers/countries");
 
-// Middleware pro zpracování JSON a url-encoded dat
-app.use(express.json()); // podpora pro application/json
-app.use(express.urlencoded({ extended: true })); // podpora pro application/x-www-form-urlencoded
-
-// Povolení CORS pro všechny domény
+// Middleware pro JSON a CORS
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Základní route na kontrolu, zda server běží
+// Základní testovací route
 app.get("/", (req, res) => {
-  try {
-    res.status(200).send("We started successfully!");
-  } catch (error) {
-    res.status(500).send("Server encountered an error.");
-  }
+  res.status(200).send("We started successfully!");
 });
 
-// Zde se jednotlivé controllery aktivují a přidají do kódu
-// app.use("/user", userController); Aktivujeme controller pro uživatele
+// Aktivace controllerů
+app.use("/user", userController);
+app.use("/countries", countriesController);
 
-// Spuštění serveru a naslouchání na daném portu
+// Spuštění serveru
 app.listen(port, () => {
   console.log(`Fleetease app listening on port ${port}`);
 });

@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 // Zde se jednotlivé controllery aktivují a přidají do kódu
 // app.use("/user", userController); Aktivujeme controller pro uživatele
 
-// Spuštění serveru a naslouchání na daném portu
+// Spuštění serveru a naslouchání na daném portu 
 app.listen(port, () => {
   console.log(`Fleetease app listening on port ${port}`);
 });

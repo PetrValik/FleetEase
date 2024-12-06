@@ -1,0 +1,16 @@
+import React from 'react';
+
+interface MainContentProps {
+  children: React.ReactNode;
+}
+
+const MainContent: React.FC<MainContentProps> = ({ children }) => {
+  return (
+    <main className="flex-1 p-6 bg-gray-100 overflow-y-auto h-[calc(100vh-80px)] box-border">
+      {children}
+    </main>
+  );
+};
+
+export default MainContent;
+

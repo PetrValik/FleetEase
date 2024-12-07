@@ -1,6 +1,6 @@
 import React from 'react';
-import { useUser } from '../contexts/UserContext';
-import TopBar from './TopBar';
+import { useUser } from '../../contexts/UserContext';
+import Topbar from './Topbar';
 import Sidebar from './Sidebar';
 import MainContent from './MainContent';
 
@@ -12,8 +12,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isAuthenticated } = useUser();
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
-      <TopBar />
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
+      <Topbar />
       <div className="flex flex-1 overflow-hidden">
         {isAuthenticated && <Sidebar />}
         <MainContent>{children}</MainContent>

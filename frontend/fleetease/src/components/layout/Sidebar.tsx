@@ -12,14 +12,14 @@ interface NavItem {
   icon: React.ElementType;
 }
 
-const getNavItems = (role: Role): NavItem[] => {
+const getNavItems = (role: Role | null): NavItem[] => {
   // Common items for all authenticated users
   const commonItems: NavItem[] = [
     { path: '/', label: 'Dashboard', icon: Home },
   ];
 
   // Role-specific items
-  const roleItems: Record<NonNullable<Role>, NavItem[]> = {
+  const roleItems: Record<Role, NavItem[]> = {
     Driver: [
       { path: '/vehicles', label: 'My Vehicles', icon: Car },
       { path: '/defects', label: 'Report Defect', icon: AlertTriangle },
@@ -31,7 +31,7 @@ const getNavItems = (role: Role): NavItem[] => {
       { path: '/schedule', label: 'Schedule', icon: Calendar },
       { path: '/drivers', label: 'Drivers', icon: Users },
     ],
-    Owner: [
+    Admin: [
       { path: '/vehicles', label: 'Vehicles', icon: Car },
       { path: '/defects', label: 'Defects', icon: Tool },
       { path: '/schedule', label: 'Schedule', icon: Calendar },
@@ -40,7 +40,7 @@ const getNavItems = (role: Role): NavItem[] => {
       { path: '/settings', label: 'Settings', icon: Settings },
     ],
   };
-
+  console.log(role);
   return role ? [...commonItems, ...roleItems[role]] : commonItems;
 };
 
@@ -49,7 +49,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const { user } = useUser();
 
-  const navItems = getNavItems(user?.role?.role_name ?? null);
+  const navItems = getNavItems(user?.role?.role_name || null);
 
   return (
     <div className={`bg-[#001529] text-white transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-60'}`}>

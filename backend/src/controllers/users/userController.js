@@ -45,3 +45,14 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user' });
   }
 };
+
+exports.checkEmailExists = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const exists = await userService.checkEmailExists(email);
+    res.json({ exists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to check email' });
+  }
+};

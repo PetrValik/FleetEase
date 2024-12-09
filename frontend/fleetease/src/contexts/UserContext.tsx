@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { removeStoredToken } from '../utils/authUtils';
 
-export type Role = 'Owner' | 'Manager' | 'Driver' | null;
+export type Role = 'Admin' | 'Manager' | 'Driver';
 
-interface User {
+export interface User {
   user_id: number;
   email: string;
   first_name: string;
   last_name: string;
-  is_active: boolean;
   role: {
     role_id: number;
     role_name: Role;
@@ -18,17 +18,23 @@ interface UserContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
+  logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null); // Default to null for unauthenticated state
+  const [user, setUser] = useState<User | null>(null);
 
   const isAuthenticated = user !== null;
 
+  const logout = () => {
+    setUser(null);
+    removeStoredToken();
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated }}>
+    <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>
       {children}
     </UserContext.Provider>
   );

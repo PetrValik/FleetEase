@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config(); // Načtení `.env`
+const cors = require('cors');
 
 const supabase = require('./config/supabaseClient');
 
@@ -10,6 +11,9 @@ const userRoutes = require('./routes/users/userRoutes');
 const userAuthProviderRoutes = require('./routes/users/userAuthProviderRoutes');
 
 const app = express();
+
+app.use(cors()); // Povolit všechny originy
+
 const PORT = process.env.PORT || 3000; // Výchozí port, pokud není definován
 
 // Middleware pro parsování JSON

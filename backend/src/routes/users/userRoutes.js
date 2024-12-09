@@ -18,4 +18,7 @@ router.get('/', authenticateToken, userController.getAllUsers);
 // Získání jednoho uživatele podle ID (přístup omezen pouze na přihlášené uživatele)
 router.get('/:id', authenticateToken, userController.getUserById);
 
+// Ověření existence e-mailu
+router.get('/email/:email', userController.checkEmailExists);
+
 module.exports = router;

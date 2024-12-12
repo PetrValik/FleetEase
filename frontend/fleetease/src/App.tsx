@@ -43,6 +43,18 @@ const App: React.FC = () => {
               )
             }
           />
+          <Route
+            path="/vehicle"
+            element={
+              isAuthenticated() ? (
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              ) : (
+                <Navigate to="/signin" replace />
+              )
+            }
+          />
         </Routes>
       </Router>
     </UserProvider>

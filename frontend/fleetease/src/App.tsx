@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { UserProvider } from './contexts/UserContext';
 import Layout from './components/layout/Layout';
-import UnauthenticatedLayout from './components/layout/UnauthenticatedLayout';
-import Dashboard from './pages/dashboard/Dashboard';
+import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
+import MainPage from './pages/dashboard/MainPage';
 import SignUp from './pages/auth/SignUp';
 import SignIn from './pages/auth/SignIn';
-import { getStoredToken, isAuthenticated } from './utils/authUtils';
+import { getStoredToken,  } from './utils/authUtils';
 import axios from 'axios';
+import RoleBasedRoute from './components/auth/RoleBasedRoute'; // Import nové komponenty
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -19,45 +20,51 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
-      <Router>
-        <Routes>
-          <Route path="/signin" element={
-            <UnauthenticatedLayout>
-              <SignIn />
-            </UnauthenticatedLayout>
-          } />
-          <Route path="/signup" element={
-            <UnauthenticatedLayout>
-              <SignUp />
-            </UnauthenticatedLayout>
-          } />
-          <Route
-            path="/"
-            element={
-              isAuthenticated() ? (
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              ) : (
-                <Navigate to="/signin" replace />
-              )
-            }
+    <Router>
+      <Routes>
+        <Route
+          path="/signin"
+          element={
+            <RedirectIfAuthenticated>
+              <Layout> 
+                <SignIn />
+              </Layout>
+            </RedirectIfAuthenticated>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <RedirectIfAuthenticated>
+              <Layout> 
+                <SignUp />
+              </Layout>
+            </RedirectIfAuthenticated>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
+              <Layout>
+                <MainPage />
+              </Layout>
+            </RoleBasedRoute>
+          }
+        />
+      <Route 
+      path="*" 
+      element={
+            <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
+              <Layout>
+                <MainPage />
+              </Layout>
+            </RoleBasedRoute>
+          }
           />
-          <Route
-            path="/vehicle"
-            element={
-              isAuthenticated() ? (
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              ) : (
-                <Navigate to="/signin" replace />
-              )
-            }
-          />
-        </Routes>
-      </Router>
-    </UserProvider>
+      </Routes>
+    </Router>
+  </UserProvider>
   );
 }
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
-import { register } from '../../database/users/users';
+import { register } from '../../database/database';
 import axios from 'axios';
 
 const SignUp: React.FC = () => {
@@ -44,7 +44,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md px-4">
+    <div className="w-full max-w-md px-4 mx-auto h-full flex flex-col justify-center">
       <AuthHeader />
       <AuthForm
         title="Sign Up"

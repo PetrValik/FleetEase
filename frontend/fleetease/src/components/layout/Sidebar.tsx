@@ -30,6 +30,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: '/defects', label: 'Defects', icon: Tool },
       { path: '/schedule', label: 'Schedule', icon: Calendar },
       { path: '/drivers', label: 'Drivers', icon: Users },
+      { path: '/insurances', label: 'Insurances', icon: Calendar },
     ],
     Admin: [
       { path: '/vehicles', label: 'Vehicles', icon: Car },

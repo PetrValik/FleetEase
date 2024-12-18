@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const userService = require('../../services/users/userService');
 
 // Registrace uživatele
@@ -46,13 +47,46 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+// Check if an email exists
 exports.checkEmailExists = async (req, res) => {
   try {
+    // Extract the email from request parameters
     const email = req.params.email;
+
+    // Validate the email format
+    const emailValidation = Joi.string().email().validate(email);
+    if (emailValidation.error) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Use the service to check if the email exists
     const exists = await userService.checkEmailExists(email);
-    res.json({ exists });
+
+    // Respond with the result
+    res.status(200).json({ exists });
   } catch (error) {
-    console.error(error);
+    // Log and handle errors
+    console.error('Error in checkEmailExists:', error);
     res.status(500).json({ error: 'Failed to check email' });
+  }
+};
+
+// Update a user
+exports.updateUser = async (req, res) => {
+  try {
+    const updatedUser = await userService.updateUser(req.params.id, req.body);
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete a user
+exports.deleteUser = async (req, res) => {
+  try {
+    await userService.deleteUser(req.params.id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

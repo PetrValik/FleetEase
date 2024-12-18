@@ -1,32 +1,15 @@
-const supabase = require('../../config/supabaseClient');
+const supabase = require('../config/supabaseClient');
+const AuditLogModel = require('../models/auditLogModel');
 
-// Logování operace do audit logu
-exports.logAudit = async ({ table, operation, recordId, performedBy }) => {
-    const { error } = await supabase
-        .from('audit_logs')
-        .insert([
-            {
-                table_name: table,
-                operation,
-                record_id: recordId,
-                performed_by: performedBy,
-            },
-        ]);
-
-    if (error) {
-        throw new Error(`Failed to log audit: ${error.message}`);
-    }
-};
-
-// Získání všech záznamů z audit logu
-exports.fetchAuditLogs = async () => {
+exports.getAllLogs = async () => {
     const { data, error } = await supabase
-        .from('audit_logs')
+        .from(AuditLogModel.tableName)
         .select('*')
-        .order('timestamp', { ascending: false });
+        .order(AuditLogModel.fields.timestamp, { ascending: false }); // Sort by most recent
 
     if (error) {
-        throw new Error(`Failed to fetch audit logs: ${error.message}`);
+        console.error('Error fetching audit logs:', error);
+        throw new Error('Failed to fetch audit logs');
     }
 
     return data;

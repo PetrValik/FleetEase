@@ -1,7 +1,6 @@
 const Joi = require('joi');
 
 module.exports = Joi.object({
-    insurance_id: Joi.number().integer().required(),
     insurance_types: Joi.string().valid('Driver', 'Vehicle', 'Liability').required(),
     registration_number: Joi.string().optional().allow(null),
     start_date: Joi.date().required(),

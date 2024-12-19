@@ -11,7 +11,7 @@ const logAudit = require('../../middlewares/auditLogger');
 router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleModelController.getAll);
 
 // Get one vehicle model by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleModelController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleModelController.getById);
 
 // Create a new vehicle model
 router.post('/', authenticateToken, checkRole(['Admin']), validate(vehicleModelSchema), logAudit, vehicleModelController.create);
@@ -21,5 +21,8 @@ router.put('/:id', authenticateToken, checkRole(['Admin']), validate(vehicleMode
 
 // Delete a vehicle model
 router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, vehicleModelController.delete);
+
+// Get vehicle models by brand ID
+router.get('/brand/:brandId', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), vehicleModelController.getModelsByBrandId);
 
 module.exports = router;

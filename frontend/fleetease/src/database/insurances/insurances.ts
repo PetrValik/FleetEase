@@ -25,7 +25,7 @@ export const getAllInsurances = async (): Promise<Insurance[]> => {
     const response = await apiClient.get<Insurance[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<Insurance[]>(error, []); 
   }
 };
 
@@ -35,7 +35,7 @@ export const getInsuranceById = async (id: number): Promise<Insurance | null> =>
     const response = await apiClient.get<Insurance>(`${BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Insurance | null>(error, null); 
   }
 };
 
@@ -47,7 +47,7 @@ export const createInsurance = async (
     const response = await apiClient.post<Insurance>(`${BASE_URL}`, insuranceData);
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Insurance | null>(error, null); 
   }
 };
 
@@ -60,7 +60,7 @@ export const updateInsurance = async (
     const response = await apiClient.put<Insurance>(`${BASE_URL}/${id}`, updatedData);
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Insurance | null>(error, null); 
   }
 };
 
@@ -70,7 +70,7 @@ export const deleteInsurance = async (id: number): Promise<boolean> => {
     await apiClient.delete(`${BASE_URL}/${id}`);
     return true;
   } catch (error) {
-    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+    return handleApiError<boolean>(error, false); 
   }
 };
 
@@ -85,6 +85,6 @@ export const getInsurancesByTypeAndCompany = async (
     });
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<Insurance[]>(error, []); 
   }
 };

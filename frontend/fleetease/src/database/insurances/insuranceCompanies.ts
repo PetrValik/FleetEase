@@ -16,7 +16,7 @@ export const getAllInsuranceCompanies = async (): Promise<InsuranceCompany[]> =>
     const response = await apiClient.get<InsuranceCompany[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    return handleApiError<InsuranceCompany[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<InsuranceCompany[]>(error, []); 
   }
 };
 
@@ -26,7 +26,7 @@ export const getInsuranceCompanyById = async (id: number): Promise<InsuranceComp
     const response = await apiClient.get<InsuranceCompany>(`${BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    return handleApiError<InsuranceCompany | null>(error, null); // Return null if the user is logged out
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
@@ -38,7 +38,7 @@ export const createInsuranceCompany = async (
     const response = await apiClient.post<InsuranceCompany>(`${BASE_URL}`, companyData);
     return response.data;
   } catch (error) {
-    return handleApiError<InsuranceCompany | null>(error, null); // Return null if the user is logged out
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
@@ -51,7 +51,7 @@ export const updateInsuranceCompany = async (
     const response = await apiClient.put<InsuranceCompany>(`${BASE_URL}/${id}`, updatedData);
     return response.data;
   } catch (error) {
-    return handleApiError<InsuranceCompany | null>(error, null); // Return null if the user is logged out
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
@@ -61,6 +61,6 @@ export const deleteInsuranceCompany = async (id: number): Promise<boolean> => {
     await apiClient.delete(`${BASE_URL}/${id}`);
     return true;
   } catch (error) {
-    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+    return handleApiError<boolean>(error, false); 
   }
 };

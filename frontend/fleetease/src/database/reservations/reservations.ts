@@ -25,7 +25,7 @@ export const getAllReservations = async (): Promise<Reservation[]> => {
     const response = await apiClient.get<Reservation[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<Reservation[]>(error, []); 
   }
 };
 
@@ -35,7 +35,7 @@ export const getReservationsByVehicleId = async (vehicle_id: number): Promise<Re
     const response = await apiClient.get<Reservation[]>(`${BASE_URL}/vehicle/${vehicle_id}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<Reservation[]>(error, []); 
   }
 };
 
@@ -45,7 +45,7 @@ export const getReservationById = async (reservation_id: number): Promise<Reserv
     const response = await apiClient.get<Reservation>(`${BASE_URL}/${reservation_id}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Reservation | null>(error, null); 
   }
 };
 
@@ -57,7 +57,7 @@ export const createReservation = async (
     const response = await apiClient.post<Reservation>(`${BASE_URL}`, reservationData);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Reservation | null>(error, null);
   }
 };
 
@@ -70,7 +70,7 @@ export const updateReservation = async (
     const response = await apiClient.put<Reservation>(`${BASE_URL}/${reservation_id}`, updatedData);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
+    return handleApiError<Reservation | null>(error, null); 
   }
 };
 
@@ -80,7 +80,7 @@ export const deleteReservation = async (reservation_id: number): Promise<boolean
     await apiClient.delete(`${BASE_URL}/${reservation_id}`);
     return true;
   } catch (error) {
-    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+    return handleApiError<boolean>(error, false);
   }
 };
 
@@ -92,7 +92,7 @@ export const getVehiclesWithReservationsByUserId = async (
     const response = await apiClient.get<Reservation[]>(`${BASE_URL}/vehicles/user/${userId}`);
     return response.data;
   } catch (error) {
-    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
+    return handleApiError<Reservation[]>(error, []); 
   }
 };
 
@@ -109,6 +109,6 @@ export const checkVehicleActiveReservation = async (
     return handleApiError<{ isReserved: boolean; reservation: Reservation | null }>(error, {
       isReserved: false,
       reservation: null,
-    }); // Return default values if the user is logged out
+    }); 
   }
 };

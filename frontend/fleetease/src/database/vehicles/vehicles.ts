@@ -74,3 +74,13 @@ export const deleteVehicle = async (id: number): Promise<boolean> => {
     return handleApiError<boolean>(error, false); // Return false if the user is logged out
   }
 };
+
+// Get all vehicles by company ID
+export const getVehiclesByCompanyId = async (companyId: number): Promise<Vehicle[]> => {
+  try {
+    const response = await apiClient.get<Vehicle[]>(`${BASE_URL}/company/${companyId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError(error, []); // Return an empty array if an error occurs
+  }
+};

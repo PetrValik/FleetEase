@@ -59,7 +59,7 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
     const response = await apiClient.get<{ exists: boolean }>(`${BASE_URL}/email/${email}`);
     return response.data.exists;
   } catch (error) {
-    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+    return handleApiError<boolean>(error, false);
   }
 };
 
@@ -68,6 +68,6 @@ export const getRoleById = async (role_id: number): Promise<boolean> => {
     const response = await apiClient.get<{ exists: boolean }>(`${BASE_URL}/roles/${role_id}`);
     return response.data.exists;
   } catch (error) {
-    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+    return handleApiError<boolean>(error, false);
   }
 };

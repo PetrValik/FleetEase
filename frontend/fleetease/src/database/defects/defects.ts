@@ -1,34 +1,83 @@
 import apiClient from '../../utils/apiClient';
+import { config } from '../../config';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
-interface Defect {
-  id: number;
+const BASE_URL = config.DEFECTS_ENDPOINT;
+
+// Interface for Defect
+export interface Defect {
+  defect_id: number;
+  created_at: string; // ISO date string
+  vehicle_id: number;
+  defect_severity: string; // Enum: Defect Severity Level
+  type_id: number;
   description: string;
-  // Add other defect properties as needed
+  date_reported: string; // ISO date string
+  defect_status: string; // Enum: Defect Status
+  repair_cost: number | null; // Nullable field
+  user_id: number;
 }
 
-export const defectsApi = {
-  getAll: async (): Promise<Defect[]> => {
-    const response = await apiClient.get('/api/defects');
+// Get all defects
+export const getAllDefects = async (): Promise<Defect[]> => {
+  try {
+    const response = await apiClient.get<Defect[]>(BASE_URL);
     return response.data;
-  },
-
-  getById: async (id: number): Promise<Defect> => {
-    const response = await apiClient.get(`/api/defects/${id}`);
-    return response.data;
-  },
-
-  create: async (defect: Omit<Defect, 'id'>): Promise<Defect> => {
-    const response = await apiClient.post('/api/defects', defect);
-    return response.data;
-  },
-
-  update: async (id: number, defect: Partial<Defect>): Promise<Defect> => {
-    const response = await apiClient.put(`/api/defects/${id}`, defect);
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/api/defects/${id}`);
+  } catch (error) {
+    return handleApiError<Defect[]>(error, []); 
   }
 };
 
+// Get defects by vehicle ID
+export const getDefectsByVehicleId = async (vehicleId: number): Promise<Defect[]> => {
+  try {
+    const response = await apiClient.get<Defect[]>(`${BASE_URL}/vehicle/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<Defect[]>(error, []); 
+  }
+};
+
+// Get a single defect by ID
+export const getDefectById = async (defectId: number): Promise<Defect | null> => {
+  try {
+    const response = await apiClient.get<Defect>(`${BASE_URL}/${defectId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<Defect | null>(error, null);
+  }
+};
+
+// Create a new defect
+export const createDefect = async (
+  defectData: Omit<Defect, 'defect_id' | 'created_at'>
+): Promise<Defect | null> => {
+  try {
+    const response = await apiClient.post<Defect>(BASE_URL, defectData);
+    return response.data;
+  } catch (error) {
+    return handleApiError<Defect | null>(error, null); 
+  }
+};
+
+// Update a defect
+export const updateDefect = async (
+  defectId: number,
+  updatedData: Partial<Omit<Defect, 'defect_id' | 'created_at'>>
+): Promise<Defect | null> => {
+  try {
+    const response = await apiClient.put<Defect>(`${BASE_URL}/${defectId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    return handleApiError<Defect | null>(error, null);
+  }
+};
+
+// Delete a defect
+export const deleteDefect = async (defectId: number): Promise<void> => {
+  try {
+    await apiClient.delete(`${BASE_URL}/${defectId}`);
+  } catch (error) {
+    handleApiError<void>(error, undefined); 
+  }
+};

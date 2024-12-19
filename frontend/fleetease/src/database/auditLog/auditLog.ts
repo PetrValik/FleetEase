@@ -20,6 +20,6 @@ export const getAllLogs = async (): Promise<AuditLog[]> => {
     const response = await apiClient.get<AuditLog[]>(BASE_URL);
     return response.data;
   } catch (error) {
-    return handleApiError(error, []); // Return an empty array if the user is logged out
+    return handleApiError(error, []);
   }
 };

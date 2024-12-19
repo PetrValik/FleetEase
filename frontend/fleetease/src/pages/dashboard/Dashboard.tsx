@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import About from '../../components/dashboard/components/About';
-import { Truck, Shield, Clock, BarChart, Users, PlusCircle, Filter } from 'lucide-react';
+import { Truck, Shield, Clock, BarChart, Users, PlusCircle, Filter, Search } from 'lucide-react';
 import VehicleList from '../../components/dashboard/components/VehicleList';
-import { mockVehicles, Vehicle } from '../../database/vehicles/mocks';
+import { mockVehicles } from '../../database/vehicles/mocks'; // Corrected import
 import { Button } from '../../components/dashboard/components/ui/Button';
 import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
 import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
+import { createVehicle, getAllVehicles } from '../../database/vehicles/vehicles'; // Adjust according to your file structure
 
-type FuelType = 'gas' | 'diesel' | 'electric';
+type FuelType = 'gas' | 'diesel' | 'electric' | 'hybrid'; // Updated fuel types based on mock data
 type VehicleState = 'inUse' | 'available' | 'maintenance';
 
 const getFuelFilterValue = (fuelType: string, fuelFilters: { [key: string]: boolean }) => {
@@ -18,51 +19,83 @@ const getFuelFilterValue = (fuelType: string, fuelFilters: { [key: string]: bool
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated } = useUser();
-  const [vehicles, setVehicles] = useState<Vehicle[]>(mockVehicles as Vehicle[]);
+  const { isAuthenticated, user } = useUser();
+  const [vehicles, setVehicles] = useState<typeof mockVehicles>([]); // Updated type
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     typeFilters: { truck: false, van: false, car: false },
-    fuelFilters: { gas: false, diesel: false, electric: false },
+    fuelFilters: { gas: false, diesel: false, electric: false, hybrid: false }, // Updated fuel filters
     stateFilters: { inUse: false, available: false, maintenance: false },
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchResult, setSearchResult] = useState<typeof mockVehicles[0] | null>(null); // Adjusted to use the mock data type
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAddVehicle = (newVehicle: Vehicle) => {
-    setVehicles([...vehicles, newVehicle]);
-    setIsAddVehicleModalOpen(false);
+  // Fetch vehicles on load
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLoading(true);
+      getAllVehicles()
+        .then((data) => setVehicles(data))
+        .catch((err) => setError('Failed to fetch vehicles'))
+        .finally(() => setLoading(false));
+    }
+  }, [isAuthenticated]);
+
+  const handleAddVehicle = async (newVehicle: typeof mockVehicles[0]) => { // Updated to use the correct type
+    setLoading(true);
+    setError(null);
+
+    try {
+      const createdVehicle = await createVehicle(user?.company_id ?? 1, newVehicle);
+      setVehicles((prevVehicles) => [...prevVehicles, createdVehicle]);
+      setIsAddVehicleModalOpen(false);
+    } catch (err) {
+      setError('Failed to create vehicle. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleApplyFilter = (newFilters: any) => {
-    setFilters(newFilters); // Update filters with the new values
-    setIsFilterPopoverVisible(false); // Close the filter popover after applying
+    setFilters(newFilters);
+    setIsFilterPopoverVisible(false);
   };
 
   const handleClearFilter = () => {
     setFilters({
       typeFilters: { truck: false, van: false, car: false },
-      fuelFilters: { gas: false, diesel: false, electric: false },
+      fuelFilters: { gas: false, diesel: false, electric: false, hybrid: false }, // Updated filters
       stateFilters: { inUse: false, available: false, maintenance: false },
     });
-    setIsFilterPopoverVisible(false); // Close the filter popover after clearing
+    setIsFilterPopoverVisible(false);
   };
 
-  const filteredVehicles = vehicles.filter((vehicle) => {
+  const handleSearch = () => {
+    const result = vehicles.find(
+      (vehicle) => vehicle.registration_number.toLowerCase() === searchTerm.toLowerCase()
+    );
+    setSearchResult(result || null);
+  };
+
+  const filteredVehicles = searchResult ? [searchResult] : vehicles.filter((vehicle) => {
     const typeMatch =
       (!filters.typeFilters.truck && !filters.typeFilters.van && !filters.typeFilters.car) ||
-      (filters.typeFilters.truck && vehicle.vehicleType.toLowerCase().includes('truck')) ||
-      (filters.typeFilters.van && vehicle.vehicleType.toLowerCase().includes('van')) ||
-      (filters.typeFilters.car && vehicle.vehicleType.toLowerCase().includes('car'));
+      (filters.typeFilters.truck && vehicle.vehicle_status.toLowerCase().includes('truck')) ||
+      (filters.typeFilters.van && vehicle.vehicle_status.toLowerCase().includes('van')) ||
+      (filters.typeFilters.car && vehicle.vehicle_status.toLowerCase().includes('car'));
 
     const fuelMatch =
-      (!filters.fuelFilters.gas && !filters.fuelFilters.diesel && !filters.fuelFilters.electric) ||
-      getFuelFilterValue(vehicle.fuelType, filters.fuelFilters);
+      (!filters.fuelFilters.gas && !filters.fuelFilters.diesel && !filters.fuelFilters.electric && !filters.fuelFilters.hybrid) ||
+      getFuelFilterValue(vehicle.fuel_type, filters.fuelFilters);
 
     const stateMatch =
       (!filters.stateFilters.inUse && !filters.stateFilters.available && !filters.stateFilters.maintenance) ||
-      (filters.stateFilters.inUse && vehicle.status === 'In Use') ||
-      (filters.stateFilters.available && vehicle.status === 'Available') ||
-      (filters.stateFilters.maintenance && vehicle.status === 'Maintenance');
+      (filters.stateFilters.inUse && vehicle.vehicle_status === 'In Use') ||
+      (filters.stateFilters.available && vehicle.vehicle_status === 'Available') ||
+      (filters.stateFilters.maintenance && vehicle.vehicle_status === 'Maintenance');
 
     return typeMatch && fuelMatch && stateMatch;
   });
@@ -106,15 +139,28 @@ const Dashboard: React.FC = () => {
             Add new vehicle
           </Button>
 
-          <div className="filter-button-container">
-            <Button
-              variant="outline"
-              className="dashboard-btn-filter"
-              onClick={() => setIsFilterPopoverVisible((prev) => !prev)}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Filter
-            </Button>
+          <Button
+            variant="outline"
+            className="dashboard-btn-filter"
+            onClick={() => setIsFilterPopoverVisible((prev) => !prev)}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </Button>
+
+          <div className="search-bar-container">
+            <div className="input-container">
+              <input
+                type="text"
+                placeholder="Enter Registration Number"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              <button onClick={handleSearch} className="search-button">
+                <Search className="search-icon" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -128,7 +174,7 @@ const Dashboard: React.FC = () => {
                 ×
               </button>
               <FilterPopover
-                typeFilters={filters.typeFilters}  // Pass individual filters
+                typeFilters={filters.typeFilters}
                 fuelFilters={filters.fuelFilters}
                 stateFilters={filters.stateFilters}
                 onApplyFilter={handleApplyFilter}
@@ -138,7 +184,9 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {vehicles.length === 0 ? (
+        {loading ? (
+          <div>Loading vehicles...</div>
+        ) : vehicles.length === 0 ? (
           <div>No vehicles yet.</div>
         ) : (
           <VehicleList vehicles={filteredVehicles} />
@@ -148,16 +196,12 @@ const Dashboard: React.FC = () => {
       {isAddVehicleModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button
-              className="modal-close-btn"
-              onClick={() => setIsAddVehicleModalOpen(false)}
-            >
-              ×
-            </button>
             <AddVehicleModal
               isOpen={isAddVehicleModalOpen}
               onClose={() => setIsAddVehicleModalOpen(false)}
               onSave={handleAddVehicle}
+              loading={loading}
+              error={error}
             />
           </div>
         </div>

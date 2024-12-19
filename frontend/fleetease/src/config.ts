@@ -7,5 +7,6 @@ export const config = {
   LOGS_ENDPOINT: `${API_BASE_URL}/logs`,
   INSURANCES_ENDPOINT: `${API_BASE_URL}/insurances`,
   INSURANCE_COMPANIES_ENDPOINT: `${API_BASE_URL}/insurance-companies`,
+  VEHICLES_ENDPOINT: `${API_BASE_URL}/vehicles`,
 };
 

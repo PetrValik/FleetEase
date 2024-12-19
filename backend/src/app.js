@@ -9,6 +9,8 @@ const roleRoutes = require('./routes/users/roleRoutes');
 const authProviderRoutes = require('./routes/users/authProviderRoutes');
 const userRoutes = require('./routes/users/userRoutes');
 const userAuthProviderRoutes = require('./routes/users/userAuthProviderRoutes');
+// Změnit tento řádek
+const insuranceRoutes = require('./routes/insurances/insuranceRoutes'); // Správný import routes, ne controlleru
 
 const app = express();
 
@@ -30,6 +32,9 @@ app.use('/api/users', userRoutes);
 
 // Endpointy pro UserAuthProviders
 app.use('/api/user-auth-providers', userAuthProviderRoutes);
+
+// Endpointy pro pojistky
+app.use('/api/insurances', insuranceRoutes);  // Teď by mělo fungovat
 
 // Endpoint pro test
 app.get('/', (req, res) => {

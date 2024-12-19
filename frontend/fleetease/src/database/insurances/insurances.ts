@@ -1,9 +1,15 @@
+// src/database/insurances/insurances.ts
 import axios from 'axios';
 
 interface Insurance {
   id: number;
   policyNumber: string;
   // Add other insurance properties as needed
+}
+
+interface InsuranceCompany {
+  insurance_company_id: number;
+  company_name: string;
 }
 
 export const insurancesApi = {
@@ -29,6 +35,11 @@ export const insurancesApi = {
 
   delete: async (id: number): Promise<void> => {
     await axios.delete(`/api/insurances/${id}`);
+  },
+
+  // Přidaná nová metoda pro získání pojišťoven
+  getInsuranceCompanies: async (): Promise<InsuranceCompany[]> => {
+    const response = await axios.get('/api/insurances/companies');
+    return response.data;
   }
 };
-

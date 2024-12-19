@@ -6,17 +6,18 @@ const BASE_URL = config.INSURANCES_ENDPOINT;
 // Define the Insurance model
 export interface Insurance {
   insurance_id: number;
-  insurance_types: 'Driver' | 'Vehicle' | 'Liability';
-  policy_number: string;
+  insurance_types: 'Driver' | 'Vehicle' | 'Liability'; // Enum values for insurance type
+  registration_number: string | null; // Nullable field
   start_date: string; // ISO format date
   end_date: string; // ISO format date
-  premium_amount: number | null; // Nullable field
-  payment_method: 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time';
-  insurance_company_id: number;
-  insurance_status: 'Pending' | 'Active' | 'Archived' | 'Ending soon';
-  company_id: number | null; // Nullable field
+  name: string | null; // Nullable field
+  payment_method: 'Monthly' | 'Quarterly' | 'Yearly' | 'One-Time'; // Enum values for payment method
+  insurance_company_id: number; // FK to insurance companies
+  insurance_status: 'Active' | 'Pending' | 'Expired' | 'Cancelled'; // Enum values for status
+  company_id: number; // FK to company
   description: string | null; // Nullable field
 }
+
 
 // Get all insurances
 export const getAllInsurances = async (): Promise<Insurance[]> => {

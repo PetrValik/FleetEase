@@ -1,20 +1,15 @@
 const Joi = require('joi');
 
 module.exports = Joi.object({
-    insurance_types: Joi.string()
-        .valid('Driver', 'Vehicle', 'Liability')
-        .required(),
-    policy_number: Joi.string().max(255).required(),
+    insurance_id: Joi.number().integer().required(),
+    insurance_types: Joi.string().valid('Driver', 'Vehicle', 'Liability').required(),
+    registration_number: Joi.string().optional().allow(null),
     start_date: Joi.date().required(),
-    end_date: Joi.date().greater(Joi.ref('start_date')).required(),
-    premium_amount: Joi.number().positive().required(),
-    payment_method: Joi.string()
-        .valid('Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'One-Time')
-        .required(),
+    end_date: Joi.date().required(),
+    name: Joi.string().optional().allow(null),
+    payment_method: Joi.string().valid('Monthly', 'Quarterly', 'Yearly', 'One-Time').required(),
     insurance_company_id: Joi.number().integer().required(),
-    insurance_status: Joi.string()
-        .valid('Pending', 'Active', 'Archived', 'Ending soon')
-        .required(),
+    insurance_status: Joi.string().valid('Active', 'Pending', 'Expired', 'Cancelled').required(),
     company_id: Joi.number().integer().required(),
-    description: Joi.string().optional().max(1000),
+    description: Joi.string().optional().allow(null),
 });

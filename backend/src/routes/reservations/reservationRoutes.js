@@ -22,4 +22,7 @@ router.put('/:id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), 
 // Delete a reservation
 router.delete('/:id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), logAudit, reservationController.delete);
 
+// Get all reservations by vehicle ID
+router.get('/vehicle/:vehicle_id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), logAudit, reservationController.getReservationsByVehicleId);
+
 module.exports = router;

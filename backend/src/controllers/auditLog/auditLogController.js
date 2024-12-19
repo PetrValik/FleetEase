@@ -1,11 +1,12 @@
-const auditService = require('../../services/auditLog/auditLogService');
+const auditLogService = require('../../services/auditLog/auditLogService');
 
-exports.getAuditLogs = async (req, res) => {
+// Controller to fetch all audit logs
+exports.getAllAuditLogs = async (req, res) => {
     try {
-        const logs = await auditService.fetchAuditLogs();
+        const logs = await auditLogService.getAllLogs();
         res.status(200).json(logs);
-    } catch (err) {
-        console.error('Error fetching audit logs:', err);
-        res.status(500).send('Failed to fetch audit logs');
+    } catch (error) {
+        console.error('Error in getAllAuditLogs:', error);
+        res.status(500).json({ error: 'Failed to retrieve audit logs' });
     }
 };

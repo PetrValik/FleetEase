@@ -1,34 +1,72 @@
 import axios from 'axios';
+import { config } from '../../config';
 
-interface Insurance {
-  id: number;
-  policyNumber: string;
-  // Add other insurance properties as needed
-}
+const BASE_URL = config.INSURANCES_ENDPOINT;
 
-export const insurancesApi = {
-  getAll: async (): Promise<Insurance[]> => {
-    const response = await axios.get('/api/insurances');
+// Get all insurances
+export const getAllInsurances = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}`);
     return response.data;
-  },
-
-  getById: async (id: number): Promise<Insurance> => {
-    const response = await axios.get(`/api/insurances/${id}`);
-    return response.data;
-  },
-
-  create: async (insurance: Omit<Insurance, 'id'>): Promise<Insurance> => {
-    const response = await axios.post('/api/insurances', insurance);
-    return response.data;
-  },
-
-  update: async (id: number, insurance: Partial<Insurance>): Promise<Insurance> => {
-    const response = await axios.put(`/api/insurances/${id}`, insurance);
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<void> => {
-    await axios.delete(`/api/insurances/${id}`);
+  } catch (error) {
+    console.error('Error fetching all insurances:', error);
+    throw new Error('Failed to fetch all insurances');
   }
 };
 
+// Get a single insurance by ID
+export const getInsuranceById = async (id: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching insurance by ID:', error);
+    throw new Error('Failed to fetch insurance');
+  }
+};
+
+// Create a new insurance
+export const createInsurance = async (insuranceData: object) => {
+  try {
+    const response = await axios.post(`${BASE_URL}`, insuranceData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating insurance:', error);
+    throw new Error('Failed to create insurance');
+  }
+};
+
+// Update an insurance
+export const updateInsurance = async (id: number, updatedData: object) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/${id}`, updatedData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating insurance:', error);
+    throw new Error('Failed to update insurance');
+  }
+};
+
+// Delete an insurance
+export const deleteInsurance = async (id: number) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting insurance:', error);
+    throw new Error('Failed to delete insurance');
+  }
+};
+
+// Get insurances by type and company ID
+export const getInsurancesByTypeAndCompany = async (type: string, companyId: number) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/filter`, {
+      params: { type, company_id: companyId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching insurances by type and company:', error);
+    throw new Error('Failed to fetch insurances');
+  }
+};

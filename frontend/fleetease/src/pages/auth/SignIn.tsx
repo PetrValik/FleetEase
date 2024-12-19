@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
-import { login } from '../../database/users/users';
+import { login } from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 
@@ -22,9 +22,8 @@ const SignIn: React.FC = () => {
       const response = await login(email, password);
       
       // Set the user in context
-      console.log(response.user);
       setUser(response.user);
-
+      console.log('User set:', response.user); // Add this line for debugging
       // Redirect to dashboard
       navigate('/');
     } catch (error) {
@@ -44,7 +43,7 @@ const SignIn: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md px-4">
+    <div className="w-full max-w-md px-4 mx-auto h-full flex flex-col justify-center">
       <AuthHeader />
       <AuthForm
         title="Sign In"

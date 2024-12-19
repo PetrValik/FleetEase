@@ -6,6 +6,7 @@ import * as Database from '../../../database/database';
 const Dashboard: React.FC = () => {
   const handleTestAPI = async () => {
     console.log('API Response get all insurances:', await Database.getAllInsurances());
+    console.log('API Response get all insurance companies:', await Database.getAllInsuranceCompanies());
   };
 
   return (

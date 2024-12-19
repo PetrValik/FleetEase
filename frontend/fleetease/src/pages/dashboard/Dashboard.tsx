@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useUser } from '../../contexts/UserContext';
-import About from '../../components/dashboard/componenets/About';
+import About from '../../components/dashboard/components/About';
 import { Truck, Shield, Clock, BarChart, Users, PlusCircle, Filter } from 'lucide-react';
-import VehicleList from '../../components/dashboard/componenets/VehicleList';
+import VehicleList from '../../components/dashboard/components/VehicleList';
 import { mockVehicles, Vehicle } from '../../database/vehicles/mocks';
-import { Button } from '../../components/dashboard/componenets/ui/Button';
-import AddVehicleModal from '../../components/dashboard/componenets/popovers/AddNewVehicle';
-import FilterPopover from '../../components/dashboard/componenets/popovers/FilterPopover';
+import { Button } from '../../components/dashboard/components/ui/Button';
+import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
+import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
 
 type FuelType = 'gas' | 'diesel' | 'electric';

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useForm, Controller, FieldValues, FieldError } from 'react-hook-form';
-import { Button } from '../../dashboard/componenets/ui/Button'; // Assuming you have your own Button component
-import { Input } from '../../dashboard/componenets/ui/Input'; // Assuming you have your own Input component
-import { Textarea } from '../../dashboard/componenets/ui/Textarea'; // Assuming you have your own Textarea component
-import { Select } from '../../dashboard/componenets/ui/Select'; // Assuming you have your own Select component
-import { Label } from '../../dashboard/componenets/ui/Label'; // Assuming you have your own Label component
+import { Button } from '../../dashboard/components/ui/Button'; // Assuming you have your own Button component
+import { Input } from '../../dashboard/components/ui/Input'; // Assuming you have your own Input component
+import { Textarea } from '../../dashboard/components/ui/Textarea'; // Assuming you have your own Textarea component
+import { Select } from '../../dashboard/components/ui/Select'; // Assuming you have your own Select component
+import { Label } from '../../dashboard/components/ui/Label'; // Assuming you have your own Label component
 
 interface EditVehicleModalProps {
   isOpen: boolean;

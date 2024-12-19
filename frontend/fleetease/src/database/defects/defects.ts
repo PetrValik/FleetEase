@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '../../utils/apiClient';
 
 interface Defect {
   id: number;
@@ -8,27 +8,27 @@ interface Defect {
 
 export const defectsApi = {
   getAll: async (): Promise<Defect[]> => {
-    const response = await axios.get('/api/defects');
+    const response = await apiClient.get('/api/defects');
     return response.data;
   },
 
   getById: async (id: number): Promise<Defect> => {
-    const response = await axios.get(`/api/defects/${id}`);
+    const response = await apiClient.get(`/api/defects/${id}`);
     return response.data;
   },
 
   create: async (defect: Omit<Defect, 'id'>): Promise<Defect> => {
-    const response = await axios.post('/api/defects', defect);
+    const response = await apiClient.post('/api/defects', defect);
     return response.data;
   },
 
   update: async (id: number, defect: Partial<Defect>): Promise<Defect> => {
-    const response = await axios.put(`/api/defects/${id}`, defect);
+    const response = await apiClient.put(`/api/defects/${id}`, defect);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`/api/defects/${id}`);
+    await apiClient.delete(`/api/defects/${id}`);
   }
 };
 

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import apiClient from '../../utils/apiClient';
+import { handleApiError } from '../../utils/apiErrorHandler';
 import { config } from '../../config';
 
 const BASE_URL = config.LOGS_ENDPOINT;
@@ -13,18 +14,12 @@ export interface AuditLog {
   timestamp: string;
 }
 
-
 // Fetch all audit logs from the backend.
 export const getAllLogs = async (): Promise<AuditLog[]> => {
   try {
-    const response = await axios.get<AuditLog[]>(`${BASE_URL}`);
+    const response = await apiClient.get<AuditLog[]>(BASE_URL);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error fetching logs:', error.response?.data?.error || error.message);
-    } else {
-      console.error('Unexpected error fetching logs:', error);
-    }
-    throw new Error('Failed to fetch logs');
+    return handleApiError(error, []); // Return an empty array if the user is logged out
   }
 };

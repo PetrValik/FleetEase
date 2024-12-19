@@ -1,5 +1,6 @@
-import axios from 'axios';
 import { config } from '../../config';
+import apiClient from '../../utils/apiClient';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 // Base URL for reservations endpoint
 const BASE_URL = config.RESERVATIONS_ENDPOINT;
@@ -21,64 +22,93 @@ export interface Reservation {
 // Get all reservations
 export const getAllReservations = async (): Promise<Reservation[]> => {
   try {
-    const response = await axios.get<Reservation[]>(`${BASE_URL}`);
+    const response = await apiClient.get<Reservation[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching all reservations:', error);
-    throw new Error('Failed to fetch all reservations');
+    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
   }
 };
 
 // Get reservations by vehicle ID
 export const getReservationsByVehicleId = async (vehicle_id: number): Promise<Reservation[]> => {
   try {
-    const response = await axios.get<Reservation[]>(`${BASE_URL}/vehicle/${vehicle_id}`);
+    const response = await apiClient.get<Reservation[]>(`${BASE_URL}/vehicle/${vehicle_id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching reservations by vehicle ID:', error);
-    throw new Error('Failed to fetch reservations for the vehicle');
+    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
   }
 };
 
 // Get a single reservation by ID
-export const getReservationById = async (reservation_id: number): Promise<Reservation> => {
+export const getReservationById = async (reservation_id: number): Promise<Reservation | null> => {
   try {
-    const response = await axios.get<Reservation>(`${BASE_URL}/${reservation_id}`);
+    const response = await apiClient.get<Reservation>(`${BASE_URL}/${reservation_id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching reservation by ID:', error);
-    throw new Error('Failed to fetch reservation');
+    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
   }
 };
 
 // Create a new reservation
-export const createReservation = async (reservationData: Omit<Reservation, 'reservation_id' | 'created_at'>): Promise<Reservation> => {
+export const createReservation = async (
+  reservationData: Omit<Reservation, 'reservation_id' | 'created_at'>
+): Promise<Reservation | null> => {
   try {
-    const response = await axios.post<Reservation>(`${BASE_URL}`, reservationData);
+    const response = await apiClient.post<Reservation>(`${BASE_URL}`, reservationData);
     return response.data;
   } catch (error) {
-    console.error('Error creating reservation:', error);
-    throw new Error('Failed to create reservation');
+    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
   }
 };
 
 // Update a reservation
-export const updateReservation = async (reservation_id: number, updatedData: Partial<Reservation>): Promise<Reservation> => {
+export const updateReservation = async (
+  reservation_id: number,
+  updatedData: Partial<Reservation>
+): Promise<Reservation | null> => {
   try {
-    const response = await axios.put<Reservation>(`${BASE_URL}/${reservation_id}`, updatedData);
+    const response = await apiClient.put<Reservation>(`${BASE_URL}/${reservation_id}`, updatedData);
     return response.data;
   } catch (error) {
-    console.error('Error updating reservation:', error);
-    throw new Error('Failed to update reservation');
+    return handleApiError<Reservation | null>(error, null); // Return null if the user is logged out
   }
 };
 
 // Delete a reservation
-export const deleteReservation = async (reservation_id: number): Promise<void> => {
+export const deleteReservation = async (reservation_id: number): Promise<boolean> => {
   try {
-    await axios.delete(`${BASE_URL}/${reservation_id}`);
+    await apiClient.delete(`${BASE_URL}/${reservation_id}`);
+    return true;
   } catch (error) {
-    console.error('Error deleting reservation:', error);
-    throw new Error('Failed to delete reservation');
+    return handleApiError<boolean>(error, false); // Return false if the user is logged out
+  }
+};
+
+// Get vehicles with reservations by user ID
+export const getVehiclesWithReservationsByUserId = async (
+  userId: number
+): Promise<Reservation[]> => {
+  try {
+    const response = await apiClient.get<Reservation[]>(`${BASE_URL}/vehicles/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<Reservation[]>(error, []); // Return an empty array if the user is logged out
+  }
+};
+
+// Check if a vehicle has an active reservation
+export const checkVehicleActiveReservation = async (
+  vehicleId: number
+): Promise<{ isReserved: boolean; reservation: Reservation | null }> => {
+  try {
+    const response = await apiClient.get<{ isReserved: boolean; reservation: Reservation | null }>(
+      `${BASE_URL}/vehicle/${vehicleId}/active`
+    );
+    return response.data;
+  } catch (error) {
+    return handleApiError<{ isReserved: boolean; reservation: Reservation | null }>(error, {
+      isReserved: false,
+      reservation: null,
+    }); // Return default values if the user is logged out
   }
 };

@@ -1,5 +1,6 @@
-import axios from 'axios';
 import { config } from '../../config';
+import apiClient from '../../utils/apiClient';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 const BASE_URL = config.VEHICLES_ENDPOINT;
 
@@ -20,34 +21,34 @@ export interface Vehicle {
 // Get all vehicles
 export const getAllVehicles = async (): Promise<Vehicle[]> => {
   try {
-    const response = await axios.get<Vehicle[]>(`${BASE_URL}`);
+    const response = await apiClient.get<Vehicle[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching all vehicles:', error);
-    throw new Error('Failed to fetch all vehicles');
+    return handleApiError<Vehicle[]>(error, []); // Return an empty array if the user is logged out
   }
 };
 
 // Get a single vehicle by ID
-export const getVehicleById = async (id: number): Promise<Vehicle> => {
+export const getVehicleById = async (id: number): Promise<Vehicle | null> => {
   try {
-    const response = await axios.get<Vehicle>(`${BASE_URL}/${id}`);
+    const response = await apiClient.get<Vehicle>(`${BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching vehicle with ID ${id}:`, error);
-    throw new Error('Failed to fetch vehicle');
+    return handleApiError<Vehicle | null>(error, null); // Return null if the user is logged out
   }
 };
 
 // Create a new vehicle
-export const createVehicle = async (company_id: number ,vehicleData: Omit<Vehicle, 'vehicle_id' | 'created_at'>): Promise<Vehicle> => {
+export const createVehicle = async (
+  company_id: number,
+  vehicleData: Omit<Vehicle, 'vehicle_id' | 'created_at'>
+): Promise<Vehicle | null> => {
   try {
     vehicleData.company_id = company_id;
-    const response = await axios.post<Vehicle>(`${BASE_URL}`, vehicleData);
+    const response = await apiClient.post<Vehicle>(`${BASE_URL}`, vehicleData);
     return response.data;
   } catch (error) {
-    console.error('Error creating vehicle:', error);
-    throw new Error('Failed to create vehicle');
+    return handleApiError<Vehicle | null>(error, null); // Return null if the user is logged out
   }
 };
 
@@ -55,22 +56,21 @@ export const createVehicle = async (company_id: number ,vehicleData: Omit<Vehicl
 export const updateVehicle = async (
   id: number,
   updatedData: Partial<Omit<Vehicle, 'vehicle_id' | 'created_at'>>
-): Promise<Vehicle> => {
+): Promise<Vehicle | null> => {
   try {
-    const response = await axios.put<Vehicle>(`${BASE_URL}/${id}`, updatedData);
+    const response = await apiClient.put<Vehicle>(`${BASE_URL}/${id}`, updatedData);
     return response.data;
   } catch (error) {
-    console.error(`Error updating vehicle with ID ${id}:`, error);
-    throw new Error('Failed to update vehicle');
+    return handleApiError<Vehicle | null>(error, null); // Return null if the user is logged out
   }
 };
 
 // Delete a vehicle
-export const deleteVehicle = async (id: number): Promise<void> => {
+export const deleteVehicle = async (id: number): Promise<boolean> => {
   try {
-    await axios.delete(`${BASE_URL}/${id}`);
+    await apiClient.delete(`${BASE_URL}/${id}`);
+    return true;
   } catch (error) {
-    console.error(`Error deleting vehicle with ID ${id}:`, error);
-    throw new Error('Failed to delete vehicle');
+    return handleApiError<boolean>(error, false); // Return false if the user is logged out
   }
 };

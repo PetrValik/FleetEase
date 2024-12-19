@@ -8,7 +8,7 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all insurances
-router.get('/', checkRole(['Admin', 'Manager', 'Driver']), authenticateToken, logAudit, insuranceController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, insuranceController.getAll);
 
 // Get one insurance by ID
 router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, insuranceController.getById);

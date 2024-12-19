@@ -41,7 +41,6 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: '/settings', label: 'Settings', icon: Settings },
     ],
   };
-  console.log(role);
   return role ? [...commonItems, ...roleItems[role]] : commonItems;
 };
 

@@ -7,11 +7,10 @@ interface InsuranceStatsProps {
 }
 
 const InsuranceStats: React.FC<InsuranceStatsProps> = ({ insurances = [] }) => {
-  const validInsurances = Array.isArray(insurances) ? insurances : [];
   const stats = {
-    vehicle: validInsurances.filter(i => i?.insurance_types === 'vehicle').length,
-    driver: validInsurances.filter(i => i?.insurance_types === 'driver').length,
-    liability: validInsurances.filter(i => i?.insurance_types === 'liability').length
+    Vehicle: insurances.filter(i => i.insurance_types === 'Vehicle').length,
+    Driver: insurances.filter(i => i.insurance_types === 'Driver').length,
+    Liability: insurances.filter(i => i.insurance_types === 'Liability').length
   };
 
   return (
@@ -20,21 +19,21 @@ const InsuranceStats: React.FC<InsuranceStatsProps> = ({ insurances = [] }) => {
         <CarFront className="w-8 h-8 text-indigo-600 mr-3" />
         <div>
           <h2 className="text-lg font-semibold text-gray-800">Car insurance</h2>
-          <p className="text-2xl font-bold text-indigo-600">{stats.vehicle}</p>
+          <p className="text-2xl font-bold text-indigo-600">{stats.Vehicle}</p>
         </div>
       </div>
       <div className="bg-gray-50 rounded-lg p-4 flex items-center">
         <User className="w-8 h-8 text-indigo-600 mr-3" />
         <div>
           <h2 className="text-lg font-semibold text-gray-800">Driver insurance</h2>
-          <p className="text-2xl font-bold text-indigo-600">{stats.driver}</p>
+          <p className="text-2xl font-bold text-indigo-600">{stats.Driver}</p>
         </div>
       </div>
       <div className="bg-gray-50 rounded-lg p-4 flex items-center">
         <Shield className="w-8 h-8 text-indigo-600 mr-3" />
         <div>
           <h2 className="text-lg font-semibold text-gray-800">Liability insurance</h2>
-          <p className="text-2xl font-bold text-indigo-600">{stats.liability}</p>
+          <p className="text-2xl font-bold text-indigo-600">{stats.Liability}</p>
         </div>
       </div>
     </div>

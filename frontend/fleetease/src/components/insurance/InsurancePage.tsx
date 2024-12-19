@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { config } from '../../config';
 import { Insurance, InsuranceCompany } from './types';
 import { Card } from './ui/card';
@@ -20,12 +21,18 @@ export default function InsurancePage() {
   const fetchInsurances = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${config.API_BASE_URL}/insurances`);
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setInsurances(data);
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.get(config.INSURANCES_ENDPOINT, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (Array.isArray(response.data)) {
+        setInsurances(response.data);
       } else {
-        console.error('Received non-array insurance data:', data);
+        console.error('Received non-array insurance data:', response.data);
         setInsurances([]);
       }
     } catch (error) {
@@ -34,22 +41,29 @@ export default function InsurancePage() {
     } finally {
       setLoading(false);
     }
-  };
+};
 
   const fetchCompanies = async () => {
     try {
-      // Odstraníme /api z cesty, protože už je v API_BASE_URL
-      const response = await fetch(`${config.API_BASE_URL}/insurances/companies`);
-      const data = await response.json();
-      console.log('Fetched companies:', data);
-      if (Array.isArray(data)) {
-        setInsuranceCompanies(data);
+      const token = localStorage.getItem('token');
+      console.log('Fetching companies with token:', token); // debug log
+      
+      const response = await axios.get(config.INSURANCE_COMPANIES_ENDPOINT, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      console.log('Companies response:', response.data); // debug log
+      
+      if (Array.isArray(response.data)) {
+        setInsuranceCompanies(response.data);
       } else {
-        console.error('Received non-array company data:', data);
+        console.error('Received non-array company data:', response.data);
         setInsuranceCompanies([]);
       }
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error('Error fetching insurance companies:', error);
       setInsuranceCompanies([]);
     }
 };
@@ -72,10 +86,8 @@ export default function InsurancePage() {
   const handleDelete = async (insuranceId: number) => {
     if (window.confirm('Are you sure you want to delete this insurance?')) {
       try {
-        const response = await fetch(`${config.API_BASE_URL}/insurances/${insuranceId}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
+        const response = await axios.delete(`${config.API_BASE_URL}/insurances/${insuranceId}`);
+        if (response.status === 200) {
           await fetchInsurances();
         }
       } catch (error) {
@@ -86,29 +98,48 @@ export default function InsurancePage() {
 
   const handleSaveInsurance = async (insuranceData: Partial<Insurance>) => {
     try {
-      console.log('Page - Starting save process:', insuranceData);
-      
-      const response = await fetch(`${config.API_BASE_URL}/insurances`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(insuranceData),
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
 
-      console.log('Page - Save response status:', response.status);
+      const formattedData = {
+        insurance_types: insuranceData.insurance_types,
+        policy_number: insuranceData.policy_number,
+        start_date: insuranceData.start_date,
+        end_date: insuranceData.end_date,
+        premium_amount: Number(insuranceData.premium_amount),
+        payment_method: insuranceData.payment_method,
+        insurance_status: insuranceData.insurance_status,
+        insurance_company_id: Number(insuranceData.insurance_company_id),
+        company_id: Number(insuranceData.insurance_company_id),
+        description: insuranceData.description || ''
+      };
+
+      console.log('Sending data:', formattedData);
+
+      const axiosConfig = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, axiosConfig);
       
-      if (response.ok) {
-        console.log('Page - Save successful');
+      if (response.status === 201 || response.status === 200) {
+        console.log('Insurance saved successfully:', response.data);
         setIsDialogOpen(false);
         await fetchInsurances();
-      } else {
-        const errorData = await response.text();
-        console.error('Page - Failed to save insurance:', errorData);
-        console.log('Full response:', response);
       }
-    } catch (error) {
-      console.error('Page - Error saving insurance:', error);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Server error:', error.response?.data);
+        console.error('Status:', error.response?.status);
+      } else {
+        console.error('Error saving insurance:', error);
+      }
     }
 };
 
@@ -136,20 +167,20 @@ export default function InsurancePage() {
                   All
                 </button>
                 <button 
-                  className={`px-4 py-2 rounded ${activeTab === 'vehicle' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                  onClick={() => setActiveTab('vehicle')}
+                  className={`px-4 py-2 rounded ${activeTab === 'Vehicle' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+                  onClick={() => setActiveTab('Vehicle')}
                 >
                   Vehicle
                 </button>
                 <button 
-                  className={`px-4 py-2 rounded ${activeTab === 'driver' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                  onClick={() => setActiveTab('driver')}
+                  className={`px-4 py-2 rounded ${activeTab === 'Driver' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+                  onClick={() => setActiveTab('Driver')}
                 >
                   Driver
                 </button>
                 <button 
-                  className={`px-4 py-2 rounded ${activeTab === 'liability' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                  onClick={() => setActiveTab('liability')}
+                  className={`px-4 py-2 rounded ${activeTab === 'Liability' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+                  onClick={() => setActiveTab('Liability')}
                 >
                   Liability
                 </button>

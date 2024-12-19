@@ -11,23 +11,20 @@ interface InsuranceTableProps {
 }
 
 export default function InsuranceTable({ 
-  insurances = [], // Přidáme defaultní hodnotu
+  insurances, 
   searchTerm, 
   activeTab,
   onEdit,
   onDelete,
   loading 
 }: InsuranceTableProps) {
-  
-  const validInsurances = Array.isArray(insurances) ? insurances : [];
-  
-  const filteredInsurances = validInsurances.filter(insurance => {
+  const filteredInsurances = insurances.filter(insurance => {
     const matchesSearch = 
       insurance.policy_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       insurance?.insurance_company?.company_name.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (activeTab === 'all') return matchesSearch;
-    return matchesSearch && insurance.insurance_types.toLowerCase() === activeTab.toLowerCase();
+    return matchesSearch && insurance.insurance_types === activeTab;
   });
 
   if (loading) {
@@ -99,7 +96,7 @@ export default function InsuranceTable({
                   Edit
                 </button>
                 <button
-                  onClick={() => onDelete(insurance.insurance_id)}
+                  onClick={() => insurance.insurance_id && onDelete(insurance.insurance_id)}
                   className="text-red-600 hover:text-red-900"
                 >
                   Delete

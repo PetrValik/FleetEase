@@ -1,6 +1,6 @@
-export type InsuranceType = 'vehicle' | 'driver' | 'liability';
+export type InsuranceType = 'Driver' | 'Vehicle' | 'Liability';
 export type PaymentMethod = 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time';
-export type InsuranceStatus = 'Active' | 'Pending' | 'Archived' | 'Ending soon';
+export type InsuranceStatus = 'Pending' | 'Active' | 'Archived' | 'Ending soon';
 
 export interface InsuranceCompany {
   insurance_company_id: number;
@@ -8,12 +8,12 @@ export interface InsuranceCompany {
 }
 
 export interface Insurance {
-  insurance_id: number;
+  insurance_id?: number;
   insurance_types: InsuranceType;
   policy_number: string;
   start_date: string;
   end_date: string;
-  premium_amount: number | null;
+  premium_amount: number;
   payment_method: PaymentMethod;
   insurance_company_id: number;
   insurance_status: InsuranceStatus;

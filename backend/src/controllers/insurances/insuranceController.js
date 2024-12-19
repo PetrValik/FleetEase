@@ -1,82 +1,97 @@
-const insuranceService = require('../../services/insurances/insuranceService');
+const supabase = require('../../config/supabaseClient');
+const InsuranceModel = require('../../models/insurances/insuranceModel');
 
-const insuranceController = {
-  getAllInsurances: async (req, res) => {
+// Get all insurances
+exports.getAll = async (req, res) => {
     try {
-      const insurances = await insuranceService.getAllInsurances();
-      res.json(insurances);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
+        const { data, error } = await supabase.from(InsuranceModel.tableName).select('*');
+        if (error) throw error;
 
-  getInsuranceById: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const insurance = await insuranceService.getInsuranceById(id);
-      
-      if (!insurance) {
-        return res.status(404).json({ message: 'Insurance not found' });
-      }
-      
-      res.json(insurance);
+        res.status(200).json(data);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+        console.error('Failed to fetch insurances:', error);
+        res.status(500).json({ error: 'Failed to fetch insurances' });
     }
-  },
-
-  createInsurance: async (req, res) => {
-    console.log('Received insurance data:', req.body); // přidáme log
-    try {
-      const newInsurance = await insuranceService.createInsurance(req.body);
-      res.status(201).json(newInsurance);
-    } catch (error) {
-      console.error('Error creating insurance:', error); // přidáme detailnější log
-      res.status(400).json({ message: error.message });
-    }
-  },
-
-  updateInsurance: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const updatedInsurance = await insuranceService.updateInsurance(id, req.body);
-      
-      if (!updatedInsurance) {
-        return res.status(404).json({ message: 'Insurance not found' });
-      }
-      
-      res.json(updatedInsurance);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  },
-
-  deleteInsurance: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const deleted = await insuranceService.deleteInsurance(id);
-      
-      if (!deleted) {
-        return res.status(404).json({ message: 'Insurance not found' });
-      }
-      
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  getInsuranceCompanies: async (req, res) => {
-    console.log('Getting insurance companies'); // debug log
-    try {
-      const companies = await insuranceService.getInsuranceCompanies();
-      console.log('Companies found:', companies); // debug log
-      res.json(companies);
-    } catch (error) {
-      console.error('Error getting companies:', error);
-      res.status(500).json({ message: error.message });
-    }
-  }
 };
 
-module.exports = insuranceController;
+// Get one insurance by ID
+exports.getById = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from(InsuranceModel.tableName)
+            .select('*')
+            .eq(InsuranceModel.fields.id, req.params.id)
+            .single();
+
+        if (error || !data) throw new Error('Insurance not found');
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Failed to fetch insurance:', error);
+        res.status(404).json({ error: error.message });
+    }
+};
+
+// Create a new insurance
+exports.create = async (req, res) => {
+    try {
+        const { data, error } = await supabase.from(InsuranceModel.tableName).insert([req.body]);
+        if (error) throw error;
+
+        res.status(201).json({ message: 'Insurance created successfully', insurance: data });
+    } catch (error) {
+        console.error('Failed to create insurance:', error);
+        res.status(400).json({ error: 'Failed to create insurance' });
+    }
+};
+
+// Update an insurance
+exports.update = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from(InsuranceModel.tableName)
+            .update(req.body)
+            .eq(InsuranceModel.fields.id, req.params.id);
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Insurance updated successfully', insurance: data });
+    } catch (error) {
+        console.error('Failed to update insurance:', error);
+        res.status(400).json({ error: 'Failed to update insurance' });
+    }
+};
+
+// Delete an insurance
+exports.delete = async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from(InsuranceModel.tableName)
+            .delete()
+            .eq(InsuranceModel.fields.id, req.params.id);
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Insurance deleted successfully' });
+    } catch (error) {
+        console.error('Failed to delete insurance:', error);
+        res.status(400).json({ error: 'Failed to delete insurance' });
+    }
+};
+
+// Controller to get insurances by type and company ID
+exports.getInsurancesByTypeAndCompany = async (req, res) => {
+    try {
+      const { type, company_id } = req.query;
+  
+      if (!type || !company_id) {
+        return res.status(400).json({ error: 'Type and company_id are required' });
+      }
+  
+      const insurances = await insuranceService.getInsurancesByTypeAndCompany(type, parseInt(company_id));
+      res.json(insurances);
+    } catch (error) {
+      console.error('Error retrieving insurances:', error);
+      res.status(500).json({ error: 'Failed to retrieve insurances' });
+    }
+  };

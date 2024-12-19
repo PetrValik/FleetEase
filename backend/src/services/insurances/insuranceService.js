@@ -1,78 +1,73 @@
-const supabase = require('../../config/supabaseClient');
+const supabase = require('../config/supabaseClient');
+const InsuranceModel = require('../models/insuranceModel');
+const { tableName } = InsuranceModel;
 
-const insuranceService = {
-  getAllInsurances: async () => {
+// Create Insurance Record
+exports.create = async (insuranceData) => {
     const { data, error } = await supabase
-      .from('Insurances')
-      .select(`
-        *,
-        InsuranceCompanies (
-          company_name
-        )
-      `);
+        .from(tableName)
+        .insert([insuranceData]);
 
-    if (error) throw error;
+    if (error) throw new Error(`Failed to create insurance record: ${error.message}`);
     return data;
-  },
-
-  getInsuranceById: async (id) => {
-    const { data, error } = await supabase
-      .from('Insurances')
-      .select(`
-        *,
-        InsuranceCompanies (
-          company_name
-        )
-      `)
-      .eq('insurance_id', id)
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  createInsurance: async (insuranceData) => {
-    const { data, error } = await supabase
-      .from('Insurances')
-      .insert([insuranceData])
-      .select();
-
-    if (error) throw error;
-    return data[0];
-  },
-
-  updateInsurance: async (id, insuranceData) => {
-    const { data, error } = await supabase
-      .from('Insurances')
-      .update(insuranceData)
-      .eq('insurance_id', id)
-      .select();
-
-    if (error) throw error;
-    return data[0];
-  },
-
-  deleteInsurance: async (id) => {
-    const { error } = await supabase
-      .from('Insurances')
-      .delete()
-      .eq('insurance_id', id);
-
-    if (error) throw error;
-    return true;
-  },
-
-  getInsuranceCompanies: async () => {
-    console.log('Calling Supabase for companies'); // debug log
-    const { data, error } = await supabase
-      .from('InsuranceCompanies')
-      .select('*');
-    
-    console.log('Supabase response:', { data, error }); // debug log
-  
-    if (error) throw error;
-    return data;
-  }
 };
 
-module.exports = insuranceService;
+// Get All Insurance Records
+exports.getAll = async () => {
+    const { data, error } = await supabase
+        .from(tableName)
+        .select('*');
+
+    if (error) throw new Error(`Failed to retrieve insurance records: ${error.message}`);
+    return data;
+};
+
+// Get Insurance Record by ID
+exports.getById = async (insuranceId) => {
+    const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('insurance_id', insuranceId)
+        .single();
+
+    if (error) throw new Error(`Failed to retrieve insurance record: ${error.message}`);
+    return data;
+};
+
+// Update Insurance Record
+exports.update = async (insuranceId, updatedData) => {
+    const { data, error } = await supabase
+        .from(tableName)
+        .update(updatedData)
+        .eq('insurance_id', insuranceId);
+
+    if (error) throw new Error(`Failed to update insurance record: ${error.message}`);
+    return data;
+};
+
+// Delete Insurance Record
+exports.delete = async (insuranceId) => {
+    const { data, error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('insurance_id', insuranceId);
+
+    if (error) throw new Error(`Failed to delete insurance record: ${error.message}`);
+    return data;
+};
+
+// Get insurances by type and company ID
+exports.getInsurancesByTypeAndCompany = async (insuranceType, companyId) => {
+    const { data, error } = await supabase
+      .from('Insurances')
+      .select('*')
+      .eq('insurance_types', insuranceType)
+      .eq('company_id', companyId);
+  
+    if (error) {
+      console.error('Error fetching insurances:', error);
+      throw new Error('Failed to fetch insurances');
+    }
+  
+    return data;
+  };

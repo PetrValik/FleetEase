@@ -1,7 +1,14 @@
 import React from 'react';
 import { Truck, Shield, Clock, BarChart, Users, PenToolIcon as Tool } from 'lucide-react';
+import * as Database from '../../../database/database';
+
 
 const Dashboard: React.FC = () => {
+  const handleTestAPI = async () => {
+    console.log('API Response get all insurances:', await Database.getAllInsurances());
+    console.log('API Response get all insurance companies:', await Database.getAllInsuranceCompanies());
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Your Dashboard</h1>
@@ -25,6 +32,14 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div className="mt-6">
+        <button
+          onClick={handleTestAPI}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700"
+        >
+          Test API Call
+        </button>
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ const TopbarUserMenu: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#001529] ring-1 ring-black ring-opacity-5">
+        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#001529] ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="user-menu">
             <button
               className="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors duration-200"

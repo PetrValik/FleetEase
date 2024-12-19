@@ -55,3 +55,19 @@ exports.delete = async (insuranceId) => {
     if (error) throw new Error(`Failed to delete insurance record: ${error.message}`);
     return data;
 };
+
+// Get insurances by type and company ID
+exports.getInsurancesByTypeAndCompany = async (insuranceType, companyId) => {
+    const { data, error } = await supabase
+      .from('Insurances')
+      .select('*')
+      .eq('insurance_types', insuranceType)
+      .eq('company_id', companyId);
+  
+    if (error) {
+      console.error('Error fetching insurances:', error);
+      throw new Error('Failed to fetch insurances');
+    }
+  
+    return data;
+  };

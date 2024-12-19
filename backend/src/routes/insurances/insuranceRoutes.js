@@ -8,18 +8,21 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all insurances
-router.get('/', authenticateToken, checkRole(['admin', 'manager']), logAudit, insuranceController.getAll);
+router.get('/', checkRole(['Admin', 'Manager']), authenticateToken, logAudit, insuranceController.getAll);
 
 // Get one insurance by ID
-router.get('/:id', authenticateToken, checkRole(['admin', 'manager']), logAudit, insuranceController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, insuranceController.getById);
 
 // Create a new insurance
-router.post('/', authenticateToken, checkRole(['admin']), validate(insuranceSchema), logAudit, insuranceController.create);
+router.post('/', authenticateToken, checkRole(['Admin']), validate(insuranceSchema), logAudit, insuranceController.create);
 
 // Update an insurance
-router.put('/:id', authenticateToken, checkRole(['admin']), validate(insuranceSchema), logAudit, insuranceController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin']), validate(insuranceSchema), logAudit, insuranceController.update);
 
 // Delete an insurance
-router.delete('/:id', authenticateToken, checkRole(['admin']), logAudit, insuranceController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, insuranceController.delete);
+
+// Route to get filtered insurances
+router.get('/filter', authenticateToken, insuranceController.getInsurancesByTypeAndCompany);
 
 module.exports = router;

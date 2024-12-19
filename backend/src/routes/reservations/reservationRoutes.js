@@ -8,18 +8,18 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all reservations
-router.get('/', authenticateToken, checkRole(['admin', 'manager']), logAudit, reservationController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, reservationController.getAll);
 
 // Get one reservation by ID
-router.get('/:id', authenticateToken, checkRole(['admin', 'manager']), logAudit, reservationController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, reservationController.getById);
 
 // Create a new reservation
-router.post('/', authenticateToken, checkRole(['admin', 'user']), validate(reservationSchema), logAudit, reservationController.create);
+router.post('/', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.create);
 
 // Update a reservation
-router.put('/:id', authenticateToken, checkRole(['admin', 'user']), validate(reservationSchema), logAudit, reservationController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.update);
 
 // Delete a reservation
-router.delete('/:id', authenticateToken, checkRole(['admin']), logAudit, reservationController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, reservationController.delete);
 
 module.exports = router;

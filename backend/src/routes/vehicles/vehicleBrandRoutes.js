@@ -8,18 +8,18 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all vehicle brands
-router.get('/', authenticateToken, checkRole(['admin', 'manager']), logAudit, vehicleBrandController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleBrandController.getAll);
 
 // Get one vehicle brand by ID
-router.get('/:id', authenticateToken, checkRole(['admin', 'manager']), logAudit, vehicleBrandController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleBrandController.getById);
 
 // Create a new vehicle brand
-router.post('/', authenticateToken, checkRole(['admin']), validate(vehicleBrandSchema), logAudit, vehicleBrandController.create);
+router.post('/', authenticateToken, checkRole(['Admin']), validate(vehicleBrandSchema), logAudit, vehicleBrandController.create);
 
 // Update a vehicle brand
-router.put('/:id', authenticateToken, checkRole(['admin']), validate(vehicleBrandSchema), logAudit, vehicleBrandController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin']), validate(vehicleBrandSchema), logAudit, vehicleBrandController.update);
 
 // Delete a vehicle brand
-router.delete('/:id', authenticateToken, checkRole(['admin']), logAudit, vehicleBrandController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, vehicleBrandController.delete);
 
 module.exports = router;

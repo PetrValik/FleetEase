@@ -78,3 +78,20 @@ exports.delete = async (req, res) => {
         res.status(400).json({ error: 'Failed to delete insurance' });
     }
 };
+
+// Controller to get insurances by type and company ID
+exports.getInsurancesByTypeAndCompany = async (req, res) => {
+    try {
+      const { type, company_id } = req.query;
+  
+      if (!type || !company_id) {
+        return res.status(400).json({ error: 'Type and company_id are required' });
+      }
+  
+      const insurances = await insuranceService.getInsurancesByTypeAndCompany(type, parseInt(company_id));
+      res.json(insurances);
+    } catch (error) {
+      console.error('Error retrieving insurances:', error);
+      res.status(500).json({ error: 'Failed to retrieve insurances' });
+    }
+  };

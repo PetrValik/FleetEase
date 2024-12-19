@@ -7,11 +7,13 @@ const userLoginSchema = require('../../validationSchemas/users/userLoginSchema')
 const authenticateToken = require('../../middlewares/authenticateToken'); // Middleware for JWT authentication
 const checkRole = require('../../middlewares/checkRole'); // Middleware for role-based access control
 const { userValidationSchema, userIdSchema } = require('../../validationSchemas/users/userValidationSchema');
+const logAudit = require('../../middlewares/auditLogger');
 
 // User registration (open to anyone)
 router.post(
   '/register',
   validate(userCreationSchema), // Validate user creation data
+  logAudit,
   userController.register
 );
 
@@ -19,12 +21,14 @@ router.post(
 router.post(
   '/login',
   validate(userLoginSchema), // Validate login credentials
+  logAudit,
   userController.login
 );
 
 // Check if an email exists (public endpoint)
 router.get(
   '/email/:email',
+  logAudit,
   userController.checkEmailExists
 );
 
@@ -32,7 +36,8 @@ router.get(
 router.get(
   '/',
   authenticateToken,
-  checkRole(['admin']), // Admin-only access
+  checkRole(['Admin']), // Admin-only access
+  logAudit,
   userController.getAllUsers
 );
 
@@ -40,7 +45,8 @@ router.get(
 router.get(
   '/:id',
   authenticateToken,
-  checkRole(['admin', 'manager']), // Admin and manager access
+  checkRole(['Admin', 'Manager']), // Admin and manager access
+  logAudit,
   userController.getUserById
 );
 
@@ -50,6 +56,8 @@ router.put(
   authenticateToken,
   validate(userIdSchema), // Validate ID parameter
   validate(userValidationSchema), // Validate request body
+  checkRole(['Admin', 'Manager']), // Admin and manager access
+  logAudit,
   userController.updateUser
 );
 
@@ -58,6 +66,8 @@ router.delete(
   '/:id',
   authenticateToken,
   validate(userIdSchema), // Validate ID parameter
+  checkRole(['Admin', 'Manager']), // Admin and manager access
+  logAudit,
   userController.deleteUser
 );
 

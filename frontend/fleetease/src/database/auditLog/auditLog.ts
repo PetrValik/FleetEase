@@ -1,34 +1,30 @@
 import axios from 'axios';
+import { config } from '../../config';
 
-interface Insurance {
+const BASE_URL = config.LOGS_ENDPOINT;
+
+// Interface for Audit Logs response.
+export interface AuditLog {
   id: number;
-  policyNumber: string;
-  // Add other insurance properties as needed
+  table_name: string;
+  operation: string;
+  record_id: number | null;
+  performed_by: string | null;
+  timestamp: string;
 }
 
-export const insurancesApi = {
-  getAll: async (): Promise<Insurance[]> => {
-    const response = await axios.get('/api/insurances');
-    return response.data;
-  },
 
-  getById: async (id: number): Promise<Insurance> => {
-    const response = await axios.get(`/api/insurances/${id}`);
+// Fetch all audit logs from the backend.
+export const getAllLogs = async (): Promise<AuditLog[]> => {
+  try {
+    const response = await axios.get<AuditLog[]>(`${BASE_URL}`);
     return response.data;
-  },
-
-  create: async (insurance: Omit<Insurance, 'id'>): Promise<Insurance> => {
-    const response = await axios.post('/api/insurances', insurance);
-    return response.data;
-  },
-
-  update: async (id: number, insurance: Partial<Insurance>): Promise<Insurance> => {
-    const response = await axios.put(`/api/insurances/${id}`, insurance);
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<void> => {
-    await axios.delete(`/api/insurances/${id}`);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error fetching logs:', error.response?.data?.error || error.message);
+    } else {
+      console.error('Unexpected error fetching logs:', error);
+    }
+    throw new Error('Failed to fetch logs');
   }
 };
-

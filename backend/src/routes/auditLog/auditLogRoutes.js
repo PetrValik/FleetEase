@@ -8,7 +8,7 @@ const checkRole = require('../../middlewares/checkRole'); // Role-based access c
 router.get(
     '/',
     authenticateToken,
-    checkRole(['admin']), // Only admins can view audit logs
+    checkRole(['Admin']), // Only admins can view audit logs
     auditLogController.getAllAuditLogs
 );
 

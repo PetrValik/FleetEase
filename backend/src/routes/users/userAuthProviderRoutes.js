@@ -18,7 +18,7 @@ router.get(
 router.get(
   '/:id',
   authenticateToken,
-  checkRole(['admin']), // Restrict access to admin users
+  checkRole(['Admin']), // Restrict access to admin users
   logAudit, // Log the operation
   userAuthProviderController.getUserAuthProviderById
 );
@@ -27,7 +27,7 @@ router.get(
 router.post(
   '/',
   authenticateToken,
-  checkRole(['admin']), // Restrict access to admin users
+  checkRole(['Admin']), // Restrict access to admin users
   logAudit, // Log the operation
   userAuthProviderController.createUserAuthProvider
 );

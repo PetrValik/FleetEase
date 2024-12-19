@@ -11,7 +11,7 @@ const logAudit = require('../../middlewares/auditLogger');
 router.get(
     '/',
     authenticateToken,
-    checkRole(['admin', 'manager']),
+    checkRole(['Admin', 'Manager']),
     logAudit,
     companyController.getAllCompanies
 );
@@ -20,7 +20,7 @@ router.get(
 router.get(
     '/:id',
     authenticateToken,
-    checkRole(['admin', 'manager']),
+    checkRole(['Admin', 'Manager']),
     logAudit,
     companyController.getCompanyById
 );
@@ -29,7 +29,7 @@ router.get(
 router.post(
     '/',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     validate(companyValidationSchema), // Validate request body
     logAudit,
     companyController.createCompany
@@ -39,7 +39,7 @@ router.post(
 router.put(
     '/:id',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     validate(companyValidationSchema), // Validate request body
     logAudit,
     companyController.updateCompany
@@ -49,7 +49,7 @@ router.put(
 router.delete(
     '/:id',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     logAudit,
     companyController.deleteCompany
 );

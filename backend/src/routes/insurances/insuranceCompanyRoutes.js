@@ -8,18 +8,18 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all insurance companies
-router.get('/', authenticateToken, checkRole(['admin', 'manager']), logAudit, insuranceCompanyController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, insuranceCompanyController.getAll);
 
 // Get one insurance company by ID
-router.get('/:id', authenticateToken, checkRole(['admin', 'manager']), logAudit, insuranceCompanyController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, insuranceCompanyController.getById);
 
 // Create a new insurance company
-router.post('/', authenticateToken, checkRole(['admin']), validate(insuranceCompanySchema), logAudit, insuranceCompanyController.create);
+router.post('/', authenticateToken, checkRole(['Admin']), validate(insuranceCompanySchema), logAudit, insuranceCompanyController.create);
 
 // Update an insurance company
-router.put('/:id', authenticateToken, checkRole(['admin']), validate(insuranceCompanySchema), logAudit, insuranceCompanyController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin']), validate(insuranceCompanySchema), logAudit, insuranceCompanyController.update);
 
 // Delete an insurance company
-router.delete('/:id', authenticateToken, checkRole(['admin']), logAudit, insuranceCompanyController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, insuranceCompanyController.delete);
 
 module.exports = router;

@@ -4,20 +4,22 @@ const vehicleInspectionController = require('../../controllers/vehicles/vehicleI
 const validate = require('../../middlewares/validate');
 const vehicleInspectionSchema = require('../../validationSchemas/vehicles/vehicleInspectionSchema');
 const authenticateToken = require('../../middlewares/authenticateToken');
+const logAudit = require('../../middlewares/auditLogger');
+const checkRole = require('../../middlewares/checkRole');
 
 // Get all inspections
-router.get('/', authenticateToken, vehicleInspectionController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleInspectionController.getAll);
 
 // Get an inspection by ID
-router.get('/:id', authenticateToken, vehicleInspectionController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleInspectionController.getById);
 
 // Create a new inspection
-router.post('/', authenticateToken, validate(vehicleInspectionSchema), vehicleInspectionController.create);
+router.post('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), validate(vehicleInspectionSchema), logAudit, vehicleInspectionController.create);
 
 // Update an inspection
-router.put('/:id', authenticateToken, validate(vehicleInspectionSchema), vehicleInspectionController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), validate(vehicleInspectionSchema), logAudit, vehicleInspectionController.update);
 
 // Delete an inspection
-router.delete('/:id', authenticateToken, vehicleInspectionController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin', 'Manager', ]), logAudit, vehicleInspectionController.delete);
 
 module.exports = router;

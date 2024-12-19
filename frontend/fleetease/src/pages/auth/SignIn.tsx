@@ -22,7 +22,7 @@ const SignIn: React.FC = () => {
       const response = await login(email, password);
       
       // Set the user in context
-      setUser(response.FullUserResponse);
+      setUser(response.user);
       console.log('User set:', response.user); // Add this line for debugging
       // Redirect to dashboard
       navigate('/');

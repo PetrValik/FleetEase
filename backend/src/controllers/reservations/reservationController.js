@@ -80,3 +80,20 @@ exports.delete = async (req, res) => {
         res.status(400).json({ error: 'Failed to delete reservation' });
     }
 };
+
+// Get all reservations by vehicle ID
+exports.getReservationsByVehicleId = async (req, res) => {
+    try {
+      const { vehicle_id } = req.params;
+      const reservations = await reservationService.getReservationsByVehicleId(vehicle_id);
+  
+      if (!reservations || reservations.length === 0) {
+        return res.status(404).json({ error: 'No reservations found for the given vehicle ID' });
+      }
+  
+      res.status(200).json(reservations);
+    } catch (error) {
+      console.error('Error fetching reservations by vehicle ID:', error);
+      res.status(500).json({ error: 'Failed to fetch reservations' });
+    }
+  };

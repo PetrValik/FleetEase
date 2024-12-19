@@ -44,3 +44,18 @@ exports.delete = async (id) => {
     const { error } = await supabase.from(tableName).delete().eq(fields.id, id);
     if (error) throw new Error('Failed to delete reservation');
 };
+
+// Get all reservations by vehicle ID
+exports.getReservationsByVehicleId = async (vehicle_id) => {
+  const { data, error } = await supabase
+    .from('Reservations')
+    .select('*')
+    .eq('vehicle_id', vehicle_id);
+
+  if (error) {
+    console.error('Error fetching reservations from the database:', error);
+    throw new Error('Database query failed');
+  }
+
+  return data;
+};

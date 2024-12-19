@@ -44,3 +44,17 @@ exports.delete = async (id) => {
     const { error } = await supabase.from(tableName).delete().eq(fields.id, id);
     if (error) throw new Error('Failed to delete vehicle model');
 };
+
+// Get vehicle models by brand ID
+exports.getModelsByBrandId = async (brandId) => {
+    try {
+      const models = await db('VehicleModels')
+        .select('*')
+        .where({ brand_id: brandId });
+  
+      return models;
+    } catch (error) {
+      console.error('Error in vehicleModelsService:', error);
+      throw new Error('Database query failed');
+    }
+  };

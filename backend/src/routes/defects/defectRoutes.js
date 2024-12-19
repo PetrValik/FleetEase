@@ -8,16 +8,16 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all defects
-router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, defectController.getAllDefects);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, defectController.getAllDefects);
 
 // Get a defect by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, defectController.getDefectById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, defectController.getDefectById);
 
 // Create a new defect
-router.post('/', authenticateToken, checkRole(['Admin', 'Driver']), validate(defectSchema), logAudit, defectController.createDefect);
+router.post('/', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), validate(defectSchema), logAudit, defectController.createDefect);
 
 // Update a defect
-router.put('/:id', authenticateToken, checkRole(['Admin', 'Manager']), validate(defectSchema), logAudit, defectController.updateDefect);
+router.put('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), validate(defectSchema), logAudit, defectController.updateDefect);
 
 // Delete a defect
 router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, defectController.deleteDefect);

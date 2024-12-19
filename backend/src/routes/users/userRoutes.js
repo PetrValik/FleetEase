@@ -36,7 +36,7 @@ router.get(
 router.get(
   '/',
   authenticateToken,
-  checkRole(['Admin']), // Admin-only access
+  checkRole(['Admin', 'Manager']), // Admin-only access
   logAudit,
   userController.getAllUsers
 );
@@ -45,7 +45,7 @@ router.get(
 router.get(
   '/:id',
   authenticateToken,
-  checkRole(['Admin', 'Manager']), // Admin and manager access
+  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
   logAudit,
   userController.getUserById
 );
@@ -56,7 +56,7 @@ router.put(
   authenticateToken,
   validate(userIdSchema), // Validate ID parameter
   validate(userValidationSchema), // Validate request body
-  checkRole(['Admin', 'Manager']), // Admin and manager access
+  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
   logAudit,
   userController.updateUser
 );
@@ -66,7 +66,7 @@ router.delete(
   '/:id',
   authenticateToken,
   validate(userIdSchema), // Validate ID parameter
-  checkRole(['Admin', 'Manager']), // Admin and manager access
+  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
   logAudit,
   userController.deleteUser
 );

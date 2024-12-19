@@ -11,7 +11,7 @@ const logAudit = require('../../middlewares/auditLogger');
 router.get(
     '/',
     authenticateToken,
-    checkRole(['admin', 'manager']),
+    checkRole(['admin', 'manager', 'Driver']),
     logAudit,
     defectTypeController.getAllDefectTypes
 );
@@ -20,7 +20,7 @@ router.get(
 router.get(
     '/:id',
     authenticateToken,
-    checkRole(['admin', 'manager']),
+    checkRole(['admin', 'manager', 'Driver']),
     logAudit,
     defectTypeController.getDefectTypeById
 );

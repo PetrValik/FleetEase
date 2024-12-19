@@ -1,5 +1,5 @@
 module.exports = {
-    tableName: 'companies',
+    tableName: 'Companies',
     fields: {
         id: 'company_id',
         name: 'company_name',

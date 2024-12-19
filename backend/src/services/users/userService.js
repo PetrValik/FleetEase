@@ -65,7 +65,7 @@ exports.loginUser = async (email, password) => {
   const token = jwt.sign(
     { user_id: user.user_id, email: user.email, role }, // Add role to the token payload
     process.env.JWT_SECRET,
-    { expiresIn: '1h' } // Token expires in 1 hour
+    { expiresIn: '24h' } // Token expires in 1 day
   );
 
   // Return the user data and token to the frontend

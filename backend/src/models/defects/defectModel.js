@@ -1,5 +1,5 @@
 module.exports = {
-    tableName: 'defects',
+    tableName: 'Defects',
     fields: {
         id: 'defect_id',
         createdAt: 'created_at',

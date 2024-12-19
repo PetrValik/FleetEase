@@ -16,8 +16,8 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded; // Attach the decoded user information to the request object
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
-    // Respond with 403 if the token is invalid
-    res.status(403).json({ error: 'Invalid token' });
+    // Respond with 401 if the token is invalid
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
 

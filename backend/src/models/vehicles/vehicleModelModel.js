@@ -1,5 +1,5 @@
 module.exports = {
-    tableName: 'vehicle_models',
+    tableName: 'VehicleModels',
     fields: {
         id: 'model_id',
         brandId: 'brand_id',

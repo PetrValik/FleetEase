@@ -22,4 +22,8 @@ router.put('/:id', authenticateToken, validate(vehicleSchema), checkRole(['Admin
 // Delete a vehicle
 router.delete('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleController.delete);
 
+// Get all vehicles by company ID
+router.get('/company/:companyId', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), vehicleController.getVehiclesByCompanyId);
+
+
 module.exports = router;

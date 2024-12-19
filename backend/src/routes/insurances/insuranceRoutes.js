@@ -8,10 +8,10 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all insurances
-router.get('/', checkRole(['Admin', 'Manager']), authenticateToken, logAudit, insuranceController.getAll);
+router.get('/', checkRole(['Admin', 'Manager', 'Driver']), authenticateToken, logAudit, insuranceController.getAll);
 
 // Get one insurance by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, insuranceController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, insuranceController.getById);
 
 // Create a new insurance
 router.post('/', authenticateToken, checkRole(['Admin']), validate(insuranceSchema), logAudit, insuranceController.create);
@@ -23,6 +23,6 @@ router.put('/:id', authenticateToken, checkRole(['Admin']), validate(insuranceSc
 router.delete('/:id', authenticateToken, checkRole(['Admin']), logAudit, insuranceController.delete);
 
 // Route to get filtered insurances
-router.get('/filter', authenticateToken, insuranceController.getInsurancesByTypeAndCompany);
+router.get('/filter', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']),insuranceController.getInsurancesByTypeAndCompany);
 
 module.exports = router;

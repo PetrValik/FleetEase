@@ -9,11 +9,6 @@ export interface InsuranceCompany {
   company_name: string;
 }
 
-export interface CreateInsuranceCompanyResponse {
-  insurance_company_id: number;
-  company_name: string;
-}
-
 // Get all insurance companies
 export const getAllInsuranceCompanies = async (): Promise<InsuranceCompany[]> => {
   try {
@@ -39,9 +34,9 @@ export const getInsuranceCompanyById = async (id: number): Promise<InsuranceComp
 // Create a new insurance company
 export const createInsuranceCompany = async (
   companyData: Omit<InsuranceCompany, 'insurance_company_id'>
-): Promise<CreateInsuranceCompanyResponse> => {
+): Promise<InsuranceCompany> => {
   try {
-    const response = await axios.post<CreateInsuranceCompanyResponse>(`${BASE_URL}`, companyData);
+    const response = await axios.post<InsuranceCompany>(`${BASE_URL}`, companyData);
     return response.data;
   } catch (error) {
     console.error('Error creating insurance company:', error);

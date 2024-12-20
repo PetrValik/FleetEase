@@ -12,6 +12,7 @@ import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
+import InsurancePage from './components/insurance/InsurancePage';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -107,6 +108,16 @@ const App: React.FC = () => {
               <RoleBasedRoute allowedRoles={["Manager"]}>
                 <Layout>
                   <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/insurances"
+            element={
+              <RoleBasedRoute allowedRoles={['Admin', 'Manager']}>
+                <Layout>
+                  <InsurancePage />
                 </Layout>
               </RoleBasedRoute>
             }

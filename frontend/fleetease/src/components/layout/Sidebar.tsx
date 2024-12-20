@@ -3,22 +3,20 @@ import { useLocation } from "react-router-dom";
 import {
   Home,
   Car,
-  PenToolIcon as Tool,
   Calendar,
   Users,
-  Settings,
-  FileText,
   AlertTriangle,
   CalendarClock,
   BookA,
   UserCog,
   IdCard,
+  FileSignature,
+  Wrench,
 } from "lucide-react";
 import { useUser } from "../../contexts/UserContext";
 import type { Role } from "../../contexts/UserContext";
 import SidebarNavItem from "./SidebarNavItem";
 import SidebarToggle from "./SidebarToggle";
-
 interface NavItem {
   path: string;
   label: string;
@@ -40,10 +38,10 @@ const getNavItems = (role: Role | null): NavItem[] => {
     ],
     Manager: [
       { path: "/vehicles", label: "Vehicles", icon: Car },
-      { path: "/defects", label: "Defects", icon: Tool },
+      { path: "/defects", label: "Defects", icon: Wrench },
       { path: "/schedule", label: "Schedule", icon: Calendar },
       { path: "/drivers", label: "Drivers", icon: Users },
-      { path: "/insurances", label: "Insurances", icon: Calendar },
+      { path: "/insurances", label: "Insurances", icon: FileSignature },
       {
         path: "/Roles&Company",
         label: "Roles and Company",

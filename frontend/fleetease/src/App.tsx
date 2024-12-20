@@ -1,72 +1,113 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { UserProvider } from './contexts/UserContext';
-import Layout from './components/layout/Layout';
-import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
-import MainPage from './pages/dashboard/MainPage';
-import SignUp from './pages/auth/SignUp';
-import SignIn from './pages/auth/SignIn';
-import { getStoredToken,  } from './utils/authUtils';
-import axios from 'axios';
-import RoleBasedRoute from './components/auth/RoleBasedRoute'; // Import nové komponenty
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { UserProvider } from "./contexts/UserContext";
+import Layout from "./components/layout/Layout";
+import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
+import MainPage from "./pages/dashboard/MainPage";
+import SignUp from "./pages/auth/SignUp";
+import SignIn from "./pages/auth/SignIn";
+import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
+// import Auditlog_Book from "./pages/manager_pages/Audtilog_Book";
+import { getStoredToken } from "./utils/authUtils";
+import axios from "axios";
+import RoleBasedRoute from "./components/auth/RoleBasedRoute"; // Import nové komponenty
 
 const App: React.FC = () => {
   useEffect(() => {
     const token = getStoredToken();
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, []);
 
   return (
     <UserProvider>
-    <Router>
-      <Routes>
-        <Route
-          path="/signin"
-          element={
-            <RedirectIfAuthenticated>
-              <Layout> 
-                <SignIn />
-              </Layout>
-            </RedirectIfAuthenticated>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <RedirectIfAuthenticated>
-              <Layout> 
-                <SignUp />
-              </Layout>
-            </RedirectIfAuthenticated>
-          }
-        />
-        <Route
-          path="/"
-          element={
-            <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
-              <Layout>
-                <MainPage />
-              </Layout>
-            </RoleBasedRoute>
-          }
-        />
-      <Route 
-      path="*" 
-      element={
-            <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
-              <Layout>
-                <MainPage />
-              </Layout>
-            </RoleBasedRoute>
-          }
+      <Router>
+        <Routes>
+          <Route
+            path="/signin"
+            element={
+              <RedirectIfAuthenticated>
+                <Layout>
+                  <SignIn />
+                </Layout>
+              </RedirectIfAuthenticated>
+            }
           />
-      </Routes>
-    </Router>
-  </UserProvider>
+          <Route
+            path="/signup"
+            element={
+              <RedirectIfAuthenticated>
+                <Layout>
+                  <SignUp />
+                </Layout>
+              </RedirectIfAuthenticated>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <MainPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/user_management"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <MainPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/inspection_intervals"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <MainPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/auditlog_book"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Auditlog_Book />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/Roles&Company"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <Layout>
+                  <MainPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <MainPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
-}
+};
 
 export default App;
-

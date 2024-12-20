@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Home, Car, PenToolIcon as Tool, Calendar, Users, Settings, FileText, AlertTriangle } from 'lucide-react';
+import { Home, Car, PenToolIcon as Tool, Calendar, Users, Settings, FileText, AlertTriangle, FileSignature, Wrench } from 'lucide-react';
 import { useUser } from '../../contexts/UserContext';
 import type { Role } from '../../contexts/UserContext';
 import SidebarNavItem from './SidebarNavItem';
@@ -27,14 +27,14 @@ const getNavItems = (role: Role | null): NavItem[] => {
     ],
     Manager: [
       { path: '/vehicles', label: 'Vehicles', icon: Car },
-      { path: '/defects', label: 'Defects', icon: Tool },
+      { path: '/defects', label: 'Defects', icon: Wrench },
       { path: '/schedule', label: 'Schedule', icon: Calendar },
       { path: '/drivers', label: 'Drivers', icon: Users },
-      { path: '/insurances', label: 'Insurances', icon: Calendar },
+      { path: '/insurances', label: 'Insurances', icon: FileSignature },
     ],
     Admin: [
       { path: '/vehicles', label: 'Vehicles', icon: Car },
-      { path: '/defects', label: 'Defects', icon: Tool },
+      { path: '/defects', label: 'Defects', icon: Wrench },
       { path: '/schedule', label: 'Schedule', icon: Calendar },
       { path: '/employees', label: 'Employees', icon: Users },
       { path: '/reports', label: 'Reports', icon: FileText },

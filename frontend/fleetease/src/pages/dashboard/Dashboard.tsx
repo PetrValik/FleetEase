@@ -24,9 +24,31 @@ const Dashboard: React.FC = () => {
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]); // To store filtered vehicles
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState<boolean>(false);
   const [filters, setFilters] = useState({
-    typeFilters: { truck: false, van: false, car: false },
-    fuelFilters: { gas: false, diesel: false, electric: false, hybrid: false },
-    stateFilters: { inUse: false, available: false, maintenance: false },
+    typeFilters: { 
+      trailer: false,
+      bus: false,
+      motorcycle: false,
+      cargo: false,
+      personal: false,
+      special: false, 
+    },
+    fuelFilters: { 
+      diesel: false,
+      natural95: false,
+      natural98: false,
+      electric: false,
+      hybrid: false,
+      plugInHybrid: false,
+      cng: false,
+      lpg: false,
+      hydrogen: false,
+      ethanol: false,
+      bioDiesel: false,
+      syntheticFuels: false, 
+    },
+    stateFilters: { 
+      available: false, reserved: false, 
+    },
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -70,32 +92,46 @@ const Dashboard: React.FC = () => {
   };
 
   const handleApplyFilter = (newFilters: any) => {
-    setFilters(newFilters);
-    setIsFilterPopoverVisible(false);
+    setFilters(newFilters); // Update filters state
   
     // Apply filters to vehicles
     const filtered = vehicles.filter((vehicle) => {
       // Type filters
       const typeMatch =
-        (!newFilters.typeFilters.truck && !newFilters.typeFilters.van && !newFilters.typeFilters.car) ||
-        (newFilters.typeFilters.truck && vehicle.registration_number.toLowerCase().includes('truck')) ||
-        (newFilters.typeFilters.van && vehicle.registration_number.toLowerCase().includes('van')) ||
-        (newFilters.typeFilters.car && vehicle.registration_number.toLowerCase().includes('car'));
-  
+      (!newFilters.typeFilters.trailer && !newFilters.typeFilters.bus && !newFilters.typeFilters.motorcycle &&
+        !newFilters.typeFilters.cargo && !newFilters.typeFilters.personal && !newFilters.typeFilters.special) ||
+      (newFilters.typeFilters.trailer && vehicle.registration_number.toLowerCase().includes('trailer')) ||
+      (newFilters.typeFilters.bus && vehicle.registration_number.toLowerCase().includes('bus')) ||
+      (newFilters.typeFilters.motorcycle && vehicle.registration_number.toLowerCase().includes('motorcycle')) ||
+      (newFilters.typeFilters.cargo && vehicle.registration_number.toLowerCase().includes('cargo')) ||
+      (newFilters.typeFilters.personal && vehicle.registration_number.toLowerCase().includes('personal')) ||
+      (newFilters.typeFilters.special && vehicle.registration_number.toLowerCase().includes('special'));
+
+    
       // Fuel filters
       const fuelMatch =
-        (!newFilters.fuelFilters.gas && !newFilters.fuelFilters.diesel && !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid) ||
-        getFuelFilterValue(vehicle.fuel_type, newFilters.fuelFilters);
-  
+      (!newFilters.fuelFilters.diesel && !newFilters.fuelFilters.natural95 && !newFilters.fuelFilters.natural98 &&
+        !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid && !newFilters.fuelFilters.plugInHybrid &&
+        !newFilters.fuelFilters.cng && !newFilters.fuelFilters.lpg && !newFilters.fuelFilters.hydrogen &&
+        !newFilters.fuelFilters.ethanol && !newFilters.fuelFilters.bioDiesel && !newFilters.fuelFilters.syntheticFuels) ||
+      (newFilters.fuelFilters.diesel && vehicle.fuel_type === 'Diesel') ||
+      (newFilters.fuelFilters.natural95 && vehicle.fuel_type === 'Natural 95') ||
+      (newFilters.fuelFilters.natural98 && vehicle.fuel_type === 'Natural 98') ||
+      (newFilters.fuelFilters.electric && vehicle.fuel_type === 'Electric') ||
+      (newFilters.fuelFilters.hybrid && vehicle.fuel_type === 'Hybrid') ||
+      (newFilters.fuelFilters.plugInHybrid && vehicle.fuel_type === 'Plug-in Hybrid') ||
+      (newFilters.fuelFilters.cng && vehicle.fuel_type === 'CNG') ||
+      (newFilters.fuelFilters.lpg && vehicle.fuel_type === 'LPG') ||
+      (newFilters.fuelFilters.hydrogen && vehicle.fuel_type === 'Hydrogen') ||
+      (newFilters.fuelFilters.ethanol && vehicle.fuel_type === 'Ethanol') ||
+      (newFilters.fuelFilters.bioDiesel && vehicle.fuel_type === 'Bio-Diesel') ||
+      (newFilters.fuelFilters.syntheticFuels && vehicle.fuel_type === 'Synthetic Fuels');
+
       // State filters
       const stateMatch =
         (!newFilters.stateFilters.reserved && !newFilters.stateFilters.available && !newFilters.stateFilters.maintenance) ||
-        (newFilters.stateFilters.reserved && vehicle.vehicle_status === 'Reserved') || // Changed from 'In Use' to 'Reserved'
-        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Available') || 
-        (newFilters.stateFilters.maintenance && vehicle.vehicle_status === 'In Maintenance') || 
-        (newFilters.stateFilters.defectState && vehicle.vehicle_status === 'Defect State') || 
-        (newFilters.stateFilters.outOfOrder && vehicle.vehicle_status === 'Out of Order') || 
-        (newFilters.stateFilters.decommissioned && vehicle.vehicle_status === 'Decommissioned');
+        (newFilters.stateFilters.reserved && vehicle.vehicle_status === 'Reserved') || 
+        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Available');
   
       return typeMatch && fuelMatch && stateMatch;
     });
@@ -103,17 +139,38 @@ const Dashboard: React.FC = () => {
     setFilteredVehicles(filtered);
   };
   
-  
-
   const handleClearFilter = () => {
     setFilters({
-      typeFilters: { truck: false, van: false, car: false },
-      fuelFilters: { gas: false, diesel: false, electric: false, hybrid: false },
-      stateFilters: { inUse: false, available: false, maintenance: false },
+      typeFilters: { 
+        trailer: false,
+        bus: false,
+        motorcycle: false,
+        cargo: false,
+        personal: false,
+        special: false, 
+      },
+      fuelFilters: { 
+        diesel: false,
+        natural95: false,
+        natural98: false,
+        electric: false,
+        hybrid: false,
+        plugInHybrid: false,
+        cng: false,
+        lpg: false,
+        hydrogen: false,
+        ethanol: false,
+        bioDiesel: false,
+        syntheticFuels: false, 
+      },
+      stateFilters: { 
+        available: false,
+        reserved: false, 
+      },
     });
-    setIsFilterPopoverVisible(false);
     setFilteredVehicles(vehicles); // Reset filters and show all vehicles
   };
+  
 
   const handleSearch = () => {
     const result = vehicles.find(
@@ -187,23 +244,17 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Filter Popover: Positioned below the filter button */}
         {isFilterPopoverVisible && (
-          <div className="filter-modal-overlay">
-            <div className="filter-modal-content">
-              <button
-                className="filter-modal-close-btn"
-                onClick={() => setIsFilterPopoverVisible(false)}
-              >
-                ×
-              </button>
-              <FilterPopover
-                typeFilters={filters.typeFilters}
-                fuelFilters={filters.fuelFilters}
-                stateFilters={filters.stateFilters}
-                onApplyFilter={handleApplyFilter}
-                onClearFilter={handleClearFilter}
-              />
-            </div>
+          <div className="filter-popover-container">
+            <FilterPopover
+               typeFilters={filters.typeFilters}
+               fuelFilters={filters.fuelFilters}
+               stateFilters={filters.stateFilters}
+               onApplyFilter={handleApplyFilter}
+               onClearFilter={handleClearFilter}
+               onClose={() => setIsFilterPopoverVisible(false)}
+            />
           </div>
         )}
 

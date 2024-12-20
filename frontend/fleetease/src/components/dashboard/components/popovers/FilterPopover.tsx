@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import CustomCheckbox from '../ui/Checkbox';
 import { LucideX } from 'lucide-react';
-import { Separator } from '../ui/Separator';
+import Separator from '../ui/Separator'; // Updated import for Separator
 
 // Define the filters interface for each category
 interface Filters {
@@ -15,6 +15,7 @@ interface FilterPopoverProps {
   stateFilters: Filters; // Add stateFilters to the props
   onApplyFilter: (filters: any) => void;
   onClearFilter: () => void;
+  onClose: () => void; // Add onClose to the props
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({
@@ -23,6 +24,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   stateFilters,
   onApplyFilter,
   onClearFilter,
+  onClose, // Destructure onClose from props
 }) => {
   const [localTypeFilters, setTypeFilters] = useState<Filters>(typeFilters);
   const [localFuelFilters, setFuelFilters] = useState<Filters>(fuelFilters);
@@ -30,6 +32,15 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
     available: stateFilters.available || false,
     reserved: stateFilters.reserved || false, // Change 'inUse' to 'reserved'
   });
+
+  useEffect(() => {
+    setTypeFilters(typeFilters);
+    setFuelFilters(fuelFilters);
+    setStateFilters({
+      available: stateFilters.available || false,
+      reserved: stateFilters.reserved || false,
+    });
+  }, [typeFilters, fuelFilters, stateFilters]);
 
   const handleCheckboxChange = (category: string, option: string) => {
     const setState =
@@ -46,8 +57,28 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   };
 
   const handleClear = () => {
-    setTypeFilters({ truck: false, van: false, car: false });
-    setFuelFilters({ diesel: false, petrol: false, electric: false, hybrid: false });
+    setTypeFilters({
+      trailer: false,
+      bus: false,
+      motorcycle: false,
+      cargo: false,
+      personal: false,
+      special: false,
+    });
+    setFuelFilters({
+      diesel: false,
+      natural95: false,
+      natural98: false,
+      electric: false,
+      hybrid: false,
+      plugInHybrid: false,
+      cng: false,
+      lpg: false,
+      hydrogen: false,
+      ethanol: false,
+      bioDiesel: false,
+      syntheticFuels: false,
+    });
     setStateFilters({
       available: false,
       reserved: false, // Reset 'reserved' instead of 'inUse'
@@ -62,14 +93,24 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       fuelFilters: localFuelFilters,
       stateFilters: localStateFilters,
     }); // Pass the filters to the parent
+    onClose(); // Close the popover after applying filters
+  };
+
+  // A helper to capitalize and format the filters
+  const formatLabel = (label: string) => {
+    return label
+      .replace(/([A-Z])/g, ' $1')  // Add a space before each capital letter
+      .trim()
+      .charAt(0)
+      .toUpperCase() + label.slice(1); // Capitalize the first letter
   };
 
   return (
     <div className="space-y-4">
       {/* Filters Section */}
-      <div className="flex flex-wrap gap-6">
+      <div className="flex gap-6 justify-between"> {/* Ensure filters are placed next to each other horizontally */}
         {/* Type Section */}
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-[150px] max-w-[250px]">
           <h3 className="font-semibold text-lg mb-2">Type</h3>
           <div className="space-y-2">
             {Object.keys(localTypeFilters).map((key) => (
@@ -77,14 +118,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                 key={key}
                 checked={localTypeFilters[key]}
                 onChange={() => handleCheckboxChange('type', key)}
-                label={key.charAt(0).toUpperCase() + key.slice(1)}
+                label={formatLabel(key)}
               />
             ))}
           </div>
         </div>
 
         {/* Fuel Section */}
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-[150px] max-w-[250px]">
           <h3 className="font-semibold text-lg mb-2">Fuel</h3>
           <div className="space-y-2">
             {Object.keys(localFuelFilters).map((key) => (
@@ -92,14 +133,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                 key={key}
                 checked={localFuelFilters[key]}
                 onChange={() => handleCheckboxChange('fuel', key)}
-                label={key.charAt(0).toUpperCase() + key.slice(1)}
+                label={formatLabel(key)}
               />
             ))}
           </div>
         </div>
 
         {/* State Section */}
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-[150px] max-w-[250px]">
           <h3 className="font-semibold text-lg mb-2">State</h3>
           <div className="space-y-2">
             {Object.keys(localStateFilters).map((key) => (
@@ -107,24 +148,21 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                 key={key}
                 checked={localStateFilters[key]}
                 onChange={() => handleCheckboxChange('state', key)}
-                label={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()} // Format "reserved" to "Reserved"
+                label={formatLabel(key)} // Use the helper function for formatting
               />
             ))}
           </div>
         </div>
       </div>
 
-      <Separator />
+      <Separator /> {/* Horizontal separator */}
 
       {/* Action Buttons */}
       <div className="mt-4 flex justify-end space-x-4">
         <Button variant="outline" className="text-gray-700" onClick={handleClear}>
-          <LucideX className="mr-2" /> Clear
+          Clear
         </Button>
-        <Button
-          className="bg-blue-600 text-white hover:bg-blue-700"
-          onClick={handleApply}
-        >
+        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={handleApply}>
           Apply Filter
         </Button>
       </div>

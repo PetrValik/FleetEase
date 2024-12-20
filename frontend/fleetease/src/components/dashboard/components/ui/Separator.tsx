@@ -1,7 +1,17 @@
 import React from 'react';
 
-export const Separator: React.FC = () => {
-  return <div className="border-t border-gray-200 my-4" />;
+interface SeparatorProps {
+  orientation?: 'horizontal' | 'vertical'; // Add the orientation prop
+}
+
+export const Separator: React.FC<SeparatorProps> = ({ orientation = 'horizontal' }) => {
+  return (
+    <div
+      className={`${
+        orientation === 'horizontal' ? 'border-t border-gray-200 my-4' : 'border-l border-gray-200 h-full'
+      }`}
+    />
+  );
 };
 
 export default Separator;

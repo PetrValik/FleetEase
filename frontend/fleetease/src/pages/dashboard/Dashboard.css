@@ -82,6 +82,54 @@
     background-color: #3b82f6;
 }
 
+/* Filter Popover Styles (Updated) */
+.filter-modal-overlay {
+    position: absolute;
+    z-index: 1000; /* Ensure it’s above the content */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 250px; /* Fixed width for the filter */
+    max-height: 80vh;
+    overflow-y: auto;
+    top: 100%; /* Position the popover below the button */
+    left: 0; /* Align the popover to the right of the button container */
+    margin-top: 8px; /* Add some space between the button and the filter popover */
+}
+
+/* Filter Modal Content */
+.filter-modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    min-width: 250px;
+}
+
+/* Close Button for Filter Modal */
+.filter-modal-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Filter Modal Arrow */
+.filter-modal-arrow {
+    position: absolute;
+    top: -5px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #fff; /* White arrow */
+}
+
 /* Add Vehicle Modal (with overlay) */
 .modal-overlay {
     position: fixed;
@@ -131,63 +179,6 @@
     color: #2d3748;
 }
 
-/* Filter Popover Styles */
-.filter-modal-overlay {
-    position: absolute;
-    z-index: 10000; /* Ensure it’s above the content */
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 250px;
-    overflow: hidden;
-    max-height: 80vh;
-    overflow-y: auto;
-    margin-top: 0px;
-    left: auto;
-    right: 0;
-}
-
-/* Filter Modal Content */
-.filter-modal-content {
-    position: relative;
-    min-width: 250px; /* Set a minimum width to prevent it from being too small */
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    padding: 16px;
-}
-
-.filter-modal-content select::-ms-expand {
-    display: none; /* Remove arrow in IE/Edge */
-}
-
-/* Close Button for Filter Modal */
-.filter-modal-close-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* Filter Modal Arrow */
-.filter-modal-arrow {
-    position: absolute;
-    top: -5px;
-    right: 15px;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid #fff; /* White arrow */
-}
-
-.filter-button-container {
-    position: relative;
-}
-
 /* Search Bar Container */
 .search-bar-container {
     display: flex;
@@ -231,4 +222,15 @@
     width: 20px;
     height: 20px;
     color: #1e3a8a;
+}
+
+/* Dashboard Stats Card */
+.dashboard-stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f7fafc;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1cm;
 }

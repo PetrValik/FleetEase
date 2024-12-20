@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import * as Database from "../../database/database";

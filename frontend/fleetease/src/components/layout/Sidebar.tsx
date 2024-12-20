@@ -3,11 +3,8 @@ import { useLocation } from "react-router-dom";
 import {
   Home,
   Car,
-  PenToolIcon as Tool,
   Calendar,
   Users,
-  Settings,
-  FileText,
   AlertTriangle,
   CalendarClock,
   BookA,

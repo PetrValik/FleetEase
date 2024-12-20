@@ -83,14 +83,20 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
           <p className="text-gray-600 text-sm">{vehicle.registration_number}</p>
         </div>
         <span
-          className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${
-            vehicle.vehicle_status === 'In Use'
-              ? 'bg-blue-500 text-white'
-              : vehicle.vehicle_status === 'Available'
+           className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${
+            vehicle.vehicle_status === 'Available'
               ? 'bg-green-500 text-white'
-              : vehicle.vehicle_status === 'Maintenance'
+              : vehicle.vehicle_status === 'Reserved'
+              ? 'bg-blue-500 text-white'
+              : vehicle.vehicle_status === 'In Maintenance'
               ? 'bg-red-500 text-white'
-              : 'bg-gray-500 text-white'
+              : vehicle.vehicle_status === 'Defect State'
+              ? 'bg-yellow-500 text-white'
+              : vehicle.vehicle_status === 'Out of Order'
+              ? 'bg-gray-500 text-white'
+              : vehicle.vehicle_status === 'Decommissioned'
+              ? 'bg-black text-white'
+              : 'bg-gray-500 text-white' // default case
           }`}
         >
           {vehicle.vehicle_status}

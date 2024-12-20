@@ -77,9 +77,9 @@ const Dashboard: React.FC = () => {
     const filtered = vehicles.filter((vehicle) => {
       const typeMatch =
         (!newFilters.typeFilters.truck && !newFilters.typeFilters.van && !newFilters.typeFilters.car) ||
-        (newFilters.typeFilters.truck && vehicle.vehicle_status.toLowerCase().includes('truck')) ||
-        (newFilters.typeFilters.van && vehicle.vehicle_status.toLowerCase().includes('van')) ||
-        (newFilters.typeFilters.car && vehicle.vehicle_status.toLowerCase().includes('car'));
+        (newFilters.typeFilters.truck && vehicle.registration_number.toLowerCase().includes('truck')) ||
+        (newFilters.typeFilters.van && vehicle.registration_number.toLowerCase().includes('van')) ||
+        (newFilters.typeFilters.car && vehicle.registration_number.toLowerCase().includes('car'));
 
       const fuelMatch =
         (!newFilters.fuelFilters.gas && !newFilters.fuelFilters.diesel && !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid) ||
@@ -87,9 +87,9 @@ const Dashboard: React.FC = () => {
 
       const stateMatch =
         (!newFilters.stateFilters.inUse && !newFilters.stateFilters.available && !newFilters.stateFilters.maintenance) ||
-        (newFilters.stateFilters.inUse && vehicle.vehicle_status === 'In Use') ||
-        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Available') ||
-        (newFilters.stateFilters.maintenance && vehicle.vehicle_status === 'Maintenance');
+        (newFilters.stateFilters.inUse && vehicle.vehicle_status === 'Available') || // Corrected to use a valid value
+        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Reserved') || // Corrected to use a valid value
+        (newFilters.stateFilters.maintenance && vehicle.vehicle_status === 'In Maintenance'); // Corrected to use a valid value
 
       return typeMatch && fuelMatch && stateMatch;
     });

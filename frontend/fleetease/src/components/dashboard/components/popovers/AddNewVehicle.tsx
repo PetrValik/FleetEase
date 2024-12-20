@@ -98,42 +98,42 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 
   // Dynamické načítání modelů na základě vybrané značky
   const handleBrandChange = async (selectedBrand: { value: number; label: string } | null) => {
-  if (!selectedBrand) {
-    setModels([]);
-    return;
-  }
+    if (!selectedBrand) {
+      setModels([]);
+      return;
+    }
 
-  setLoadingModels(true); // Start loading indicator
-  try {
-    const modelsResponse = await Database.getModelsByBrandId(selectedBrand.value);
-    const modelOptions = modelsResponse.map((model: any) => ({
-      value: model.model_id,
-      label: model.model_name,
-    }));
-    setModels(modelOptions);
-    console.log('Models fetched:', modelOptions); // Debug log
-  } catch (error) {
-    console.error('Error fetching models:', error);
-    setModels([]); // Clear models if an error occurs
-  } finally {
-    setLoadingModels(false); // End loading indicator
-  }
-};
-
+    setLoadingModels(true);
+    try {
+      const modelsResponse = await Database.getModelsByBrandId(selectedBrand.value);
+      const modelOptions = modelsResponse.map((model: any) => ({
+        value: model.model_id,
+        label: model.model_name,
+      }));
+      setModels(modelOptions);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+      setModels([]);
+    } finally {
+      setLoadingModels(false);
+    }
+  };
 
   const onSubmit = async (data: FieldValues) => {
     try {
+      const vehicleStatus: "Available" | "Reserved" | "In Maintenance" | "Defect State" | "Out of Order" | "Decommissioned" = 'Available';
+
       const newVehicle = {
         vehicle_id: 0,
-        model_id: data.model?.value || 0,
-        registration_number: data.registrationNumber,
-        vin: data.vin,
-        category_id: data.vehicleType?.value, // Dynamically assign category ID
-        country_id: 1,
-        fuel_type: data.fuelType?.value,
-        vehicle_status: 'Active',
-        created_at: new Date().toISOString(),
-        company_id: 1,
+      model_id: data.model?.value || 0,
+      registration_number: data.registrationNumber,
+      vin: data.vin,
+      category_id: data.vehicleType?.value, // Dynamically assign category ID
+      country_id: 1,
+      fuel_type: data.fuelType?.value, // Ensure this is valid as per the options provided
+      vehicle_status: vehicleStatus, // Ensure it's one of the valid statuses
+      created_at: new Date().toISOString(),
+      company_id: 1,
       };
 
       const company_id = 1; // You can update this based on your context

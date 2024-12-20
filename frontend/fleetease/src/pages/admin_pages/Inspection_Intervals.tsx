@@ -48,9 +48,11 @@ export default function InspectionIntervals() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">
-        Intervaly technické a emisní kontroly vozidel
-      </h1>
+      <div className="rounded-lg border bg-white shadow-sm p-6 mb-6">
+        <h1 className="text-2xl font-semibold">
+          Intervaly technické a emisní kontroly vozidel
+        </h1>
+      </div>
 
       <div className="rounded-lg border bg-white shadow-sm">
         <div className="p-6">

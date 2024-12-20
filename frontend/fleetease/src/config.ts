@@ -9,5 +9,12 @@ export const config = {
   INSURANCE_COMPANIES_ENDPOINT: `${API_BASE_URL}/insurance-companies`,
   VEHICLES_ENDPOINT: `${API_BASE_URL}/vehicles`,
   RESERVATIONS_ENDPOINT: `${API_BASE_URL}/reservations`,
+  VEHICLE_CATEGORIES_ENDPOINT: `${API_BASE_URL}/vehicle-categories`,
+  VEHICLE_MODELS_ENDPOINT: `${API_BASE_URL}/vehicle-models`, 
+  VEHICLE_BRANDS_ENDPOINT: `${API_BASE_URL}/vehicle-brands`,
+  COUNTRIES_ENDPOINT: `${API_BASE_URL}/countries`, 
+  COMPANIES_ENDPOINT: `${API_BASE_URL}/companies`, 
+  VEHICLE_INSPECTIONS_ENDPOINT: `${API_BASE_URL}/vehicle-inspections`,
+  DEFECTS_ENDPOINT: `${API_BASE_URL}/defects`,
+  DEFECT_TYPES_ENDPOINT: `${API_BASE_URL}/defect-types`,
 };
-

@@ -71,3 +71,41 @@ exports.getInsurancesByTypeAndCompany = async (insuranceType, companyId) => {
   
     return data;
   };
+
+  // Get vehicles with reservations by user ID
+exports.getVehiclesWithReservationsByUserId = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('Reservations')
+      .select(`
+        reservation_id,
+        vehicle_id,
+        start_time,
+        end_time,
+        pickup_location,
+        return_location,
+        notes,
+        created_at,
+        Vehicles (
+          vehicle_id,
+          registration_number,
+          vin,
+          category_id,
+          company_id
+        )
+      `)
+      .eq('user_id', userId)
+      .gte('end_time', new Date().toISOString()) // Filter active reservations (end time in the future)
+      .order('start_time', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching reservations by user ID:', error);
+      throw new Error('Failed to fetch reservations');
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw new Error('Failed to fetch reservations');
+  }
+};

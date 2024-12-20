@@ -97,3 +97,38 @@ exports.getReservationsByVehicleId = async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch reservations' });
     }
   };
+
+exports.getVehiclesWithReservationsByUserId = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const reservations = await reservationService.getVehiclesWithReservationsByUserId(userId);
+    res.status(200).json(reservations);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch reservations' });
+  }
+};
+
+exports.checkVehicleActiveReservation = async (req, res) => {
+    try {
+      const vehicleId = parseInt(req.params.vehicleId);
+      const reservation = await reservationService.checkVehicleActiveReservation(vehicleId);
+      res.status(200).json(reservation);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to check vehicle reservation' });
+    }
+  };
+
+  // Check if a specific vehicle is reserved
+exports.isReserved = async (req, res) => {
+    try {
+      const { vehicleId } = req.params;
+  
+      const result = await reservationService.isVehicleReserved(vehicleId);
+  
+      // Respond with the result from the service
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Error in isReserved controller:', error);
+      res.status(500).json({ error: 'Failed to check reservation status' });
+    }
+  };

@@ -14,15 +14,42 @@ router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), lo
 router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, reservationController.getById);
 
 // Create a new reservation
-router.post('/', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), validate(reservationSchema), logAudit, reservationController.create);
+router.post('/', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.create);
 
 // Update a reservation
-router.put('/:id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), validate(reservationSchema), logAudit, reservationController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.update);
 
 // Delete a reservation
-router.delete('/:id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), logAudit, reservationController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin', 'Driver']), logAudit, reservationController.delete);
 
 // Get all reservations by vehicle ID
-router.get('/vehicle/:vehicle_id', authenticateToken, checkRole(['Admin', 'Driver', 'Driver']), logAudit, reservationController.getReservationsByVehicleId);
+router.get('/vehicle/:vehicle_id', authenticateToken, checkRole(['Admin', 'Driver']), logAudit, reservationController.getReservationsByVehicleId);
+
+// Get all vehicles with reservations by user ID
+router.get(
+  '/vehicles/user/:userId',
+  authenticateToken,
+  checkRole(['Admin', 'Manager', 'Driver']),
+  logAudit,
+  reservationController.getVehiclesWithReservationsByUserId
+);
+
+// Check if a specific vehicle has an active reservation
+router.get(
+  '/vehicle/:vehicleId/active',
+  authenticateToken,
+  checkRole(['Admin', 'Manager', 'Driver']),
+  logAudit,
+  reservationController.checkVehicleActiveReservation
+);
+
+// Check if a specific vehicle is reserved
+router.get(
+    '/vehicle/:vehicleId/isReserved',
+    authenticateToken,
+    checkRole(['Admin', 'Manager', 'Driver']),
+    logAudit,
+    reservationController.isReserved
+  );
 
 module.exports = router;

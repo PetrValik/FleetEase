@@ -54,3 +54,21 @@ exports.delete = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+// Get models by brand ID
+exports.getModelsByBrandId = async (req, res) => {
+    const { brandId } = req.params;
+  
+    try {
+      const models = await vehicleModelService.getModelsByBrandId(brandId);
+  
+      if (!models || models.length === 0) {
+        return res.status(404).json({ error: 'No models found for the provided brand ID.' });
+      }
+  
+      res.status(200).json(models);
+    } catch (error) {
+      console.error('Error fetching models by brand ID:', error);
+      res.status(500).json({ error: 'An error occurred while fetching models.' });
+    }
+  };

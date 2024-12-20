@@ -1,5 +1,6 @@
-import axios from 'axios';
+import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
+import { handleApiError } from '../../utils/apiErrorHandler';
 
 const BASE_URL = config.INSURANCE_COMPANIES_ENDPOINT;
 
@@ -12,35 +13,32 @@ export interface InsuranceCompany {
 // Get all insurance companies
 export const getAllInsuranceCompanies = async (): Promise<InsuranceCompany[]> => {
   try {
-    const response = await axios.get<InsuranceCompany[]>(`${BASE_URL}`);
+    const response = await apiClient.get<InsuranceCompany[]>(`${BASE_URL}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching all insurance companies:', error);
-    throw new Error('Failed to fetch all insurance companies');
+    return handleApiError<InsuranceCompany[]>(error, []); 
   }
 };
 
 // Get a single insurance company by ID
-export const getInsuranceCompanyById = async (id: number): Promise<InsuranceCompany> => {
+export const getInsuranceCompanyById = async (id: number): Promise<InsuranceCompany | null> => {
   try {
-    const response = await axios.get<InsuranceCompany>(`${BASE_URL}/${id}`);
+    const response = await apiClient.get<InsuranceCompany>(`${BASE_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching insurance company by ID:', error);
-    throw new Error('Failed to fetch insurance company');
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
 // Create a new insurance company
 export const createInsuranceCompany = async (
   companyData: Omit<InsuranceCompany, 'insurance_company_id'>
-): Promise<InsuranceCompany> => {
+): Promise<InsuranceCompany | null> => {
   try {
-    const response = await axios.post<InsuranceCompany>(`${BASE_URL}`, companyData);
+    const response = await apiClient.post<InsuranceCompany>(`${BASE_URL}`, companyData);
     return response.data;
   } catch (error) {
-    console.error('Error creating insurance company:', error);
-    throw new Error('Failed to create insurance company');
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
@@ -48,22 +46,21 @@ export const createInsuranceCompany = async (
 export const updateInsuranceCompany = async (
   id: number,
   updatedData: Partial<Omit<InsuranceCompany, 'insurance_company_id'>>
-): Promise<InsuranceCompany> => {
+): Promise<InsuranceCompany | null> => {
   try {
-    const response = await axios.put<InsuranceCompany>(`${BASE_URL}/${id}`, updatedData);
+    const response = await apiClient.put<InsuranceCompany>(`${BASE_URL}/${id}`, updatedData);
     return response.data;
   } catch (error) {
-    console.error('Error updating insurance company:', error);
-    throw new Error('Failed to update insurance company');
+    return handleApiError<InsuranceCompany | null>(error, null); 
   }
 };
 
 // Delete an insurance company
-export const deleteInsuranceCompany = async (id: number): Promise<void> => {
+export const deleteInsuranceCompany = async (id: number): Promise<boolean> => {
   try {
-    await axios.delete(`${BASE_URL}/${id}`);
+    await apiClient.delete(`${BASE_URL}/${id}`);
+    return true;
   } catch (error) {
-    console.error('Error deleting insurance company:', error);
-    throw new Error('Failed to delete insurance company');
+    return handleApiError<boolean>(error, false); 
   }
 };

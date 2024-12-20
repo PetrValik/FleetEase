@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { setLogoutHandler } from '../utils/apiClient';
 import { removeStoredToken } from '../utils/authUtils';
 
 export type Role = 'Admin' | 'Manager' | 'Driver';
@@ -36,6 +37,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     removeStoredToken();
   };
+
+    // Set the logout handler for API client
+    React.useEffect(() => {
+      setLogoutHandler(logout);
+    }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>

@@ -54,3 +54,14 @@ exports.delete = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+exports.getVehiclesByCompanyId = async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      const vehicles = await vehicleService.getVehiclesByCompanyId(companyId);
+      res.status(200).json(vehicles);
+    } catch (error) {
+      console.error('Error fetching vehicles by company ID:', error);
+      res.status(500).json({ error: 'Failed to fetch vehicles by company ID' });
+    }
+  };

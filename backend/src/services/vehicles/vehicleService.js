@@ -44,3 +44,18 @@ exports.delete = async (id) => {
     const { error } = await supabase.from(tableName).delete().eq(fields.id, id);
     if (error) throw new Error('Failed to delete vehicle');
 };
+
+exports.getVehiclesByCompanyId = async (companyId) => {
+    try {
+      const query = `
+        SELECT * 
+        FROM Vehicles 
+        WHERE company_id = $1
+      `;
+      const { rows } = await db.query(query, [companyId]);
+      return rows;
+    } catch (error) {
+      console.error('Error fetching vehicles by company ID:', error);
+      throw new Error('Database query failed');
+    }
+  };

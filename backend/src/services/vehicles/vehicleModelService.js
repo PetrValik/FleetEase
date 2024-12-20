@@ -47,14 +47,15 @@ exports.delete = async (id) => {
 
 // Get vehicle models by brand ID
 exports.getModelsByBrandId = async (brandId) => {
-    try {
-      const models = await db('VehicleModels')
-        .select('*')
-        .where({ brand_id: brandId });
-  
-      return models;
-    } catch (error) {
-      console.error('Error in vehicleModelsService:', error);
-      throw new Error('Database query failed');
+    const { data, error } = await supabase
+        .from(tableName) // Použití správného názvu tabulky
+        .select('*') // Vybrání všech sloupců
+        .eq(fields.brandId, brandId); // Filtr podle brand_id
+
+    if (error) {
+        console.error('Error fetching vehicle models by brand ID:', error);
+        throw new Error('Failed to fetch vehicle models by brand ID');
     }
-  };
+
+    return data;
+};

@@ -20,10 +20,17 @@ export default function InsuranceDialog({
     insurance || {
       insurance_types: 'Vehicle',
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       registration_number: null,
       name: null,
       start_date: '',
       end_date: '',
+=======
+      registration_number: '',
+      start_date: '',
+      end_date: '',
+      name: '',
+>>>>>>> Stashed changes
 =======
       registration_number: '',
       start_date: '',
@@ -71,10 +78,13 @@ export default function InsuranceDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     console.log('Form data to submit:', formData);
     onSave(formData);
   };
 =======
+=======
+>>>>>>> Stashed changes
     console.log('Submitting form data:', formData);
     // kontrola před odesláním
     if (!formData.insurance_types || !formData.registration_number) {
@@ -83,6 +93,9 @@ export default function InsuranceDialog({
     }
     onSave(formData);
 };
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
   if (!isOpen) return null;
@@ -175,7 +188,10 @@ export default function InsuranceDialog({
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
                 Insurance Name
               </label>
               <input

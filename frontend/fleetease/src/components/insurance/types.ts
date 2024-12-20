@@ -10,11 +10,19 @@ export interface InsuranceCompany {
 export interface Insurance {
   insurance_id?: number;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   insurance_types: InsuranceType;
   registration_number: string | null;
   start_date: string;
   end_date: string;
   name: string | null;
+=======
+  insurance_types: 'Vehicle' | 'Driver' | 'Liability';
+  registration_number: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+>>>>>>> Stashed changes
 =======
   insurance_types: 'Vehicle' | 'Driver' | 'Liability';
   registration_number: string;
@@ -30,5 +38,8 @@ export interface Insurance {
   description: string | null;
 =======
   description?: string;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }

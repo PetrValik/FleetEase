@@ -7,7 +7,7 @@ import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // I
 
 const VehicleDetailPage: React.FC = () => {
   const { isAuthenticated } = useUser(); // Get authentication status
-  const [vehicleId] = useState<number>(2); // Replace with dynamic ID or from URL
+  const [vehicleId] = useState<number>(3); // Replace with dynamic ID or from URL
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [isLoading, setIsLoading] = useState(true); // Track if data is loading

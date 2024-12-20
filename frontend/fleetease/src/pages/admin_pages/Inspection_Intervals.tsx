@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import * as Database from "../../database/database";
 
+const CATEGORY_ORDER = [
+  "Personal",
+  "Cargo",
+  "Special",
+  "Motorcycle",
+  "Bus",
+  "Trailer",
+];
+
 export default function InspectionIntervals() {
   const [categories, setCategories] = useState<Database.VehicleCategory[]>([]);
   const [selectedCategory, setSelectedCategory] =
@@ -34,17 +43,38 @@ export default function InspectionIntervals() {
     if (!selectedCategory) return;
 
     try {
-      await Database.updateVehicleCategory(selectedCategory.category_id, {
+      const updatedData = {
+        category_name: selectedCategory.category_name,
         inspection_period: newIntervals.inspection_period,
         emissions_period: newIntervals.emissions_period,
-      });
+      };
 
-      await loadCategories(); // Reload the list
+      await Database.updateVehicleCategory(
+        selectedCategory.category_id,
+        updatedData
+      );
+
+      setCategories((prevCategories) =>
+        prevCategories.map((category) =>
+          category.category_id === selectedCategory.category_id
+            ? { ...category, ...updatedData }
+            : category
+        )
+      );
+
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Failed to update intervals:", error);
+      alert("Nepodařilo se uložit změny. Zkuste to prosím znovu.");
     }
   };
+
+  // Sort categories based on the predefined order
+  const sortedCategories = [...categories].sort(
+    (a, b) =>
+      CATEGORY_ORDER.indexOf(a.category_name) -
+      CATEGORY_ORDER.indexOf(b.category_name)
+  );
 
   return (
     <div className="space-y-6">
@@ -58,7 +88,7 @@ export default function InspectionIntervals() {
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Typy vozidel</h2>
           <div className="space-y-4">
-            {categories.map((category) => (
+            {sortedCategories.map((category) => (
               <div
                 key={category.category_id}
                 className="flex items-center justify-between py-3 px-4 rounded-lg border bg-white"

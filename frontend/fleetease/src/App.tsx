@@ -3,14 +3,15 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
-import MainPage from "./pages/dashboard/MainPage";
+import Vehicles from './pages/vehicles/Vehicles';
+import VehicleDetailPage from './pages/vehicles/Vehicles'; 
+import Dashboard from './pages/dashboard/Dashboard';
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
-// import Auditlog_Book from "./pages/manager_pages/Audtilog_Book";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
-import RoleBasedRoute from "./components/auth/RoleBasedRoute"; // Import nové komponenty
+import RoleBasedRoute from "./components/auth/RoleBasedRoute";
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -49,17 +50,33 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
           />
           <Route
+            path="/vehicles"
+            element={<RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+              <Layout>
+                <Vehicles />
+              </Layout>
+            </RoleBasedRoute>}
+          />
+          <Route
+            path="/vehicle/:vehicleId"
+            element={<RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
+              <Layout>
+                <VehicleDetailPage />
+              </Layout>
+            </RoleBasedRoute>}
+          />
+          <Route
             path="/user_management"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -69,7 +86,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -89,7 +106,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Manager"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -99,7 +116,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }

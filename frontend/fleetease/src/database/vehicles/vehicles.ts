@@ -40,11 +40,9 @@ export const getVehicleById = async (id: number): Promise<Vehicle | null> => {
 
 // Create a new vehicle
 export const createVehicle = async (
-  company_id: number,
   vehicleData: Omit<Vehicle, 'vehicle_id' | 'created_at'>
 ): Promise<Vehicle | null> => {
   try {
-    vehicleData.company_id = company_id;
     const response = await apiClient.post<Vehicle>(`${BASE_URL}`, vehicleData);
     return response.data;
   } catch (error) {

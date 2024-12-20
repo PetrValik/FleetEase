@@ -12,7 +12,7 @@ const VehicleDetailPage: React.FC = () => {
       <h1 className="text-3xl font-bold">Vehicle Details</h1>
       
       {/* Vehicle Details Card */}
-      <VehicleDetailsCard vehicle={vehicle} />
+      <VehicleDetailsCard vehicleId={vehicle.vehicle_id} /> {/* Pass vehicle_id as vehicleId */}
       
       {/* Reservation Calendar */}
       <div className="bg-white rounded-lg shadow-md p-6">

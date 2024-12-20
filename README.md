@@ -18,8 +18,5 @@ https://app.tango.us/app/workflow/Git-pull-requests-c0af8de973734db48b4c6c264822
 Návod na instalaci databáze PostgreSQL: (Není nutné dělat databáze nám běží na cloudu)
 https://app.tango.us/app/workflow/Instalace-datab-ze-8b5cb7bee2d643299b00a64f36683106
 
-Návod na vytvoření databáze:
-Bylo zařízeno na společném týmovém callu.
-gddfgdf
 Best Practices pro Backend a Frontend:
 https://app.tango.us/app/workflow/Best-Practice-55277d5977ae42e8aa152c08909109b8

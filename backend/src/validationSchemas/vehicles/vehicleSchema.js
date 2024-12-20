@@ -49,9 +49,6 @@ module.exports = Joi.object({
         'any.required': 'Vehicle status is required.',
         'any.only': 'Invalid vehicle status provided.',
     }),
-    created_at: Joi.date().optional().messages({
-        'date.base': 'Created at must be a valid date.',
-    }),
     company_id: Joi.number().integer().required().messages({
         'any.required': 'Company ID is required.',
         'number.base': 'Company ID must be a number.',

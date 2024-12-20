@@ -7,8 +7,7 @@ import { Button } from '../../components/dashboard/components/ui/Button';
 import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
 import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
-import { createVehicle, getAllVehicles } from '../../database/vehicles/vehicles'; // Adjust according to your file structure
-import { Vehicle } from '../../database/vehicles/vehicles'; // Import the correct Vehicle type
+import * as Database from '../../database/database';
 
 type FuelType = 'gas' | 'diesel' | 'electric' | 'hybrid'; // Updated fuel types based on real data
 type VehicleState = 'inUse' | 'available' | 'maintenance';
@@ -19,9 +18,9 @@ const getFuelFilterValue = (fuelType: string, fuelFilters: { [key: string]: bool
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated, user } = useUser();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]); // Correct type for state
-  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]); // To store filtered vehicles
+  const { isAuthenticated } = useUser();
+  const [vehicles, setVehicles] = useState<Database.Vehicle[]>([]); // Correct type for state
+  const [filteredVehicles, setFilteredVehicles] = useState<Database.Vehicle[]>([]); // To store filtered vehicles
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     typeFilters: { 
@@ -52,7 +51,7 @@ const Dashboard: React.FC = () => {
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResult, setSearchResult] = useState<Vehicle | null>(null); // Adjusted to use the Vehicle type
+  const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Adjusted to use the Vehicle type
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +59,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       setLoading(true);
-      getAllVehicles()
+      Database.getAllVehicles()
         .then((data) => {
           setVehicles(data);
           setFilteredVehicles(data); // Initialize filtered vehicles with the fetched data
@@ -70,12 +69,12 @@ const Dashboard: React.FC = () => {
     }
   }, [isAuthenticated]);
 
-  const handleAddVehicle = async (newVehicle: Vehicle) => {
+  const handleAddVehicle = async (newVehicle: Database.Vehicle) => {
     setLoading(true);
     setError(null);
 
-    try {
-      const createdVehicle = await createVehicle(user?.company_id ?? 1, newVehicle);
+    /*try {
+      const createdVehicle = await Database.createVehicle(newVehicle);
 
       if (createdVehicle) {
         setVehicles((prevVehicles) => [...prevVehicles, createdVehicle]);
@@ -88,7 +87,7 @@ const Dashboard: React.FC = () => {
       setError('Failed to create vehicle. Please try again.');
     } finally {
       setLoading(false);
-    }
+    }*/
   };
 
   const handleApplyFilter = (newFilters: any) => {

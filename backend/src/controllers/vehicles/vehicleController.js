@@ -25,13 +25,13 @@ exports.getById = async (req, res) => {
 // Create a new vehicle
 exports.create = async (req, res) => {
     try {
-        const vehicle = await vehicleService.create(req.body);
-        res.status(201).json({ message: 'Vehicle created successfully', vehicle });
+      const vehicle = await vehicleService.create(req.body);
+      res.status(201).json(vehicle); // Return the created vehicle object directly
     } catch (error) {
-        console.error('Error creating vehicle:', error);
-        res.status(400).json({ error: error.message });
+      console.error('Error creating vehicle:', error);
+      res.status(400).json({ error: error.message });
     }
-};
+  };
 
 // Update a vehicle
 exports.update = async (req, res) => {

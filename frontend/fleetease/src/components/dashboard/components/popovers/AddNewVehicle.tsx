@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, Controller, FieldValues, FieldError } from 'react-hook-form';
-import Select from 'react-select'; // Using react-select for auto-suggestions
-import { Button } from '../ui/Button'; // Assuming you have your own Button component
-import { Input } from '../ui/Input'; // Assuming you have your own Input component
-import { Label } from '../ui/Label'; // Assuming you have your own Label component
-import { createVehicle } from '../../../../database/vehicles/vehicles'; // Import the createVehicle API function
-import { getAllVehicleCategories } from '../../../../database/vehicles/vehicleCategory'; // Import your API function to get vehicle categories
+import { useForm, Controller, FieldValues } from 'react-hook-form';
+import Select from 'react-select';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Label } from '../ui/Label';
+import { useUser } from '../../../../contexts/UserContext';
 import * as Database from '../../../../database/database';
 
+// Define the fuel type options
 const fuelTypeOptions = [
   { value: 'Diesel', label: 'Diesel' },
   { value: 'Natural 95', label: 'Natural 95' },
@@ -21,7 +21,19 @@ const fuelTypeOptions = [
   { value: 'Ethanol', label: 'Ethanol' },
   { value: 'Bio-Diesel', label: 'Bio-Diesel' },
   { value: 'Synthetic Fuels', label: 'Synthetic Fuels' }
-];
+] as const;
+
+type FuelType = typeof fuelTypeOptions[number]['value'];
+
+interface VehicleFormData {
+  vehicleType: { value: number; label: string };
+  brand: { value: number; label: string };
+  model: { value: number; label: string };
+  registrationState: { value: number; label: string };
+  registrationNumber: string;
+  vin: string;
+  fuelType: { value: FuelType; label: string };
+}
 
 interface AddVehicleModalProps {
   isOpen: boolean;
@@ -32,19 +44,19 @@ interface AddVehicleModalProps {
 }
 
 const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSave }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
-  const [categories, setCategories] = useState<{ value: number, label: string }[]>([]); // State for categories
-  const [stateOptions, setStateOptions] = useState<{ value: number, label: string }[]>([]); // State for states
-  const [loadingCategories, setLoadingCategories] = useState(true); // Loading state for categories
+  const { control, handleSubmit, formState: { errors } } = useForm<VehicleFormData>();
+  const [categories, setCategories] = useState<{ value: number, label: string }[]>([]);
+  const [stateOptions, setStateOptions] = useState<{ value: number, label: string }[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [brands, setBrands] = useState<{ value: number; label: string }[]>([]);
   const [models, setModels] = useState<{ value: number; label: string }[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
+  const { user } = useUser();
 
-  // Fetch categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoriesResponse = await getAllVehicleCategories();
+        const categoriesResponse = await Database.getAllVehicleCategories();
         const categoriesOptions = categoriesResponse.map((category: any) => ({
           value: category.category_id,
           label: category.category_name,
@@ -58,9 +70,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
     };
 
     fetchCategories();
-  }, []); // Empty array means this will run once on component mount
+  }, []);
 
-  // Fetch state options on mount
   useEffect(() => {
     const fetchStateOptions = async () => {
       try {
@@ -76,9 +87,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
     };
 
     fetchStateOptions();
-  }, []); // Empty array means this will run once on component mount
+  }, []);
 
-  // Načítání všech značek při načtení komponenty
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -96,7 +106,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
     fetchBrands();
   }, []);
 
-  // Dynamické načítání modelů na základě vybrané značky
   const handleBrandChange = async (selectedBrand: { value: number; label: string } | null) => {
     if (!selectedBrand) {
       setModels([]);
@@ -119,25 +128,26 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
     }
   };
 
-  const onSubmit = async (data: FieldValues) => {
+  const onSubmit = async (data: VehicleFormData) => {
     try {
       const vehicleStatus: "Available" | "Reserved" | "In Maintenance" | "Defect State" | "Out of Order" | "Decommissioned" = 'Available';
 
+      if (!user || !user.company_id) {
+        throw new Error('User or company_id not found');
+      }
+
       const newVehicle = {
-        vehicle_id: 0,
-      model_id: data.model?.value || 0,
-      registration_number: data.registrationNumber,
-      vin: data.vin,
-      category_id: data.vehicleType?.value, // Dynamically assign category ID
-      country_id: 1,
-      fuel_type: data.fuelType?.value, // Ensure this is valid as per the options provided
-      vehicle_status: vehicleStatus, // Ensure it's one of the valid statuses
-      created_at: new Date().toISOString(),
-      company_id: 1,
+        model_id: data.model?.value || 0,
+        registration_number: data.registrationNumber,
+        vin: data.vin,
+        category_id: data.vehicleType?.value,
+        country_id: data.registrationState?.value,
+        fuel_type: data.fuelType?.value,
+        vehicle_status: vehicleStatus,
+        company_id: user.company_id,
       };
 
-      const company_id = 1; // You can update this based on your context
-      const createdVehicle = await createVehicle(company_id, newVehicle);
+      const createdVehicle = await Database.createVehicle(newVehicle);
       onSave(createdVehicle);
       onClose();
     } catch (error) {
@@ -193,7 +203,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         <h2 className="text-2xl font-bold text-[#061f39] mb-4">Add New Vehicle</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Vehicle Type */}
           <div>
             <Label htmlFor="vehicleType" required>
               Vehicle Type
@@ -213,11 +222,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
               )}
             />
             {errors.vehicleType && (
-              <p className="text-red-500 text-xs">{(errors.vehicleType as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.vehicleType.message}</p>
             )}
           </div>
 
-          {/* Brand and Model */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="brand" required>
@@ -233,14 +241,15 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                     options={brands}
                     placeholder="Select a brand..."
                     onChange={(value) => {
-                      field.onChange(value); // Uloží hodnotu značky do formuláře
-                      handleBrandChange(value); // Zavolá funkci pro načtení modelů
+                      field.onChange(value);
+                      handleBrandChange(value);
                     }}
+                    styles={customSelectStyles}
                   />
                 )}
               />
               {errors.brand && (
-                <p className="text-red-500 text-xs">{(errors.brand as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.brand.message}</p>
               )}
             </div>
             <div className="flex-1">
@@ -257,16 +266,16 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                     options={models}
                     placeholder={loadingModels ? 'Loading models...' : 'Select a model...'}
                     isDisabled={models.length === 0 || loadingModels}
+                    styles={customSelectStyles}
                   />
                 )}
               />
               {errors.model && (
-                <p className="text-red-500 text-xs">{(errors.model as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.model.message}</p>
               )}
             </div>
           </div>
 
-          {/* Registration Row (State and Registration Number in the same row) */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="registrationState" required>
@@ -286,7 +295,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                 )}
               />
               {errors.registrationState && (
-                <p className="text-red-500 text-xs">{(errors.registrationState as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.registrationState.message}</p>
               )}
             </div>
 
@@ -298,15 +307,20 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                 name="registrationNumber"
                 control={control}
                 rules={{ required: 'Registration Number is required' }}
-                render={({ field }) => <Input {...field} id="registrationNumber" placeholder="ABC 1234" />}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="registrationNumber"
+                    placeholder="ABC 1234"
+                  />
+                )}
               />
               {errors.registrationNumber && (
-                <p className="text-red-500 text-xs">{(errors.registrationNumber as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.registrationNumber.message}</p>
               )}
             </div>
           </div>
 
-          {/* VIN */}
           <div>
             <Label htmlFor="vin" required>
               VIN
@@ -315,14 +329,19 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
               name="vin"
               control={control}
               rules={{ required: 'VIN is required' }}
-              render={({ field }) => <Input {...field} id="vin" placeholder="Enter Vehicle Identification Number" />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id="vin"
+                  placeholder="Enter Vehicle Identification Number"
+                />
+              )}
             />
             {errors.vin && (
-              <p className="text-red-500 text-xs">{(errors.vin as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.vin.message}</p>
             )}
           </div>
 
-          {/* Fuel Type */}
           <div>
             <Label htmlFor="fuelType" required>
               Fuel Type
@@ -338,11 +357,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
               )}
             />
             {errors.fuelType && (
-              <p className="text-red-500 text-xs">{(errors.fuelType as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.fuelType.message}</p>
             )}
           </div>
 
-          {/* Submit Button */}
           <Button type="submit" className="bg-green-500 text-white mt-4 w-full">
             Add Vehicle
           </Button>
@@ -353,3 +371,4 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 };
 
 export default AddVehicleModal;
+

@@ -19,13 +19,20 @@ export default function InsuranceDialog({
   const [formData, setFormData] = React.useState<Partial<Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
+<<<<<<< Updated upstream
       registration_number: null,
       name: null,
       start_date: '',
       end_date: '',
+=======
+      registration_number: '',
+      start_date: '',
+      end_date: '',
+      name: '',
+>>>>>>> Stashed changes
       payment_method: 'Monthly',
       insurance_status: 'Active',
-      insurance_company_id: 0,
+      insurance_company_id: insuranceCompanies[0]?.insurance_company_id || 0,
       company_id: 0,
       description: null
     }
@@ -63,9 +70,20 @@ export default function InsuranceDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+<<<<<<< Updated upstream
     console.log('Form data to submit:', formData);
     onSave(formData);
   };
+=======
+    console.log('Submitting form data:', formData);
+    // kontrola před odesláním
+    if (!formData.insurance_types || !formData.registration_number) {
+      console.error('Required fields are missing');
+      return;
+    }
+    onSave(formData);
+};
+>>>>>>> Stashed changes
 
   if (!isOpen) return null;
 
@@ -156,6 +174,21 @@ export default function InsuranceDialog({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+<<<<<<< Updated upstream
+=======
+                Insurance Name
+              </label>
+              <input
+                type="text"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-2 border rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+>>>>>>> Stashed changes
                 Payment Method
               </label>
               <select

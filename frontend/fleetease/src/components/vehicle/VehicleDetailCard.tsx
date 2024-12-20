@@ -4,7 +4,7 @@ import { getVehicleBrandById } from '../../database/vehicles/vehicleBrand'; // F
 import { getVehicleModelById } from '../../database/vehicles/vehicleModel'; // Fetch model data
 import { getCountryById, Country } from '../../database/vehicles/countries'; // Fetch country data
 import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory'; // Fetch category data
-import { Edit, Trash2 } from 'lucide-react'; // Icons for edit and delete
+import { Edit, Trash2, Car } from 'lucide-react'; // Added Car icon from lucide-react
 import EditVehicleModal from './modals/EditVehicleModal'; // Modal for editing vehicle details
 import DeleteButton from './ui/DeleteButton'; // Button for deleting vehicle
 
@@ -94,8 +94,8 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center">
-        <div className="w-16 h-16 bg-gray-300 rounded-full mr-4">
-          {/* Placeholder for vehicle image */}
+        <div className="w-16 h-16 bg-gray-300 rounded-full mr-4 flex items-center justify-center">
+          <Car className="text-gray-600" size={32} /> {/* Displaying the car pictogram */}
         </div>
         <div>
           <h2 className="text-xl font-semibold">{vehicleModel} ({vehicleBrand})</h2>
@@ -126,10 +126,10 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
           Edit
         </button>
         <DeleteButton
-  vehicleId={vehicle.vehicle_id}
-  vehicleRegistrationNumber={vehicle.registration_number} // Pass the registration number
-  onDelete={handleDelete}
-/>
+          vehicleId={vehicle.vehicle_id}
+          vehicleRegistrationNumber={vehicle.registration_number} // Pass the registration number
+          onDelete={handleDelete}
+        />
       </div>
 
       {/* Edit Vehicle Modal */}

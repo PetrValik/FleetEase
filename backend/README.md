@@ -9,7 +9,7 @@ Pro spuštění aplikace v vývojovém režimu použijte:
 
  npm start
 
-Aplikace bude dostupná na adrese (http://localhost:5000).
+Aplikace bude dostupná na adrese (http://localhost:3000).
 
 ## Hlavní funkce
 - CRUD operace pro entity

@@ -46,6 +46,10 @@ export default function InsurancePage() {
   const fetchCompanies = async () => {
     try {
       const token = localStorage.getItem('token');
+<<<<<<< Updated upstream
+=======
+      console.log('Fetching companies with token:', token);
+>>>>>>> Stashed changes
       
       const response = await axios.get(config.INSURANCE_COMPANIES_ENDPOINT, {
         headers: {
@@ -106,6 +110,7 @@ export default function InsurancePage() {
         return;
       }
   
+<<<<<<< Updated upstream
       // Debug log původních dat
       console.log('Original insurance data:', insuranceData);
       console.log('Selected insurance:', selectedInsurance);
@@ -125,10 +130,31 @@ export default function InsurancePage() {
       };
   
       const axiosConfig = {
+=======
+      // Validace a formátování dat
+      const formattedData: Record<string, any> = {
+        registration_number: insuranceData.registration_number || null,
+        insurance_type: insuranceData.insurance_types || null,
+        start_date: insuranceData.start_date || null,
+        end_date: insuranceData.end_date || null,
+        name: insuranceData.name || null,
+        payment_method: insuranceData.payment_method || null,
+        insurance_status: insuranceData.insurance_status || 'Pending',
+        insurance_company_id: insuranceData.insurance_company_id ? Number(insuranceData.insurance_company_id) : undefined,
+        company_id: insuranceData.company_id ? Number(insuranceData.company_id) : undefined,
+        description: insuranceData.description || ''
+      };
+  
+      console.log('Final formatted data:', formattedData);
+  
+      // Odeslání dat
+      const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, {
+>>>>>>> Stashed changes
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
+<<<<<<< Updated upstream
       };
   
       // Debug log dat a URL před odesláním
@@ -165,6 +191,21 @@ export default function InsurancePage() {
       } else {
         console.error('Unexpected error:', error);
         alert('An unexpected error occurred');
+=======
+      });
+  
+      if (response.status === 201 || response.status === 200) {
+        console.log('Insurance saved successfully:', response.data);
+        setIsDialogOpen(false);
+        await fetchInsurances();
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Error response from server:', error.response?.data);
+        console.error('HTTP Status:', error.response?.status);
+      } else {
+        console.error('Unexpected error:', error);
+>>>>>>> Stashed changes
       }
     }
   };

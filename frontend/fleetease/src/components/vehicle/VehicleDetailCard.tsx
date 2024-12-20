@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getVehicleById, updateVehicle, deleteVehicle, Vehicle } from '../../database/vehicles/vehicles'; // Import API methods
+import { getVehicleBrandById } from '../../database/vehicles/vehicleBrand'; // Import brand fetching method
+import { getVehicleModelById } from '../../database/vehicles/vehicleModel'; // Import model fetching method
+import { getCountryById, Country } from '../../database/vehicles/countries'; // Import country fetching method
+import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory'; // Import category fetching method
 import { Edit, Trash2 } from 'lucide-react'; // Importing the icons from lucide-react
 import EditVehicleModal from './modals/EditVehicleModal'; // Import the Edit Modal component
 import DeleteButton from './ui/DeleteButton'; // Import the DeleteButton component
@@ -10,6 +14,10 @@ interface VehicleDetailsCardProps {
 
 const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) => {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null); // Vehicle state
+  const [vehicleBrand, setVehicleBrand] = useState<string | null>(null); // Vehicle brand state
+  const [vehicleModel, setVehicleModel] = useState<string | null>(null); // Vehicle model state
+  const [vehicleCategory, setVehicleCategory] = useState<string | null>(null); // Vehicle type state
+  const [registrationCountry, setRegistrationCountry] = useState<Country | null>(null); // Country state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for the delete confirmation modal
   const [loading, setLoading] = useState(true); // State to track loading
@@ -21,6 +29,27 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         setLoading(true);
         const fetchedVehicle = await getVehicleById(vehicleId);
         setVehicle(fetchedVehicle);
+
+        // Fetch brand, model, and category details
+        if (fetchedVehicle) {
+          const brand = await getVehicleBrandById(fetchedVehicle.category_id);
+          const model = await getVehicleModelById(fetchedVehicle.model_id);
+          const category = await getVehicleCategoryById(fetchedVehicle.category_id); // Fetch category (vehicle type)
+
+          if (brand) {
+            setVehicleBrand(brand.brand_name); // Set the brand name
+          }
+          if (model) {
+            setVehicleModel(model.model_name); // Set the model name
+          }
+          if (category) {
+            setVehicleCategory(category.category_name); // Set the vehicle type
+          }
+
+          // Fetch country for registration state
+          const country = await getCountryById(fetchedVehicle.country_id);
+          setRegistrationCountry(country); // Set the registration country
+        }
       } catch (error) {
         console.error('Error fetching vehicle:', error);
       } finally {
@@ -72,6 +101,12 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
     return <p>Vehicle not found or deleted.</p>;
   }
 
+  // Format the created date
+  const createdAtDate = new Date(vehicle.created_at).toLocaleString();
+
+  // Format VIN to uppercase
+  const formattedVIN = vehicle.vin.toUpperCase(); // Convert VIN to uppercase
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center">
@@ -79,11 +114,11 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
           {/* Placeholder for vehicle image */}
         </div>
         <div>
-          <h2 className="text-xl font-semibold">{vehicle.model_id} (Brand ID: {vehicle.category_id})</h2>
+          <h2 className="text-xl font-semibold">{vehicleModel} ({vehicleBrand})</h2>
           <p className="text-gray-600 text-sm">{vehicle.registration_number}</p>
         </div>
         <span
-           className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${
+          className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${
             vehicle.vehicle_status === 'Available'
               ? 'bg-green-500 text-white'
               : vehicle.vehicle_status === 'Reserved'
@@ -106,14 +141,14 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="font-semibold">Vehicle Details</h3>
-          <p><strong>VIN:</strong> {vehicle.vin}</p>
-          <p><strong>Year:</strong> {vehicle.created_at}</p> {/* Replace with proper year field */}
-          <p><strong>Color:</strong> Not available</p> {/* Replace with actual color field */}
-          <p><strong>Capacity:</strong> Not available</p> {/* Replace with actual capacity field */}
+          <p><strong>VIN:</strong> {formattedVIN}</p> {/* Display the VIN in uppercase */}
+          <p><strong>Created at:</strong> {createdAtDate}</p> {/* Display full date */}
+          <p><strong>Registration State:</strong> {registrationCountry?.country_name || 'Not available'}</p> {/* Display the registration country */}
+          <p><strong>Vehicle Type:</strong> {vehicleCategory || 'Not available'}</p> {/* Display the vehicle type */}
         </div>
         <div>
           <h3 className="font-semibold">Technical Specifications</h3>
-          <p><strong>Fuel Type:</strong> {vehicle.fuel_type}</p>
+          <p><strong>Fuel Type:</strong> {vehicle.fuel_type || 'Not available'}</p> {/* Display fuel type or placeholder */}
         </div>
       </div>
 

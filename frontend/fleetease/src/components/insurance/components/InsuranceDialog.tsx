@@ -19,31 +19,10 @@ export default function InsuranceDialog({
   const [formData, setFormData] = React.useState<Partial<Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       registration_number: null,
       name: null,
       start_date: '',
       end_date: '',
-=======
-      registration_number: '',
-      start_date: '',
-      end_date: '',
-      name: '',
->>>>>>> Stashed changes
-=======
-      registration_number: '',
-      start_date: '',
-      end_date: '',
-      name: '',
->>>>>>> Stashed changes
-=======
-      registration_number: '',
-      start_date: '',
-      end_date: '',
-      name: '',
->>>>>>> Stashed changes
       payment_method: 'Monthly',
       insurance_status: 'Active',
       insurance_company_id: insuranceCompanies[0]?.insurance_company_id || 0,
@@ -84,32 +63,13 @@ export default function InsuranceDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    console.log('Form data to submit:', formData);
-    onSave(formData);
-  };
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-    console.log('Submitting form data:', formData);
-    // kontrola před odesláním
-    if (!formData.insurance_types || !formData.registration_number) {
+    // Validace před odesláním
+    if (!formData.insurance_types || !formData.start_date || !formData.end_date) {
       console.error('Required fields are missing');
       return;
     }
     onSave(formData);
-};
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+  };
 
   if (!isOpen) return null;
 
@@ -158,18 +118,6 @@ export default function InsuranceDialog({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Insurance Name
-            </label>
-            <input
-              type="text"
-              value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -197,43 +145,35 @@ export default function InsuranceDialog({
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Insurance Name
+            </label>
+            <input
+              type="text"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-                Insurance Name
-              </label>
-              <input
-                type="text"
-                value={formData.name || ''}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
->>>>>>> Stashed changes
                 Payment Method
               </label>
               <select
-  value={formData.payment_method}
-  onChange={handlePaymentMethodChange}
-  className="w-full p-2 border rounded-md"
-  required
->
-  <option value="Monthly">Monthly</option>
-  <option value="Quarterly">Quarterly</option>
-  <option value="Yearly">Yearly</option>
-  <option value="One-Time">One-Time</option>
-</select>
+                value={formData.payment_method}
+                onChange={handlePaymentMethodChange}
+                className="w-full p-2 border rounded-md"
+                required
+              >
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Semi-Annual">Semi-Annual</option>
+                <option value="Annual">Annual</option>
+                <option value="One-Time">One-Time</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -270,8 +210,8 @@ export default function InsuranceDialog({
             >
               <option value="Active">Active</option>
               <option value="Pending">Pending</option>
-              <option value="Expired">Expired</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="Archived">Archived</option>
+              <option value="Ending">Ending</option>
             </select>
           </div>
 

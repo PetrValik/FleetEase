@@ -7,7 +7,7 @@ cd backend
 ## Spuštění aplikace
 Pro spuštění aplikace v vývojovém režimu použijte:
 
- npm start
+ node app.js
 
 Aplikace bude dostupná na adrese (http://localhost:3000).
 
@@ -16,12 +16,6 @@ Aplikace bude dostupná na adrese (http://localhost:3000).
 - Správa entit přes API
 - Napojení na databázi
 - Strukturované kontrolery a modely
-
-## Dostupné skripty
-- `npm start` - Spustí aplikaci v vývojovém režimu
-- `npm test` - Spustí testy
-- `npm run build` - Vytvoří produkční verzi aplikace (pokud je podporováno)
-- `npm run dev` - Spustí aplikaci v režimu pro vývojáře (s nodemonem, pokud je nainstalován)
 
 ## Vývoj
 Pro vývoj doporučujeme použít `npm run dev`, který spustí aplikaci s automatickým restartováním při změnách v kódu.

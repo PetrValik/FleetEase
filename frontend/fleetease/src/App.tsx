@@ -1,21 +1,23 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { UserProvider } from './contexts/UserContext';
-import Layout from './components/layout/Layout'; // Layout with sidebar and other global components
-import UnauthenticatedLayout from './components/layout/UnauthenticatedLayout'; // Layout for unauthenticated pages
-import Dashboard from './pages/dashboard/Dashboard';
-import SignUp from './pages/auth/SignUp';
-import SignIn from './pages/auth/SignIn';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { UserProvider } from "./contexts/UserContext";
+import Layout from "./components/layout/Layout";
+import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
 import Vehicles from './pages/vehicles/Vehicles';
-import VehicleDetailPage from './pages/vehicles/Vehicles'; // Correct import for VehicleDetailPage
-import { getStoredToken, isAuthenticated } from './utils/authUtils';
-import axios from 'axios';
+import VehicleDetailPage from './pages/vehicles/Vehicles'; 
+import Dashboard from './pages/dashboard/Dashboard';
+import SignUp from "./pages/auth/SignUp";
+import SignIn from "./pages/auth/SignIn";
+import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
+import { getStoredToken } from "./utils/authUtils";
+import axios from "axios";
+import RoleBasedRoute from "./components/auth/RoleBasedRoute";
 
 const App: React.FC = () => {
   useEffect(() => {
     const token = getStoredToken();
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, []);
 
@@ -23,49 +25,101 @@ const App: React.FC = () => {
     <UserProvider>
       <Router>
         <Routes>
-          {/* Unauthenticated Routes */}
-          <Route path="/signin" element={
-            <UnauthenticatedLayout>
-              <SignIn />
-            </UnauthenticatedLayout>
-          } />
-          <Route path="/signup" element={
-            <UnauthenticatedLayout>
-              <SignUp />
-            </UnauthenticatedLayout>
-          } />
-          
-          {/* Authenticated Routes */}
+          <Route
+            path="/signin"
+            element={
+              <RedirectIfAuthenticated>
+                <Layout>
+                  <SignIn />
+                </Layout>
+              </RedirectIfAuthenticated>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <RedirectIfAuthenticated>
+                <Layout>
+                  <SignUp />
+                </Layout>
+              </RedirectIfAuthenticated>
+            }
+          />
           <Route
             path="/"
-            element={isAuthenticated() ? (
-              <Layout>
-                <Dashboard />
-              </Layout>
-            ) : (
-              <Navigate to="/signin" replace />
-            )}
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
           />
           <Route
             path="/vehicles"
-            element={isAuthenticated() ? (
+            element={<RoleBasedRoute allowedRoles={["Admin"]}>
               <Layout>
                 <Vehicles />
               </Layout>
-            ) : (
-              <Navigate to="/signin" replace />
-            )}
+            </RoleBasedRoute>}
           />
-          {/* Dynamic route for vehicle detail page */}
           <Route
             path="/vehicle/:vehicleId"
-            element={isAuthenticated() ? (
+            element={<RoleBasedRoute allowedRoles={["Admin"]}>
               <Layout>
                 <VehicleDetailPage />
               </Layout>
-            ) : (
-              <Navigate to="/signin" replace />
-            )}
+            </RoleBasedRoute>}
+          />
+          <Route
+            path="/user_management"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/inspection_intervals"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/auditlog_book"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Auditlog_Book />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/Roles&Company"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
           />
         </Routes>
       </Router>

@@ -1,5 +1,5 @@
-const supabase = require('../config/supabaseClient');
-const AuditLogModel = require('../models/auditLogModel');
+const supabase = require('../../config/supabaseClient');
+const AuditLogModel = require('../../models/auditLog/auditLogModel');
 
 exports.getAllLogs = async () => {
     const { data, error } = await supabase

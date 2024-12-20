@@ -21,6 +21,7 @@ const vehicleModelRoutes = require('./routes/vehicles/vehicleModelRoutes');
 const vehicleCategoryRoutes = require('./routes/vehicles/vehicleCategoryRoutes');
 const vehicleInspectionRoutes = require('./routes/vehicles/vehicleInspectionRoutes');
 const vehicleRoutes = require('./routes/vehicles/vehicleRoutes');
+auditLogsRoutes = require('./routes/auditLog/auditLogRoutes')
 
 const app = express();
 
@@ -78,6 +79,9 @@ app.use('/api/vehicle-inspections', vehicleInspectionRoutes);
 
 // Add vehicless routes
 app.use('/api/vehicles', vehicleRoutes);
+
+// Add auditLogs routes
+app.use('/api/logs', auditLogsRoutes);
 
 // Endpoint for test
 app.get('/', (req, res) => {

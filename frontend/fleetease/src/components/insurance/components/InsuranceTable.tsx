@@ -18,10 +18,19 @@ export default function InsuranceTable({
   onDelete,
   loading 
 }: InsuranceTableProps) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('cs-CZ', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   const filteredInsurances = insurances.filter(insurance => {
     const matchesSearch = 
-      insurance.policy_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      insurance?.insurance_company?.company_name.toLowerCase().includes(searchTerm.toLowerCase());
+      (insurance.registration_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (insurance.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     
     if (activeTab === 'all') return matchesSearch;
     return matchesSearch && insurance.insurance_types === activeTab;
@@ -41,10 +50,10 @@ export default function InsuranceTable({
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Insurance Number
+              Registration Number
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Insurance Company
+              Insurance Name
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Validity From
@@ -64,16 +73,16 @@ export default function InsuranceTable({
           {filteredInsurances.map((insurance) => (
             <tr key={insurance.insurance_id}>
               <td className="px-6 py-4 whitespace-nowrap">
-                {insurance.policy_number}
+                {insurance.registration_number || 'N/A'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {insurance.insurance_company?.company_name}
+                {insurance.name || 'N/A'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {insurance.start_date}
+                {formatDate(insurance.start_date)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                {insurance.end_date}
+                {formatDate(insurance.end_date)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -81,8 +90,8 @@ export default function InsuranceTable({
                     ? 'bg-green-100 text-green-800'
                     : insurance.insurance_status === 'Pending'
                     ? 'bg-yellow-100 text-yellow-800'
-                    : insurance.insurance_status === 'Ending soon'
-                    ? 'bg-orange-100 text-orange-800'
+                    : insurance.insurance_status === 'Expired'
+                    ? 'bg-red-100 text-red-800'
                     : 'bg-gray-100 text-gray-800'
                 }`}>
                   {insurance.insurance_status}

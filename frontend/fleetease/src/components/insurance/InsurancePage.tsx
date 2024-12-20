@@ -41,20 +41,17 @@ export default function InsurancePage() {
     } finally {
       setLoading(false);
     }
-};
+  };
 
   const fetchCompanies = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('Fetching companies with token:', token); // debug log
       
       const response = await axios.get(config.INSURANCE_COMPANIES_ENDPOINT, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      console.log('Companies response:', response.data); // debug log
       
       if (Array.isArray(response.data)) {
         setInsuranceCompanies(response.data);
@@ -66,7 +63,7 @@ export default function InsurancePage() {
       console.error('Error fetching insurance companies:', error);
       setInsuranceCompanies([]);
     }
-};
+  };
 
   useEffect(() => {
     fetchInsurances();
@@ -86,7 +83,12 @@ export default function InsurancePage() {
   const handleDelete = async (insuranceId: number) => {
     if (window.confirm('Are you sure you want to delete this insurance?')) {
       try {
-        const response = await axios.delete(`${config.API_BASE_URL}/insurances/${insuranceId}`);
+        const token = localStorage.getItem('token');
+        const response = await axios.delete(`${config.INSURANCES_ENDPOINT}/${insuranceId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (response.status === 200) {
           await fetchInsurances();
         }
@@ -103,31 +105,46 @@ export default function InsurancePage() {
         console.error('No token found');
         return;
       }
-
+  
+      // Upravíme formát dat podle požadavků BE
       const formattedData = {
         insurance_types: insuranceData.insurance_types,
-        policy_number: insuranceData.policy_number,
+        registration_number: insuranceData.registration_number || null,
+        name: insuranceData.name || null,
         start_date: insuranceData.start_date,
         end_date: insuranceData.end_date,
-        premium_amount: Number(insuranceData.premium_amount),
-        payment_method: insuranceData.payment_method,
+        payment_method: insuranceData.payment_method as 'Monthly' | 'Quarterly' | 'Yearly' | 'One-Time',
         insurance_status: insuranceData.insurance_status,
         insurance_company_id: Number(insuranceData.insurance_company_id),
         company_id: Number(insuranceData.insurance_company_id),
-        description: insuranceData.description || ''
+        description: insuranceData.description || null
       };
-
-      console.log('Sending data:', formattedData);
-
+  
       const axiosConfig = {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       };
-
-      const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, axiosConfig);
-      
+  
+      // Debug log
+      console.log('Sending data:', formattedData);
+  
+      let response;
+      if (selectedInsurance?.insurance_id) {
+        response = await axios.put(
+          `${config.INSURANCES_ENDPOINT}/${selectedInsurance.insurance_id}`,
+          formattedData,
+          axiosConfig
+        );
+      } else {
+        response = await axios.post(
+          config.INSURANCES_ENDPOINT,
+          formattedData,
+          axiosConfig
+        );
+      }
+  
       if (response.status === 201 || response.status === 200) {
         console.log('Insurance saved successfully:', response.data);
         setIsDialogOpen(false);
@@ -136,12 +153,13 @@ export default function InsurancePage() {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         console.error('Server error:', error.response?.data);
-        console.error('Status:', error.response?.status);
+        alert(error.response?.data?.error || 'Error saving insurance');
       } else {
         console.error('Error saving insurance:', error);
+        alert('Error saving insurance');
       }
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#edf2f7] p-6">

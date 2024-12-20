@@ -19,19 +19,17 @@ export default function InsuranceDialog({
   const [formData, setFormData] = React.useState<Partial<Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
-      policy_number: '',
+      registration_number: null,
+      name: null,
       start_date: '',
       end_date: '',
-      premium_amount: 0,
       payment_method: 'Monthly',
       insurance_status: 'Active',
       insurance_company_id: 0,
       company_id: 0,
-      description: ''
+      description: null
     }
   );
-
-  console.log('Insurance companies in dialog:', insuranceCompanies);
 
   const handleInsuranceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
@@ -59,18 +57,14 @@ export default function InsuranceDialog({
     setFormData({
       ...formData,
       insurance_company_id: companyId,
-      company_id: companyId // nastavíme stejné ID pro obě pole
+      company_id: companyId
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Dialog - Submitting form data:', formData);
-    try {
-        onSave(formData);
-    } catch (error) {
-        console.error('Error in dialog submit:', error);
-    }
+    console.log('Form data to submit:', formData);
+    onSave(formData);
   };
 
   if (!isOpen) return null;
@@ -109,16 +103,27 @@ export default function InsuranceDialog({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Policy Number
+                Registration Number
               </label>
               <input
                 type="text"
-                value={formData.policy_number}
-                onChange={(e) => setFormData({ ...formData, policy_number: e.target.value })}
+                value={formData.registration_number || ''}
+                onChange={(e) => setFormData({ ...formData, registration_number: e.target.value })}
                 className="w-full p-2 border rounded-md"
-                required
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Insurance Name
+            </label>
+            <input
+              type="text"
+              value={formData.name || ''}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -151,56 +156,41 @@ export default function InsuranceDialog({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Premium Amount
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.premium_amount || ''}
-                onChange={(e) => setFormData({ ...formData, premium_amount: parseFloat(e.target.value) })}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Payment Method
               </label>
               <select
-                value={formData.payment_method}
-                onChange={handlePaymentMethodChange}
+  value={formData.payment_method}
+  onChange={handlePaymentMethodChange}
+  className="w-full p-2 border rounded-md"
+  required
+>
+  <option value="Monthly">Monthly</option>
+  <option value="Quarterly">Quarterly</option>
+  <option value="Yearly">Yearly</option>
+  <option value="One-Time">One-Time</option>
+</select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Insurance Company
+              </label>
+              <select
+                value={formData.insurance_company_id || 0}
+                onChange={handleCompanyChange}
                 className="w-full p-2 border rounded-md"
                 required
               >
-                <option value="Monthly">Monthly</option>
-                <option value="Quarterly">Quarterly</option>
-                <option value="Semi-Annual">Semi-Annual</option>
-                <option value="Annual">Annual</option>
-                <option value="One-Time">One-Time</option>
+                <option value={0}>Select Insurance Company</option>
+                {Array.isArray(insuranceCompanies) && insuranceCompanies.map((company) => (
+                  <option 
+                    key={company.insurance_company_id} 
+                    value={company.insurance_company_id}
+                  >
+                    {company.company_name}
+                  </option>
+                ))}
               </select>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Insurance Company
-            </label>
-            <select
-              value={formData.insurance_company_id || 0}
-              onChange={handleCompanyChange}
-              className="w-full p-2 border rounded-md"
-              required
-            >
-              <option value={0}>Select Insurance Company</option>
-              {Array.isArray(insuranceCompanies) && insuranceCompanies.map((company) => (
-                <option 
-                  key={company.insurance_company_id} 
-                  value={company.insurance_company_id}
-                >
-                  {company.company_name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div>
@@ -215,8 +205,8 @@ export default function InsuranceDialog({
             >
               <option value="Active">Active</option>
               <option value="Pending">Pending</option>
-              <option value="Archived">Archived</option>
-              <option value="Ending soon">Ending soon</option>
+              <option value="Expired">Expired</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
 

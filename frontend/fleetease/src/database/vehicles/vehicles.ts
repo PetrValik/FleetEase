@@ -12,8 +12,8 @@ export interface Vehicle {
   vin: string;
   category_id: number;
   country_id: number;
-  fuel_type: string;
-  vehicle_status: string;
+  fuel_type: 'Diesel' | 'Natural 95' | 'Natural 98' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid' | 'CNG' | 'LPG' | 'Hydrogen' | 'Ethanol' | 'Bio-Diesel' | 'Synthetic Fuels';
+  vehicle_status: 'Available' | 'Reserved' | 'In Maintenance' | 'Defect State' | 'Out of Order' | 'Decommissioned';
   created_at: string;
   company_id: number;
 }

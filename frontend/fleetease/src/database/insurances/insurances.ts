@@ -12,9 +12,9 @@ export interface Insurance {
   start_date: string; // ISO format date
   end_date: string; // ISO format date
   name: string | null; // Nullable field
-  payment_method: 'Monthly' | 'Quarterly' | 'Yearly' | 'One-Time'; // Enum values for payment method
+  payment_method: 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time'; // Enum values for payment method
   insurance_company_id: number; // FK to insurance companies
-  insurance_status: 'Active' | 'Pending' | 'Expired' | 'Cancelled'; // Enum values for status
+  insurance_status: 'Pending' | 'Active' | 'Archived' | 'Ending'; // Enum values for status
   company_id: number; // FK to company
   description: string | null; // Nullable field
 }

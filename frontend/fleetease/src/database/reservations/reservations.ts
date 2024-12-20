@@ -14,7 +14,7 @@ export interface Reservation {
   end_time: string;   // ISO date string
   pickup_location: string;
   return_location: string;
-  reservation_status: string;
+  reservation_status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed' | 'Rejected';
   notes: string | null;
   created_at: string; // ISO date string
 }

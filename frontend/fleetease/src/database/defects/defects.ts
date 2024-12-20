@@ -9,11 +9,11 @@ export interface Defect {
   defect_id: number;
   created_at: string; // ISO date string
   vehicle_id: number;
-  defect_severity: string; // Enum: Defect Severity Level
+  defect_severity: 'Minor' | 'Low' | 'Medium' | 'High' | 'Critical'; // Enum: Defect Severity Level
   type_id: number;
   description: string;
   date_reported: string; // ISO date string
-  defect_status: string; // Enum: Defect Status
+  defect_status: 'Reported' | 'In Progress' | 'Repaired' | 'Closed' | 'Deferred'; // Enum: Defect Status
   repair_cost: number | null; // Nullable field
   user_id: number;
 }

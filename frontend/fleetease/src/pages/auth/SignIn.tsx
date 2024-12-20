@@ -23,7 +23,6 @@ const SignIn: React.FC = () => {
       
       // Set the user in context
       setUser(response.user);
-      console.log('User set:', response.user); // Add this line for debugging
       // Redirect to dashboard
       navigate('/');
     } catch (error) {

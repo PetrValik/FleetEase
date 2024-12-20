@@ -31,8 +31,13 @@ export default function InsuranceTable({
     const matchesSearch = 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       (insurance.registration_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (insurance.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+=======
+      insurance.registration_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      insurance.name.toLowerCase().includes(searchTerm.toLowerCase());
+>>>>>>> Stashed changes
 =======
       insurance.registration_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       insurance.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -77,6 +82,7 @@ export default function InsuranceTable({
               <td className="px-6 py-4 whitespace-nowrap">
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 {insurance.registration_number || 'N/A'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -85,6 +91,12 @@ export default function InsuranceTable({
                 {insurance.registration_number}
 =======
                 {insurance.registration_number}
+=======
+                {insurance.registration_number}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                {insurance.name}
+>>>>>>> Stashed changes
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {insurance.name}

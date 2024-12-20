@@ -48,6 +48,10 @@ export default function InsurancePage() {
       const token = localStorage.getItem('token');
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+      console.log('Fetching companies with token:', token);
+>>>>>>> Stashed changes
 =======
       console.log('Fetching companies with token:', token);
 >>>>>>> Stashed changes
@@ -116,6 +120,7 @@ export default function InsurancePage() {
   
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       // Debug log původních dat
       console.log('Original insurance data:', insuranceData);
       console.log('Selected insurance:', selectedInsurance);
@@ -138,6 +143,8 @@ export default function InsurancePage() {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       // Validace a formátování dat
       const formattedData: Record<string, any> = {
         registration_number: insuranceData.registration_number || null,
@@ -157,6 +164,9 @@ export default function InsurancePage() {
       // Odeslání dat
       const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -164,6 +174,7 @@ export default function InsurancePage() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
       };
@@ -205,6 +216,8 @@ export default function InsurancePage() {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       });
   
       if (response.status === 201 || response.status === 200) {
@@ -219,6 +232,9 @@ export default function InsurancePage() {
       } else {
         console.error('Unexpected error:', error);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

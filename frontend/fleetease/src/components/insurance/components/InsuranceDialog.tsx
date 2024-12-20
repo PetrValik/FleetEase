@@ -21,10 +21,17 @@ export default function InsuranceDialog({
       insurance_types: 'Vehicle',
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       registration_number: null,
       name: null,
       start_date: '',
       end_date: '',
+=======
+      registration_number: '',
+      start_date: '',
+      end_date: '',
+      name: '',
+>>>>>>> Stashed changes
 =======
       registration_number: '',
       start_date: '',
@@ -79,10 +86,13 @@ export default function InsuranceDialog({
     e.preventDefault();
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     console.log('Form data to submit:', formData);
     onSave(formData);
   };
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     console.log('Submitting form data:', formData);
@@ -94,6 +104,9 @@ export default function InsuranceDialog({
     onSave(formData);
 };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -189,7 +202,10 @@ export default function InsuranceDialog({
               <label className="block text-sm font-medium text-gray-700 mb-1">
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
                 Insurance Name

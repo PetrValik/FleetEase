@@ -1,50 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // Assuming you're using react-router
-import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Import the VehicleDetailsCard component
-import { getVehicleById } from '../../database/vehicles/vehicles'; // Import the API method for fetching a vehicle
-import { Vehicle } from '../../database/vehicles/vehicles';  // Import the Vehicle type
+import React, { useEffect, useState } from 'react';
+import { useUser } from '../../contexts/UserContext';
+import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Import the vehicle details card component
+import ReservationCalendar from '../../components/vehicle/ReservationCalendar'; // Import the reservation calendar component
+import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations'; // Import the reservation API
+import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // Import the vehicle API
 
 const VehicleDetailPage: React.FC = () => {
-  const { vehicleId } = useParams<{ vehicleId: string }>(); // Get vehicle ID from the URL
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null); // Store the vehicle data
-  const [loading, setLoading] = useState<boolean>(true); // Loading state for fetching vehicle
-  const [error, setError] = useState<string | null>(null); // Error state to display error messages
+  const { isAuthenticated } = useUser(); // Get authentication status
+  const [vehicleId] = useState<number>(1); // Replace with dynamic ID or from URL
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Track if data is loading
 
+  // Fetch data using useEffect hook
   useEffect(() => {
-    const fetchVehicle = async () => {
-      if (vehicleId) {
-        try {
-          const fetchedVehicle = await getVehicleById(Number(vehicleId)); // Fetch the vehicle using the API
-          setVehicle(fetchedVehicle);
-        } catch (error) {
-          setError('Failed to fetch vehicle details.');
-        } finally {
-          setLoading(false);
-        }
-      }
+    const fetchVehicleData = async () => {
+      const vehicleData = await getVehicleById(vehicleId);
+      setVehicle(vehicleData);
     };
 
-    fetchVehicle();
-  }, [vehicleId]); // Dependency on vehicleId to fetch when it changes
+    const fetchReservations = async () => {
+      const fetchedReservations = await getReservationsByVehicleId(vehicleId);
+      setReservations(fetchedReservations);
+    };
 
-  if (loading) {
-    return <p>Loading vehicle details...</p>;
+    // Only fetch data if the user is authenticated
+    if (isAuthenticated) {
+      fetchVehicleData();
+      fetchReservations();
+    }
+
+    setIsLoading(false);  // Set loading to false after data is fetched (or when the user is not authenticated)
+  }, [vehicleId, isAuthenticated]); // Runs when vehicleId or isAuthenticated changes
+
+  // Check loading state
+  if (isLoading) {
+    return <div>Loading...</div>;  // Show loading state while the data is being fetched
   }
 
-  if (error) {
-    return <p>{error}</p>;
+  // If not authenticated, inform the user without redirecting
+  if (!isAuthenticated) {
+    return <div>Please sign in to view this page.</div>; // Inform the user to sign in if not authenticated
   }
 
+  // If vehicle data is not found
   if (!vehicle) {
-    return <p>Vehicle not found or has been deleted.</p>;
+    return <div>Loading vehicle data...</div>;  // Show loading message if vehicle data is not available
   }
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Vehicle Details</h1>
+    <div className="lg:flex">
+      {/* Main Content Area */}
+      <div className="flex-1 p-6">
+        {/* Header */}
+        <header className="text-3xl font-bold mb-6">
+          Vehicle Details
+        </header>
 
-      {/* Vehicle Details Card */}
-      <VehicleDetailsCard vehicleId={vehicleId ? Number(vehicleId) : 0} /> {/* Pass vehicleId to VehicleDetailsCard */}
+        {/* Vehicle Details Card */}
+        <VehicleDetailsCard vehicleId={vehicleId} />
+
+        {/* Reservation Calendar */}
+        <div className="mt-8">
+          <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
+          <ReservationCalendar reservations={reservations} />
+        </div>
+      </div>
     </div>
   );
 };

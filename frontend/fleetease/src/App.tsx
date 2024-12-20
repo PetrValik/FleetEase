@@ -7,7 +7,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import SignUp from './pages/auth/SignUp';
 import SignIn from './pages/auth/SignIn';
 import Vehicles from './pages/vehicles/Vehicles';
-import VehicleDetail from './pages/vehicles/Vehicles'; // Correct import path for VehicleDetail
+import VehicleDetailPage from './pages/vehicles/Vehicles'; // Correct import for VehicleDetailPage
 import { getStoredToken, isAuthenticated } from './utils/authUtils';
 import axios from 'axios';
 
@@ -58,10 +58,10 @@ const App: React.FC = () => {
           />
           {/* Dynamic route for vehicle detail page */}
           <Route
-            path="/vehicle/:vehicleId"  // Dynamic path for vehicle detail
+            path="/vehicle/:vehicleId"
             element={isAuthenticated() ? (
               <Layout>
-                <VehicleDetail />
+                <VehicleDetailPage />
               </Layout>
             ) : (
               <Navigate to="/signin" replace />

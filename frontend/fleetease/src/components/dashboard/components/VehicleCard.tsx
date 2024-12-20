@@ -4,6 +4,7 @@ import { Badge } from "./ui/Badge";
 import { Fuel, UserIcon, Calendar } from "lucide-react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import { VehicleModel, getVehicleModelById } from "../../../database/vehicles/vehicleModel";
+import { VehicleBrand, getVehicleBrandById } from "../../../database/vehicles/vehicleBrand";
 
 interface VehicleCardProps {
   id: string;
@@ -24,17 +25,28 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
   assignmentPeriod,
   status,
 }) => {
-  // State to hold the model info (brand and model name)
+  // State to hold the model and brand info
   const [vehicleModel, setVehicleModel] = useState<VehicleModel | null>(null);
+  const [vehicleBrand, setVehicleBrand] = useState<VehicleBrand | null>(null);
 
   useEffect(() => {
-    // Fetch model information using modelId
-    const fetchModel = async () => {
-      const modelData = await getVehicleModelById(modelId);
-      setVehicleModel(modelData);
+    const fetchVehicleData = async () => {
+      try {
+        // Fetch the model by ID
+        const modelData = await getVehicleModelById(modelId);
+        setVehicleModel(modelData);
+
+        // Fetch the brand by ID if model data is available
+        if (modelData) {
+          const brandData = await getVehicleBrandById(modelData.brand_id);
+          setVehicleBrand(brandData);
+        }
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
     };
-    
-    fetchModel();
+
+    fetchVehicleData();
   }, [modelId]); // Re-fetch if modelId changes
 
   // Formatting registration number for Czech format (e.g., "ABC 1234")
@@ -59,7 +71,9 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
         <CardContent className="space-y-4">
           {/* Display model name and brand if available */}
           <h3 className="text-lg font-semibold">
-            {vehicleModel ? `${vehicleModel.model_name}` : "Loading Model..."}
+            {vehicleBrand && vehicleModel
+              ? `${vehicleBrand.brand_name} ${vehicleModel.model_name}`
+              : "Loading Vehicle Info..."}
           </h3>
 
           {/* Vehicle Details */}
@@ -78,26 +92,22 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
             </div>
 
             {/* Assigned Driver */}
-            {driver && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium flex items-center">
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  Assigned Driver:
-                </span>
-                <span className="text-sm text-gray-500">{driver}</span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium flex items-center">
+                <UserIcon className="mr-2 h-4 w-4" />
+                Assigned Driver:
+              </span>
+              <span className="text-sm text-gray-500">{driver || "-"}</span>
+            </div>
 
             {/* Assignment Period */}
-            {assignmentPeriod && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium flex items-center">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Assignment Period:
-                </span>
-                <span className="text-sm text-gray-500">{assignmentPeriod}</span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium flex items-center">
+                <Calendar className="mr-2 h-4 w-4" />
+                Assignment Period:
+              </span>
+              <span className="text-sm text-gray-500">{assignmentPeriod || "-"}</span>
+            </div>
 
             {/* Status Badge */}
             <div className="flex justify-end mt-2">

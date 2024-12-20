@@ -6,18 +6,7 @@ import { Input } from '../ui/Input'; // Assuming you have your own Input compone
 import { Label } from '../ui/Label'; // Assuming you have your own Label component
 import { createVehicle } from '../../../../database/vehicles/vehicles'; // Import the createVehicle API function
 import { getAllVehicleCategories } from '../../../../database/vehicles/vehicleCategory'; // Import your API function to get vehicle categories
-
-// List of states for suggestions
-const stateOptions = [
-  { value: 'Czechia', label: 'Czechia' },
-  { value: 'Germany', label: 'Germany' },
-  { value: 'Austria', label: 'Austria' },
-  { value: 'Poland', label: 'Poland' },
-  { value: 'Slovakia', label: 'Slovakia' },
-  { value: 'Hungary', label: 'Hungary' },
-  { value: 'France', label: 'France' },
-  { value: 'Italy', label: 'Italy' },
-];
+import * as Database from '../../../../database/database';
 
 const fuelTypeOptions = [
   { value: 'Diesel', label: 'Diesel' },
@@ -37,21 +26,25 @@ const fuelTypeOptions = [
 interface AddVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newVehicle: any) => void; 
-  loading: boolean; 
-  error: string | null; 
+  onSave: (newVehicle: any) => void;
+  loading: boolean;
+  error: string | null;
 }
 
 const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSave }) => {
   const { control, handleSubmit, formState: { errors } } = useForm();
   const [categories, setCategories] = useState<{ value: number, label: string }[]>([]); // State for categories
+  const [stateOptions, setStateOptions] = useState<{ value: number, label: string }[]>([]); // State for states
   const [loadingCategories, setLoadingCategories] = useState(true); // Loading state for categories
+  const [brands, setBrands] = useState<{ value: number; label: string }[]>([]);
+  const [models, setModels] = useState<{ value: number; label: string }[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
 
   // Fetch categories on mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoriesResponse = await getAllVehicleCategories(); 
+        const categoriesResponse = await getAllVehicleCategories();
         const categoriesOptions = categoriesResponse.map((category: any) => ({
           value: category.category_id,
           label: category.category_name,
@@ -66,6 +59,67 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 
     fetchCategories();
   }, []); // Empty array means this will run once on component mount
+
+  // Fetch state options on mount
+  useEffect(() => {
+    const fetchStateOptions = async () => {
+      try {
+        const countries: Database.Country[] = await Database.getAllCountries();
+        const options = countries.map(country => ({
+          value: country.country_id,
+          label: country.country_name,
+        }));
+        setStateOptions(options);
+      } catch (error) {
+        console.error("Error fetching state options:", error);
+      }
+    };
+
+    fetchStateOptions();
+  }, []); // Empty array means this will run once on component mount
+
+  // Načítání všech značek při načtení komponenty
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const brandsResponse = await Database.getAllVehicleBrands();
+        const brandOptions = brandsResponse.map((brand: any) => ({
+          value: brand.brand_id,
+          label: brand.brand_name,
+        }));
+        setBrands(brandOptions);
+      } catch (error) {
+        console.error('Error fetching brands:', error);
+      }
+    };
+
+    fetchBrands();
+  }, []);
+
+  // Dynamické načítání modelů na základě vybrané značky
+  const handleBrandChange = async (selectedBrand: { value: number; label: string } | null) => {
+  if (!selectedBrand) {
+    setModels([]);
+    return;
+  }
+
+  setLoadingModels(true); // Start loading indicator
+  try {
+    const modelsResponse = await Database.getModelsByBrandId(selectedBrand.value);
+    const modelOptions = modelsResponse.map((model: any) => ({
+      value: model.model_id,
+      label: model.model_name,
+    }));
+    setModels(modelOptions);
+    console.log('Models fetched:', modelOptions); // Debug log
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    setModels([]); // Clear models if an error occurs
+  } finally {
+    setLoadingModels(false); // End loading indicator
+  }
+};
+
 
   const onSubmit = async (data: FieldValues) => {
     try {
@@ -84,7 +138,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 
       const company_id = 1; // You can update this based on your context
       const createdVehicle = await createVehicle(company_id, newVehicle);
-      onSave(createdVehicle); 
+      onSave(createdVehicle);
       onClose();
     } catch (error) {
       console.error('Error creating vehicle:', error);
@@ -173,7 +227,17 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                 name="brand"
                 control={control}
                 rules={{ required: 'Brand is required' }}
-                render={({ field }) => <Input {...field} id="brand" placeholder="Enter brand (e.g., Ford)" />}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={brands}
+                    placeholder="Select a brand..."
+                    onChange={(value) => {
+                      field.onChange(value); // Uloží hodnotu značky do formuláře
+                      handleBrandChange(value); // Zavolá funkci pro načtení modelů
+                    }}
+                  />
+                )}
               />
               {errors.brand && (
                 <p className="text-red-500 text-xs">{(errors.brand as FieldError).message}</p>
@@ -187,7 +251,14 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                 name="model"
                 control={control}
                 rules={{ required: 'Model is required' }}
-                render={({ field }) => <Input {...field} id="model" placeholder="Enter model (e.g., F-150)" />}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={models}
+                    placeholder={loadingModels ? 'Loading models...' : 'Select a model...'}
+                    isDisabled={models.length === 0 || loadingModels}
+                  />
+                )}
               />
               {errors.model && (
                 <p className="text-red-500 text-xs">{(errors.model as FieldError).message}</p>

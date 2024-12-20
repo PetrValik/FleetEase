@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Vehicle } from '../../database/vehicles/mocks'; // Import mock data
+import { Vehicle } from '../../database/vehicles/vehicles'; // Import mock data
 import { Edit, Trash2 } from 'lucide-react'; // Importing the icons from lucide-react
 import EditVehicleModal from './modals/EditVehicleModal'; // Import the new modal component
 import DeleteButton from './ui/DeleteButton'; // Import the DeleteButton component

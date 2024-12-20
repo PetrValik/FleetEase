@@ -7,7 +7,7 @@ import MainPage from "./pages/dashboard/MainPage";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
-// import Auditlog_Book from "./pages/manager_pages/Audtilog_Book";
+import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute"; // Import nové komponenty
@@ -69,7 +69,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <MainPage />
+                  <Inspection_Intervals />
                 </Layout>
               </RoleBasedRoute>
             }

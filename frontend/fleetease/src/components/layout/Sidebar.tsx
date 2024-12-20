@@ -51,11 +51,6 @@ const getNavItems = (role: Role | null): NavItem[] => {
       },
     ],
     Admin: [
-      { path: "/vehicles", label: "Vehicles", icon: Car },
-      { path: "/defects", label: "Defects", icon: Tool },
-      { path: "/schedule", label: "Schedule", icon: Calendar },
-      { path: "/employees", label: "Employees", icon: Users },
-      { path: "/reports", label: "Reports", icon: FileText },
       { path: "/user_management", label: "User Management", icon: UserCog },
       {
         path: "/inspection_intervals",

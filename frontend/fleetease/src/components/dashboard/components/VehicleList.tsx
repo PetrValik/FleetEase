@@ -14,17 +14,17 @@ const VehicleList: React.FC<VehicleListProps> = ({ vehicles }) => {
         <div>No vehicles available</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-  {vehicles.map((vehicle) => (
-    <VehicleCard
-      key={vehicle.vehicle_id}
-      id={String(vehicle.vehicle_id)} // Pass vehicle_id as string
-      modelId={vehicle.model_id} // Pass model_id
-      registrationNumber={vehicle.registration_number} // Pass registration_number
-      fuelType={vehicle.fuel_type} // Pass fuel_type
-      status={vehicle.vehicle_status as "Available" | "In Use" | "Maintenance" | "Reserved" | "Disabled"} // Ensure status matches the enum
-    />
-  ))}
-</div>
+          {vehicles.map((vehicle) => (
+            <VehicleCard
+              key={vehicle.vehicle_id}
+              id={String(vehicle.vehicle_id)} // Pass vehicle_id as string
+              modelId={vehicle.model_id} // Pass model_id
+              registrationNumber={vehicle.registration_number} // Pass registration_number
+              fuelType={vehicle.fuel_type} // Pass fuel_type
+              status={vehicle.vehicle_status as "Available" | "Reserved" | "Maintenance" | "Disabled"} // Ensure status matches the enum
+            />
+          ))}
+        </div>
       )}
     </div>
   );

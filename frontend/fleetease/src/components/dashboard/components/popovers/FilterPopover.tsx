@@ -26,7 +26,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 }) => {
   const [localTypeFilters, setTypeFilters] = useState<Filters>(typeFilters);
   const [localFuelFilters, setFuelFilters] = useState<Filters>(fuelFilters);
-  const [localStateFilters, setStateFilters] = useState<Filters>(stateFilters);
+  const [localStateFilters, setStateFilters] = useState<Filters>({
+    available: stateFilters.available || false,
+    reserved: stateFilters.reserved || false, // Change 'inUse' to 'reserved'
+  });
 
   const handleCheckboxChange = (category: string, option: string) => {
     const setState =
@@ -46,12 +49,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
     setTypeFilters({ truck: false, van: false, car: false });
     setFuelFilters({ diesel: false, petrol: false, electric: false, hybrid: false });
     setStateFilters({
-      inUse: false,
       available: false,
-      maintenance: false,
-      disabled: false,
+      reserved: false, // Reset 'reserved' instead of 'inUse'
     });
-    onClearFilter();  // Call the clear filter callback
+    onClearFilter(); // Call the clear filter callback
   };
 
   const handleApply = () => {
@@ -60,57 +61,56 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       typeFilters: localTypeFilters,
       fuelFilters: localFuelFilters,
       stateFilters: localStateFilters,
-    });  // Pass the filters to the parent
+    }); // Pass the filters to the parent
   };
 
   return (
     <div className="space-y-4">
-      {/* Type Section */}
-      <div>
-        <h3 className="font-semibold text-lg mb-2">Type</h3>
-        <div className="space-y-2">
-          {Object.keys(localTypeFilters).map((key) => (
-            <CustomCheckbox
-              key={key}
-              checked={localTypeFilters[key]}
-              onChange={() => handleCheckboxChange('type', key)}
-              label={key.charAt(0).toUpperCase() + key.slice(1)}
-            />
-          ))}
+      {/* Filters Section */}
+      <div className="flex flex-wrap gap-6">
+        {/* Type Section */}
+        <div className="flex-1 min-w-[150px]">
+          <h3 className="font-semibold text-lg mb-2">Type</h3>
+          <div className="space-y-2">
+            {Object.keys(localTypeFilters).map((key) => (
+              <CustomCheckbox
+                key={key}
+                checked={localTypeFilters[key]}
+                onChange={() => handleCheckboxChange('type', key)}
+                label={key.charAt(0).toUpperCase() + key.slice(1)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <Separator />
-
-      {/* Fuel Section */}
-      <div>
-        <h3 className="font-semibold text-lg mb-2">Fuel</h3>
-        <div className="space-y-2">
-          {Object.keys(localFuelFilters).map((key) => (
-            <CustomCheckbox
-              key={key}
-              checked={localFuelFilters[key]}
-              onChange={() => handleCheckboxChange('fuel', key)}
-              label={key.charAt(0).toUpperCase() + key.slice(1)}
-            />
-          ))}
+        {/* Fuel Section */}
+        <div className="flex-1 min-w-[150px]">
+          <h3 className="font-semibold text-lg mb-2">Fuel</h3>
+          <div className="space-y-2">
+            {Object.keys(localFuelFilters).map((key) => (
+              <CustomCheckbox
+                key={key}
+                checked={localFuelFilters[key]}
+                onChange={() => handleCheckboxChange('fuel', key)}
+                label={key.charAt(0).toUpperCase() + key.slice(1)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <Separator />
-
-      {/* State Section */}
-      <div>
-        <h3 className="font-semibold text-lg mb-2">State</h3>
-        <div className="space-y-2">
-          {Object.keys(localStateFilters).map((key) => (
-            <CustomCheckbox
-              key={key}
-              checked={localStateFilters[key]}
-              onChange={() => handleCheckboxChange('state', key)}
-              label={key.charAt(0).toUpperCase() + key.slice(1)}
-            />
-          ))}
+        {/* State Section */}
+        <div className="flex-1 min-w-[150px]">
+          <h3 className="font-semibold text-lg mb-2">State</h3>
+          <div className="space-y-2">
+            {Object.keys(localStateFilters).map((key) => (
+              <CustomCheckbox
+                key={key}
+                checked={localStateFilters[key]}
+                onChange={() => handleCheckboxChange('state', key)}
+                label={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()} // Format "reserved" to "Reserved"
+              />
+            ))}
+          </div>
         </div>
       </div>
 

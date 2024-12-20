@@ -13,7 +13,7 @@ interface VehicleCardProps {
   fuelType: string;
   driver?: string;
   assignmentPeriod?: string;
-  status: "Available" | "In Use" | "Maintenance" | "Reserved" | "Disabled"; // Status of the vehicle
+  status: "Available" | "Reserved" | "Maintenance" | "Disabled"; // Changed "In Use" to "Reserved"
 }
 
 export const VehicleCard: React.FC<VehicleCardProps> = ({
@@ -55,11 +55,10 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
     "$1 $2"
   );
 
-  // Status color mapping
+  // Status color mapping (updated with 'Reserved' state)
   const statusColors = {
     Available: "bg-[#10b91d]",
-    "In Use": "bg-[#3b82f6]",
-    Reserved: "bg-[#eab308]",
+    Reserved: "bg-[#eab308]",  // Updated from "In Use" to "Reserved"
     Maintenance: "bg-[#ef4444]",
     Disabled: "bg-[#6b7280]", // Gray for disabled status
   };
@@ -115,8 +114,8 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                 variant={
                   status === "Available"
                     ? "success"
-                    : status === "In Use"
-                    ? "default"
+                    : status === "Reserved"
+                    ? "default"  // Updated to handle "Reserved" status
                     : "destructive"
                 }
                 className={`${statusColors[status]} text-white`}

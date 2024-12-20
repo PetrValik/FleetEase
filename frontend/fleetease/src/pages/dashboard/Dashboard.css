@@ -49,6 +49,7 @@
     align-items: center; /* Vertically align the buttons and search bar */
     gap: 1rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 /* Button Styles */
@@ -92,7 +93,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9998; /* Ensure it’s above the content */
+    z-index: 10000; /* Ensure it’s above the content */
 }
 
 /* Modal Content */
@@ -106,26 +107,24 @@
     width: 100%;
     max-height: 80vh;
     overflow-y: auto;
-    z-index: 9999; /* Ensure it’s above the overlay */
+    z-index: 10001; /* Ensure it’s above the overlay */
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-
-
 /* Close Button for Add Vehicle Modal */
 .modal-close-btn {
-    position: absolute; /* Position it absolutely within modal content */
-    top: 1rem; /* 1rem from the top */
-    right: 1rem; /* 1rem from the right */
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     background-color: transparent;
     border: none;
     font-size: 1.5rem;
     color: #718096;
     cursor: pointer;
     transition: color 0.3s ease;
-    z-index: 10000; /* Ensure it’s above the modal content */
+    z-index: 10002; /* Ensure it’s above the modal content */
 }
 
 .modal-close-btn:hover {
@@ -135,7 +134,7 @@
 /* Filter Popover Styles */
 .filter-modal-overlay {
     position: absolute;
-    z-index: 9999; /* Ensure it’s above the content */
+    z-index: 10000; /* Ensure it’s above the content */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -176,8 +175,8 @@
 /* Filter Modal Arrow */
 .filter-modal-arrow {
     position: absolute;
-    top: -5px; /* Adjust if needed */
-    right: 15px; /* Align with the right edge of the filter button */
+    top: -5px;
+    right: 15px;
     width: 0;
     height: 0;
     border-left: 5px solid transparent;
@@ -200,22 +199,14 @@
 .input-container {
     position: relative;
     display: flex;
-    width: 250px;
+    width: 100%; /* Make the input flexible */
+    min-width: 250px; /* Prevent the input from shrinking too much */
     align-items: center; /* Ensure the input and button align vertically */
 }
   
 .search-input {
     width: 100%;
     height: 41px;
-    padding: 10px 40px 10px 10px; /* Add padding on the right for the icon */
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-  
-/* Search Input Field */
-.search-input {
-    width: 100%;
     padding: 10px 40px 10px 10px; /* Add padding on the right for the icon */
     font-size: 16px;
     border-radius: 5px;

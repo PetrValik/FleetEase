@@ -72,30 +72,38 @@ const Dashboard: React.FC = () => {
   const handleApplyFilter = (newFilters: any) => {
     setFilters(newFilters);
     setIsFilterPopoverVisible(false);
-
+  
     // Apply filters to vehicles
     const filtered = vehicles.filter((vehicle) => {
+      // Type filters
       const typeMatch =
         (!newFilters.typeFilters.truck && !newFilters.typeFilters.van && !newFilters.typeFilters.car) ||
         (newFilters.typeFilters.truck && vehicle.registration_number.toLowerCase().includes('truck')) ||
         (newFilters.typeFilters.van && vehicle.registration_number.toLowerCase().includes('van')) ||
         (newFilters.typeFilters.car && vehicle.registration_number.toLowerCase().includes('car'));
-
+  
+      // Fuel filters
       const fuelMatch =
         (!newFilters.fuelFilters.gas && !newFilters.fuelFilters.diesel && !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid) ||
         getFuelFilterValue(vehicle.fuel_type, newFilters.fuelFilters);
-
+  
+      // State filters
       const stateMatch =
-        (!newFilters.stateFilters.inUse && !newFilters.stateFilters.available && !newFilters.stateFilters.maintenance) ||
-        (newFilters.stateFilters.inUse && vehicle.vehicle_status === 'Available') || // Corrected to use a valid value
-        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Reserved') || // Corrected to use a valid value
-        (newFilters.stateFilters.maintenance && vehicle.vehicle_status === 'In Maintenance'); // Corrected to use a valid value
-
+        (!newFilters.stateFilters.reserved && !newFilters.stateFilters.available && !newFilters.stateFilters.maintenance) ||
+        (newFilters.stateFilters.reserved && vehicle.vehicle_status === 'Reserved') || // Changed from 'In Use' to 'Reserved'
+        (newFilters.stateFilters.available && vehicle.vehicle_status === 'Available') || 
+        (newFilters.stateFilters.maintenance && vehicle.vehicle_status === 'In Maintenance') || 
+        (newFilters.stateFilters.defectState && vehicle.vehicle_status === 'Defect State') || 
+        (newFilters.stateFilters.outOfOrder && vehicle.vehicle_status === 'Out of Order') || 
+        (newFilters.stateFilters.decommissioned && vehicle.vehicle_status === 'Decommissioned');
+  
       return typeMatch && fuelMatch && stateMatch;
     });
-
+  
     setFilteredVehicles(filtered);
   };
+  
+  
 
   const handleClearFilter = () => {
     setFilters({

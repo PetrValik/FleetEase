@@ -106,14 +106,18 @@ export default function InsurancePage() {
         return;
       }
   
-      // Upravíme formát dat podle požadavků BE
+      // Debug log původních dat
+      console.log('Original insurance data:', insuranceData);
+      console.log('Selected insurance:', selectedInsurance);
+  
       const formattedData = {
+        ...(selectedInsurance?.insurance_id && { insurance_id: selectedInsurance.insurance_id }),
         insurance_types: insuranceData.insurance_types,
         registration_number: insuranceData.registration_number || null,
         name: insuranceData.name || null,
         start_date: insuranceData.start_date,
         end_date: insuranceData.end_date,
-        payment_method: insuranceData.payment_method as 'Monthly' | 'Quarterly' | 'Yearly' | 'One-Time',
+        payment_method: insuranceData.payment_method,
         insurance_status: insuranceData.insurance_status,
         insurance_company_id: Number(insuranceData.insurance_company_id),
         company_id: Number(insuranceData.insurance_company_id),
@@ -127,36 +131,40 @@ export default function InsurancePage() {
         }
       };
   
-      // Debug log
-      console.log('Sending data:', formattedData);
-  
-      let response;
+      // Debug log dat a URL před odesláním
       if (selectedInsurance?.insurance_id) {
-        response = await axios.put(
-          `${config.INSURANCES_ENDPOINT}/${selectedInsurance.insurance_id}`,
-          formattedData,
-          axiosConfig
-        );
+        const updateUrl = `${config.INSURANCES_ENDPOINT}/${selectedInsurance.insurance_id}`;
+        console.log('UPDATE - Sending PUT request to:', updateUrl);
+        console.log('UPDATE - With data:', formattedData);
+        
+        const response = await axios.put(updateUrl, formattedData, axiosConfig);
+        console.log('UPDATE - Response:', response);
+        
+        if (response.status === 200) {
+          setIsDialogOpen(false);
+          await fetchInsurances();
+        }
       } else {
-        response = await axios.post(
-          config.INSURANCES_ENDPOINT,
-          formattedData,
-          axiosConfig
-        );
-      }
-  
-      if (response.status === 201 || response.status === 200) {
-        console.log('Insurance saved successfully:', response.data);
-        setIsDialogOpen(false);
-        await fetchInsurances();
+        console.log('CREATE - Sending POST request to:', config.INSURANCES_ENDPOINT);
+        console.log('CREATE - With data:', formattedData);
+        
+        const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, axiosConfig);
+        console.log('CREATE - Response:', response);
+        
+        if (response.status === 201) {
+          setIsDialogOpen(false);
+          await fetchInsurances();
+        }
       }
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
-        console.error('Server error:', error.response?.data);
-        alert(error.response?.data?.error || 'Error saving insurance');
+        console.error('Full error response:', error.response);
+        console.error('Error data:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        alert(`Error: ${error.response?.data?.error || 'Failed to save insurance'}`);
       } else {
-        console.error('Error saving insurance:', error);
-        alert('Error saving insurance');
+        console.error('Unexpected error:', error);
+        alert('An unexpected error occurred');
       }
     }
   };

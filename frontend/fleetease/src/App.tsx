@@ -57,7 +57,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/vehicles"
-            element={<RoleBasedRoute allowedRoles={["Admin"]}>
+            element={<RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
               <Layout>
                 <Vehicles />
               </Layout>
@@ -65,7 +65,7 @@ const App: React.FC = () => {
           />
           <Route
             path="/vehicle/:vehicleId"
-            element={<RoleBasedRoute allowedRoles={["Admin"]}>
+            element={<RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
               <Layout>
                 <VehicleDetailPage />
               </Layout>
@@ -74,7 +74,7 @@ const App: React.FC = () => {
           <Route
             path="/user_management"
             element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
                 <Layout>
                   <Dashboard />
                 </Layout>

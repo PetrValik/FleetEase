@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { getAllLogs } from "../../utils/apiClient"; // potrebuji nastavit
-import { AuditLog } from "../../utils/apiClient"; // potrebuji nastavit
-import { formatDate } from "../../utils/dateUtils"; // Assuming you have a date formatting utility
+import * as Database from "../../database/database";
+import { formatDate } from "../../utils/dateUtils";
 
 export default function AuditlogBook() {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [logs, setLogs] = useState<Database.AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const auditLogs = await getAllLogs();
+        const auditLogs = await Database.getAllLogs();
         setLogs(auditLogs);
       } catch (error) {
         console.error("Failed to fetch audit logs:", error);

@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
-import { Reservation } from '../../database/reservations/reservations';  // Adjust the import path if needed
+import { Reservation, createReservation } from '../../database/reservations/reservations'; // Adjust the import path if needed
+
+const citiesCZ = [
+  "Prague", "Brno", "Ostrava", "Plzeň", "Liberec", "Olomouc", "Hradec Králové", "Pardubice", "Zlín", "Ústí nad Labem"
+];
+
+const citiesSK = [
+  "Bratislava", "Košice", "Prešov", "Nitra", "Trnava", "Žilina", "Martin", "Trenčín", "Poprad", "Námestovo"
+];
 
 interface ReservationCalendarProps {
-  reservations: Reservation[];  // Use the Reservation interface directly
+  reservations: Reservation[];
+  user: { user_id: number }; // Add user prop here
 }
 
-const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations }) => {
+const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations, user }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [reservationDetails, setReservationDetails] = useState<Reservation | null>(null);
+  const [pickupLocation, setPickupLocation] = useState<string>('');
+  const [returnLocation, setReturnLocation] = useState<string>('');
 
   const startOfCurrentMonth = startOfMonth(currentDate);
   const endOfCurrentMonth = endOfMonth(currentDate);
@@ -42,14 +53,43 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations 
   };
 
   const isDateReserved = (date: Date) => {
-    return reservations.some((reservation) => 
-      isSameDay(new Date(reservation.start_time), date) || 
+    return reservations.some((reservation) =>
+      isSameDay(new Date(reservation.start_time), date) ||
       isSameDay(new Date(reservation.end_time), date)
     );
   };
 
   const isDateSelected = (date: Date) => {
     return selectedDates.some((selectedDate) => isSameDay(selectedDate, date));
+  };
+
+  const handleReservationSubmit = async () => {
+    if (selectedDates.length === 0 || !user || !pickupLocation || !returnLocation) {
+      return;  // Validation: No dates selected, no user logged in, or no locations chosen
+    }
+
+    // Sort selected dates (start_time = lower date, end_time = higher date)
+    const sortedDates = [...selectedDates].sort((a, b) => a.getTime() - b.getTime());
+    const startDate = sortedDates[0];
+    const endDate = sortedDates[sortedDates.length - 1];
+
+    const newReservationData = {
+      user_id: user.user_id,  // Assuming the user object contains the user_id
+      vehicle_id: 1,  // Set the vehicle_id based on your context
+      start_time: format(startDate, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      end_time: format(endDate, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"),
+      pickup_location: pickupLocation,
+      return_location: returnLocation,
+      reservation_status: "Completed" as "Completed",  // Explicitly typing as 'Completed'
+      notes: "Reservation for maintenance",  // Optional
+    };
+
+    const newReservation = await createReservation(newReservationData);
+    if (newReservation) {
+      console.log("Reservation created successfully:", newReservation);
+    } else {
+      console.error("Error creating reservation");
+    }
   };
 
   const renderDayCell = (date: Date) => {
@@ -121,22 +161,32 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations 
       <div className="mt-4 p-4 border rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold">Reservation Request</h3>
         <p className="text-sm text-gray-600">{reservationDateRange}</p>
-        <form>
+        <form onSubmit={(e) => { e.preventDefault(); handleReservationSubmit(); }}>
           <div className="mt-2">
-            <label className="block text-sm font-medium">Driver Name</label>
-            <input
-              type="text"
+            <label className="block text-sm font-medium">Pickup Location</label>
+            <select
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
               className="mt-1 w-full border-gray-300 rounded-lg p-2"
-              defaultValue="John Doe" // Pre-fill with the current driver name
-            />
+            >
+              <option value="">Select Pickup Location</option>
+              {citiesCZ.concat(citiesSK).map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
           </div>
           <div className="mt-2">
-            <label className="block text-sm font-medium">Reason</label>
-            <textarea
+            <label className="block text-sm font-medium">Return Location</label>
+            <select
+              value={returnLocation}
+              onChange={(e) => setReturnLocation(e.target.value)}
               className="mt-1 w-full border-gray-300 rounded-lg p-2"
-              rows={3}
-              placeholder="Enter reason for reservation"
-            />
+            >
+              <option value="">Select Return Location</option>
+              {citiesCZ.concat(citiesSK).map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
           </div>
           <button
             type="submit"

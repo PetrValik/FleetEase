@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { getVehicleById, updateVehicle, deleteVehicle, Vehicle } from '../../database/vehicles/vehicles'; // API methods for vehicle
-import { getVehicleBrandById } from '../../database/vehicles/vehicleBrand'; // Fetch brand data
-import { getVehicleModelById } from '../../database/vehicles/vehicleModel'; // Fetch model data
-import { getCountryById, Country } from '../../database/vehicles/countries'; // Fetch country data
-import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory'; // Fetch category data
-import { Edit, Trash2, Car } from 'lucide-react'; // Added Car icon from lucide-react
-import EditVehicleModal from './modals/EditVehicleModal'; // Modal for editing vehicle details
-import DeleteButton from './ui/DeleteButton'; // Button for deleting vehicle
+import { getVehicleById, updateVehicle, deleteVehicle, Vehicle } from '../../database/vehicles/vehicles';
+import { getVehicleBrandById } from '../../database/vehicles/vehicleBrand';
+import { getVehicleModelById } from '../../database/vehicles/vehicleModel';
+import { getCountryById, Country } from '../../database/vehicles/countries';
+import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory';
+import { Edit, Trash2, Car } from 'lucide-react';
+import EditVehicleModal from './modals/EditVehicleModal';
+import DeleteButton from './ui/DeleteButton';
 
 interface VehicleDetailsCardProps {
-  vehicleId: number; // Expect vehicleId prop passed from parent
+  vehicleId: number;
 }
 
 const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) => {
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null); // Vehicle state
-  const [vehicleBrand, setVehicleBrand] = useState<string | null>(null); // Vehicle brand state
-  const [vehicleModel, setVehicleModel] = useState<string | null>(null); // Vehicle model state
-  const [vehicleCategory, setVehicleCategory] = useState<string | null>(null); // Vehicle category state
-  const [registrationCountry, setRegistrationCountry] = useState<Country | null>(null); // Country state
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // State for delete modal
-  const [loading, setLoading] = useState(true); // Loading state
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [vehicleBrand, setVehicleBrand] = useState<string | null>(null);
+  const [vehicleModel, setVehicleModel] = useState<string | null>(null);
+  const [vehicleCategory, setVehicleCategory] = useState<string | null>(null);
+  const [registrationCountry, setRegistrationCountry] = useState<Country | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // State for error
 
-  // Fetch vehicle and related data when component mounts or vehicleId changes
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
@@ -41,8 +41,9 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
           setVehicleCategory(category?.category_name || 'Not available');
           setRegistrationCountry(country || null);
         }
-      } catch (error) {
-        console.error('Error fetching vehicle details:', error);
+      } catch (err) {
+        console.error('Error fetching vehicle details:', err);
+        setError('Failed to load vehicle details.'); // Set error state
       } finally {
         setLoading(false);
       }
@@ -51,11 +52,9 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
     fetchVehicle();
   }, [vehicleId]);
 
-  // Handle edit modal open/close
   const handleOpenModal = () => setIsEditModalOpen(true);
   const handleCloseModal = () => setIsEditModalOpen(false);
 
-  // Handle save in edit modal
   const handleSave = async (updatedVehicle: Vehicle) => {
     try {
       const { vehicle_id, ...updateData } = updatedVehicle;
@@ -63,12 +62,12 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       setVehicle(savedVehicle);
     } catch (error) {
       console.error('Error updating vehicle:', error);
+      setError('Failed to save vehicle updates.'); // Set error state on failure
     } finally {
       handleCloseModal();
     }
   };
 
-  // Handle vehicle deletion
   const handleDelete = async () => {
     try {
       const success = await deleteVehicle(vehicleId);
@@ -77,6 +76,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       }
     } catch (error) {
       console.error('Error deleting vehicle:', error);
+      setError('Failed to delete vehicle.'); // Set error state on failure
     }
   };
 
@@ -89,13 +89,13 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
   }
 
   const createdAtDate = new Date(vehicle.created_at).toLocaleString();
-  const formattedVIN = vehicle.vin.toUpperCase(); // Format VIN to uppercase
+  const formattedVIN = vehicle.vin.toUpperCase();
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center">
         <div className="w-16 h-16 bg-gray-300 rounded-full mr-4 flex items-center justify-center">
-          <Car className="text-gray-600" size={32} /> {/* Displaying the car pictogram */}
+          <Car className="text-gray-600" size={32} />
         </div>
         <div>
           <h2 className="text-xl font-semibold">{vehicleModel} ({vehicleBrand})</h2>
@@ -127,13 +127,20 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         </button>
         <DeleteButton
           vehicleId={vehicle.vehicle_id}
-          vehicleRegistrationNumber={vehicle.registration_number} // Pass the registration number
+          vehicleRegistrationNumber={vehicle.registration_number}
           onDelete={handleDelete}
         />
       </div>
 
       {/* Edit Vehicle Modal */}
-      <EditVehicleModal vehicle={vehicle} isOpen={isEditModalOpen} onClose={handleCloseModal} onSave={handleSave} />
+      <EditVehicleModal
+        vehicle={vehicle}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        loading={loading} // Pass loading state
+        error={error} // Pass error state
+      />
     </div>
   );
 };

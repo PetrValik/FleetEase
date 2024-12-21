@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../../contexts/UserContext'; // User context for authentication
 import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Vehicle details component
 import ReservationCalendar from '../../components/vehicle/ReservationCalendar'; // Reservation calendar component
+import CurrentReservations from '../../components/vehicle/CurrentReservations'; // Import the new CurrentReservations component
 import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations'; // Fetch reservations by vehicle ID
 import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // Fetch vehicle details by ID
-import { useParams } from 'react-router-dom'; // React Router for capturing vehicleId from URL
+import { useParams } from 'react-router-dom'; // React Router for capturing vehicleId from URL params
 
 const VehicleDetailPage: React.FC = () => {
-  const { isAuthenticated } = useUser(); // Get authentication status
+  const { isAuthenticated, user } = useUser(); // Get authentication status and user from context
   const { vehicleId } = useParams<{ vehicleId: string }>(); // Capture vehicleId from URL params
 
   const [reservations, setReservations] = useState<Reservation[]>([]); // Store reservations data
@@ -51,21 +52,35 @@ const VehicleDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="lg:flex">
-      {/* Main Content Area */}
-      <div className="flex-1 p-6">
-        {/* Header */}
+    <div className="p-6">
+      {/* Vehicle Details Card */}
+      <div className="mb-8">
         <header className="text-3xl font-bold mb-6">
           Vehicle Details
         </header>
-
-        {/* Vehicle Details Card */}
         <VehicleDetailsCard vehicleId={Number(vehicleId)} /> {/* Pass vehicleId to VehicleDetailsCard */}
+      </div>
 
-        {/* Reservation Calendar */}
-        <div className="mt-8">
-          <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
-          <ReservationCalendar reservations={reservations} />
+      {/* Reservation Calendar and Current Reservations (same row) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column: Reservation Calendar */}
+        <div className="flex justify-center items-center w-full">
+          <div className="w-full max-w-4xl">
+            <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
+            {/* Only render ReservationCalendar if user is not null */}
+            {user ? (
+              <ReservationCalendar reservations={reservations} user={user} />
+            ) : (
+              <div>Please log in to view the reservation calendar.</div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Current Reservations */}
+        <div className="w-full">
+          <h3 className="text-2xl font-semibold mb-4">Current Reservations</h3>
+          {/* Display CurrentReservations component */}
+          <CurrentReservations vehicleId={Number(vehicleId)} /> {/* Pass vehicleId to CurrentReservations */}
         </div>
       </div>
     </div>

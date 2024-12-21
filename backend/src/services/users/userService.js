@@ -88,7 +88,7 @@ exports.getAllUsers = async () => {
   // Fetch all users with selected fields
   const { data, error } = await supabase
     .from('Users')
-    .select('user_id, email, first_name, last_name, roles_id, company_id');
+    .select('user_id, email, phone_number, first_name, last_name, roles_id, company_id');
   if (error) throw error; // Throw error if fetching fails
   return data; // Return list of users
 };

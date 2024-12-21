@@ -89,7 +89,6 @@ const App: React.FC = () => {
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
                   <Inspection_Intervals />
-                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }

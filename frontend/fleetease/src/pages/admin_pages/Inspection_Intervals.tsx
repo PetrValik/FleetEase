@@ -80,13 +80,13 @@ export default function InspectionIntervals() {
     <div className="space-y-6">
       <div className="rounded-lg border bg-white shadow-sm p-6 mb-6">
         <h1 className="text-2xl font-semibold">
-          Intervaly technické a emisní kontroly vozidel
+        Vehicle technical inspection and emissions testing intervals
         </h1>
       </div>
 
       <div className="rounded-lg border bg-white shadow-sm">
         <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Typy vozidel</h2>
+          <h2 className="text-xl font-semibold mb-4">Vehicle Categories</h2>
           <div className="space-y-4">
             {sortedCategories.map((category) => (
               <div

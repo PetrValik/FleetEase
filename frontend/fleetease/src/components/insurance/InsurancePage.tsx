@@ -82,12 +82,9 @@ export default function InsurancePage() {
 
   const handleSaveInsurance = async (insuranceData: Partial<Database.Insurance>) => {
     try {
-      // Log původních dat
-      console.log('Raw insurance data:', insuranceData);
-
-      // Použijeme ID vaší firmy s autoprovozem
-      const DEFAULT_COMPANY_ID = 1; // Nahraďte skutečným ID vaší firmy
-  
+      if (user == null || user.company_id == null) {
+        throw new Error();
+      }
       // Zajistíme, že máme všechna povinná pole
       const formattedData = {
         insurance_types: insuranceData.insurance_types || 'Vehicle',
@@ -98,11 +95,9 @@ export default function InsurancePage() {
         payment_method: insuranceData.payment_method || 'Annual',
         insurance_status: insuranceData.insurance_status || 'Active',
         insurance_company_id: Number(insuranceData.insurance_company_id),
-        company_id: DEFAULT_COMPANY_ID, // Použijeme fixní ID
+        company_id: user.company_id,
         description: insuranceData.description || null
       };
-
-      console.log('Formatted data for save:', formattedData);
 
     let response;
     if (insuranceData.insurance_id) {

@@ -1,35 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';  // přidáme import axios
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
-import { Insurance, InsuranceCompany } from './types';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import InsuranceDialog from './components/InsuranceDialog';
 import InsuranceTable from './components/InsuranceTable';
 import InsuranceStats from './components/InsuranceStats';
+import * as Database from '../../database/database';
+import { useUser } from '../../contexts/UserContext';
 
 export default function InsurancePage() {
-  const [insurances, setInsurances] = useState<Insurance[]>([]);
-  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
+  const [insurances, setInsurances] = useState<Database.Insurance[]>([]);
+  const [insuranceCompanies, setInsuranceCompanies] = useState<Database.InsuranceCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedInsurance, setSelectedInsurance] = useState<Insurance | null>(null);
+  const [selectedInsurance, setSelectedInsurance] = useState<Database.Insurance | null>(null);
+  const { user } = useUser();
 
   const fetchInsurances = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get(config.INSURANCES_ENDPOINT);
-      
-      if (Array.isArray(response.data)) {
-        setInsurances(response.data);
-      } else {
-        console.error('Received non-array insurance data:', response.data);
-        setInsurances([]);
+      if (user == null || user.company_id == null) {
+        throw new Error();
       }
+      const data = await Database.getInsurancesByCompany(user.company_id);
+      console.log(data)
+      setInsurances(data);
     } catch (error) {
       console.error('Error fetching insurances:', error);
       setInsurances([]);
@@ -64,7 +63,7 @@ export default function InsurancePage() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (insurance: Insurance) => {
+  const handleEdit = (insurance: Database.Insurance) => {
     setSelectedInsurance(insurance);
     setIsDialogOpen(true);
   };
@@ -82,7 +81,7 @@ export default function InsurancePage() {
     }
   };
 
-  const handleSaveInsurance = async (insuranceData: Partial<Insurance>) => {
+  const handleSaveInsurance = async (insuranceData: Partial<Database.Insurance>) => {
     try {
       // Log původních dat
       console.log('Raw insurance data:', insuranceData);

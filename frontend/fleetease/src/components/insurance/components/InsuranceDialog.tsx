@@ -1,12 +1,12 @@
 import React from 'react';
-import type { Insurance, InsuranceCompany, InsuranceType, PaymentMethod, InsuranceStatus } from '../types';
+import * as Database from '../../../database/database';
 
 interface InsuranceDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (insurance: Partial<Insurance>) => void;
-  insurance?: Insurance;
-  insuranceCompanies: InsuranceCompany[];
+  onSave: (insurance: Partial<Database.Insurance>) => void;
+  insurance?: Database.Insurance;
+  insuranceCompanies: Database.InsuranceCompany[];
 }
 
 export default function InsuranceDialog({ 
@@ -16,7 +16,7 @@ export default function InsuranceDialog({
   insurance,
   insuranceCompanies = []
 }: InsuranceDialogProps) {
-  const [formData, setFormData] = React.useState<Partial<Insurance>>(
+  const [formData, setFormData] = React.useState<Partial<Database.Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
       registration_number: null,
@@ -34,21 +34,21 @@ export default function InsuranceDialog({
   const handleInsuranceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
-      insurance_types: e.target.value as InsuranceType
+      insurance_types: e.target.value as Database.InsuranceType
     });
   };
 
   const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
-      payment_method: e.target.value as PaymentMethod
+      payment_method: e.target.value as Database.PaymentMethod
     });
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
-      insurance_status: e.target.value as InsuranceStatus
+      insurance_status: e.target.value as Database.InsuranceStatus
     });
   };
 

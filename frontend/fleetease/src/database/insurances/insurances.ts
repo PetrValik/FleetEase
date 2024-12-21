@@ -1,9 +1,26 @@
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
 import { handleApiError } from '../../utils/apiErrorHandler';
-import { Insurance } from '../../components/insurance/types';
 
 const BASE_URL = config.INSURANCES_ENDPOINT;
+
+export type InsuranceType = 'Driver' | 'Vehicle' | 'Liability';
+export type PaymentMethod = 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time';
+export type InsuranceStatus = 'Active' | 'Pending' | 'Archived' | 'Ending';
+
+export interface Insurance {
+  insurance_id?: number;
+  insurance_types: InsuranceType;
+  registration_number: string | null;
+  start_date: string;
+  end_date: string;
+  name: string | null;
+  payment_method: PaymentMethod;
+  insurance_company_id: number;
+  insurance_status: InsuranceStatus;
+  company_id: number;
+  description: string | null;
+}
 
 // Get all insurances
 export const getAllInsurances = async (): Promise<Insurance[]> => {
@@ -78,5 +95,21 @@ export const getInsurancesByTypeAndCompany = async (
     return response.data;
   } catch (error) {
     return handleApiError<Insurance[]>(error, []); 
+  }
+};
+
+// Get insurances by company ID
+export const getInsurancesByCompany = async (companyId: number): Promise<Insurance[]> => {
+  try {
+    // Call the API endpoint to fetch insurances for the specified company
+    const response = await apiClient.get<Insurance[]>(`${BASE_URL}/company/${companyId}`);
+
+    // Return the response data (list of insurances)
+    return response.data;
+  } catch (error: any) {
+    console.error(`Error fetching insurances for companyId: ${companyId}`, error);
+
+    // Handle the error using a centralized error handling function
+    return handleApiError<Insurance[]>(error, []); // Return an empty array if an error occurs
   }
 };

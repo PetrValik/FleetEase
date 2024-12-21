@@ -1,23 +1,9 @@
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
 import { handleApiError } from '../../utils/apiErrorHandler';
+import { Insurance } from '../../components/insurance/types';
 
 const BASE_URL = config.INSURANCES_ENDPOINT;
-
-// Define the Insurance model
-export interface Insurance {
-  insurance_id: number;
-  insurance_types: 'Driver' | 'Vehicle' | 'Liability'; // Enum values for insurance type
-  registration_number: string | null; // Nullable field
-  start_date: string; // ISO format date
-  end_date: string; // ISO format date
-  name: string | null; // Nullable field
-  payment_method: 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time'; // Enum values for payment method
-  insurance_company_id: number; // FK to insurance companies
-  insurance_status: 'Pending' | 'Active' | 'Archived' | 'Ending'; // Enum values for status
-  company_id: number; // FK to company
-  description: string | null; // Nullable field
-}
 
 // Get all insurances
 export const getAllInsurances = async (): Promise<Insurance[]> => {
@@ -41,13 +27,16 @@ export const getInsuranceById = async (id: number): Promise<Insurance | null> =>
 
 // Create a new insurance
 export const createInsurance = async (
-  insuranceData: Partial<Insurance>
+  insuranceData: Omit<Insurance, 'insurance_id'>
 ): Promise<Insurance | null> => {
   try {
-    const response = await apiClient.post<Insurance>(`${BASE_URL}`, insuranceData);
+    const response = await apiClient.post<Insurance>(
+      config.INSURANCES_ENDPOINT, 
+      insuranceData
+    );
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance | null>(error, null); 
+    return handleApiError<Insurance | null>(error, null);
   }
 };
 
@@ -57,10 +46,13 @@ export const updateInsurance = async (
   updatedData: Partial<Insurance>
 ): Promise<Insurance | null> => {
   try {
-    const response = await apiClient.put<Insurance>(`${BASE_URL}/${id}`, updatedData);
+    const response = await apiClient.put<Insurance>(
+      `${config.INSURANCES_ENDPOINT}/${id}`,
+      updatedData
+    );
     return response.data;
   } catch (error) {
-    return handleApiError<Insurance | null>(error, null); 
+    return handleApiError<Insurance | null>(error, null);
   }
 };
 

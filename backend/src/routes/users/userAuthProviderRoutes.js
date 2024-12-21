@@ -9,7 +9,7 @@ const checkRole = require('../../middlewares/checkRole'); // Middleware for role
 router.get(
   '/',
   authenticateToken,
-  checkRole(['admin']), // Restrict access to admin users
+  checkRole(['Admin']), // Restrict access to admin users
   logAudit, // Log the operation
   userAuthProviderController.getAllUserAuthProviders
 );

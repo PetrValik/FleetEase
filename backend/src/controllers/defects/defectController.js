@@ -57,3 +57,23 @@ exports.deleteDefect = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete defect' });
     }
 };
+
+// Get defects by user ID
+exports.getDefectsByUserId = async (req, res) => {
+    try {
+        const defects = await defectService.getDefectsByUserId(req.params.userId);
+        res.status(200).json(defects);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch defects for the user' });
+    }
+};
+
+// Get defects by vehicle ID
+exports.getDefectsByVehicleId = async (req, res) => {
+    try {
+        const defects = await defectService.getDefectsByVehicleId(req.params.vehicleId);
+        res.status(200).json(defects);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch defects for the vehicle' });
+    }
+};

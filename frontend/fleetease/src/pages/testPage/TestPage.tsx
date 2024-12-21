@@ -69,6 +69,8 @@ const TestPage: React.FC = () => {
  
       <div className="mb-4">
         <TestButton label="get All Users" onClick={() => run(() => Database.getAllUsers())} />
+        <TestButton label="get All Users from company" onClick={() => run(() => Database.getAllUsersFromCompany(1))} />
+        <TestButton label="get All Users without company" onClick={() => run(() => Database.getAllUsersWithoutCompany())} />
         <TestButton label="update user" onClick={() => run(() => Database.updateUser(7, userData))} />
       </div>
 

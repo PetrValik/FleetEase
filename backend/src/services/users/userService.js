@@ -149,3 +149,29 @@ exports.checkEmailExists = async (email) => {
 
   return !!data; // Return true if email exists, otherwise false
 };
+
+exports.getAllUsersFromCompany = async (companyId) => {
+  const { data, error } = await supabase
+    .from('Users')
+    .select('user_id, email, first_name, last_name, roles_id, company_id')
+    .eq('company_id', companyId); // Fetch users belonging to the specified company
+
+  if (error) {
+    throw new Error('Failed to fetch users from the specified company');
+  }
+
+  return data;
+};
+
+exports.getAllUsersWithoutCompany = async () => {
+  const { data, error } = await supabase
+    .from('Users')
+    .select('user_id, email, first_name, last_name, roles_id, company_id')
+    .is('company_id', null); // Fetch users where company_id is null
+
+  if (error) {
+    throw new Error('Failed to fetch users without a company');
+  }
+
+  return data;
+};

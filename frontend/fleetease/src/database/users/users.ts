@@ -92,6 +92,26 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 };
 
+// Get all users without a company
+export const getAllUsersWithoutCompany = async (): Promise<User[]> => {
+  try {
+    const response = await apiClient.get<User[]>(`${BASE_URL}/without-company`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<User[]>(error, []);
+  }
+};
+
+// Get all users from a specific company
+export const getAllUsersFromCompany = async (companyId: number): Promise<User[]> => {
+  try {
+    const response = await apiClient.get<User[]>(`${BASE_URL}/company/${companyId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<User[]>(error, []);
+  }
+};
+
 // Update a user
 export const updateUser = async (id: number, userData: Partial<User>): Promise<User> => {
   try {

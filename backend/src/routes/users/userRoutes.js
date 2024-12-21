@@ -41,6 +41,24 @@ router.get(
   userController.getAllUsers
 );
 
+// Get all users without a company
+router.get(
+  '/without-company',
+  authenticateToken,
+  checkRole(['Admin', 'Manager']), // Restricted to Admins and Managers
+  logAudit,
+  userController.getAllUsersWithoutCompany
+);
+
+// Get all users from a specific company
+router.get(
+  '/company/:companyId',
+  authenticateToken,
+  checkRole(['Admin', 'Manager']), // Restricted to Admins and Managers
+  logAudit,
+  userController.getAllUsersFromCompany
+);
+
 // Get a single user by ID (restricted to admin or manager roles)
 router.get(
   '/:id',

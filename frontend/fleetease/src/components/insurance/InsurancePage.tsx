@@ -27,7 +27,6 @@ export default function InsurancePage() {
         throw new Error();
       }
       const data = await Database.getInsurancesByCompany(user.company_id);
-      console.log(data)
       setInsurances(data);
     } catch (error) {
       console.error('Error fetching insurances:', error);

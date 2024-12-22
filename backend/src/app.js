@@ -28,6 +28,8 @@ const app = express();
 app.use(cors()); // all origins allowed
 
 const PORT = process.env.PORT || 3000; // default port
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 // Middleware for json 
 app.use(express.json());

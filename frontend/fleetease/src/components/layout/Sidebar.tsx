@@ -12,6 +12,7 @@ import {
   IdCard,
   FileSignature,
   Wrench,
+  TestTube,
 } from "lucide-react";
 import { useUser } from "../../contexts/UserContext";
 import type { Role } from "../../contexts/UserContext";
@@ -35,6 +36,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: "/vehicles", label: "My Vehicles", icon: Car },
       { path: "/defects", label: "Report Defect", icon: AlertTriangle },
       { path: "/schedule", label: "My Schedule", icon: Calendar },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Manager: [
       { path: "/vehicles", label: "Vehicles", icon: Car },
@@ -47,6 +49,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
         label: "Roles and Company",
         icon: IdCard,
       },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Admin: [
       { path: "/user_management", label: "User Management", icon: UserCog },
@@ -56,6 +59,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
         icon: CalendarClock,
       },
       { path: "/auditlog_book", label: "Auditlog Book", icon: BookA },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
   };
   return role ? [...commonItems, ...roleItems[role]] : commonItems;

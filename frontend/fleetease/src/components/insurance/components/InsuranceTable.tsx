@@ -1,18 +1,18 @@
 import React from 'react';
-import { Insurance, InsuranceCompany } from '../types'; 
+import * as Database from '../../../database/database';
 
 interface InsuranceTableProps {
-  insurances: Insurance[];
+  insurances?: Database.Insurance[];
   searchTerm: string;
   activeTab: string;
-  onEdit: (insurance: Insurance) => void;
+  onEdit: (insurance: Database.Insurance) => void;
   onDelete: (id: number) => void;
   loading: boolean;
-  insuranceCompanies: InsuranceCompany[];
+  insuranceCompanies: Database.InsuranceCompany[];
 }
 
 export default function InsuranceTable({ 
-  insurances, 
+  insurances = [], // Add default empty array
   searchTerm, 
   activeTab,
   onEdit,
@@ -30,13 +30,15 @@ export default function InsuranceTable({
     });
   };
 
-   // Helper funkce pro získání názvu pojišťovny
-   const getInsuranceCompanyName = (id: number) => {
+  const getInsuranceCompanyName = (id: number) => {
     const company = insuranceCompanies.find(c => c.insurance_company_id === id);
     return company?.company_name || 'N/A';
   };
 
-  const filteredInsurances = insurances.filter(insurance => {
+  // Ensure insurances is an array before filtering
+  const safeInsurances = Array.isArray(insurances) ? insurances : [];
+  
+  const filteredInsurances = safeInsurances.filter(insurance => {
     const matchesSearch = 
       (insurance.registration_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       (insurance.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
@@ -82,7 +84,7 @@ export default function InsuranceTable({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {insurances.map((insurance) => (
+          {filteredInsurances.map((insurance) => (
             <tr key={insurance.insurance_id}>
               <td className="px-6 py-4 whitespace-nowrap">
                 {insurance.registration_number || 'N/A'}
@@ -135,3 +137,4 @@ export default function InsuranceTable({
     </div>
   );
 }
+

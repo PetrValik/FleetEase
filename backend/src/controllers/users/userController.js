@@ -90,3 +90,24 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getAllUsersFromCompany = async (req, res) => {
+  const { companyId } = req.params;
+  try {
+    const users = await userService.getAllUsersFromCompany(companyId);
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch users from the specified company' });
+  }
+};
+
+exports.getAllUsersWithoutCompany = async (req, res) => {
+  try {
+    const users = await userService.getAllUsersWithoutCompany();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch users without a company' });
+  }
+};

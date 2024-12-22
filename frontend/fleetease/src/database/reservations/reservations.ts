@@ -5,6 +5,8 @@ import { handleApiError } from '../../utils/apiErrorHandler';
 // Base URL for reservations endpoint
 const BASE_URL = config.RESERVATIONS_ENDPOINT;
 
+export type ReservationStatus = 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed' | 'Rejected';
+
 // Reservation model interface
 export interface Reservation {
   reservation_id: number;
@@ -14,7 +16,7 @@ export interface Reservation {
   end_time: string;   // ISO date string
   pickup_location: string;
   return_location: string;
-  reservation_status: 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed' | 'Rejected';
+  reservation_status: ReservationStatus;
   notes: string | null;
   created_at: string; // ISO date string
 }

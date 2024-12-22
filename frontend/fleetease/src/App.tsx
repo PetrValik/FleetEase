@@ -4,15 +4,17 @@ import { UserProvider } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
 import Vehicles from './pages/vehicles/Vehicles';
-import VehicleDetailPage from './pages/vehicles/Vehicles'; 
+import VehicleDetailPage from './pages/vehicles/Vehicles';
 import Dashboard from './pages/dashboard/Dashboard';
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
+import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
 import InsurancePage from './components/insurance/InsurancePage';
+import TestPage from "./pages/testPage/TestPage";
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -44,6 +46,16 @@ const App: React.FC = () => {
                   <SignUp />
                 </Layout>
               </RedirectIfAuthenticated>
+            }
+          />
+          <Route
+            path="/testing"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <TestPage />
+                </Layout>
+                </RoleBasedRoute>
             }
           />
           <Route
@@ -87,7 +99,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <Dashboard />
+                  <Inspection_Intervals />
                 </Layout>
               </RoleBasedRoute>
             }

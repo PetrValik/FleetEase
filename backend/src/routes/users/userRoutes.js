@@ -36,16 +36,34 @@ router.get(
 router.get(
   '/',
   authenticateToken,
-  checkRole(['Admin', 'Manager']), // Admin-only access
+  checkRole(['Admin']), 
   logAudit,
   userController.getAllUsers
+);
+
+// Get all users without a company
+router.get(
+  '/without-company',
+  authenticateToken,
+  checkRole(['Admin', 'Manager']), // Restricted to Admins and Managers
+  logAudit,
+  userController.getAllUsersWithoutCompany
+);
+
+// Get all users from a specific company
+router.get(
+  '/company/:companyId',
+  authenticateToken,
+  checkRole(['Admin', 'Manager']), // Restricted to Admins and Managers
+  logAudit,
+  userController.getAllUsersFromCompany
 );
 
 // Get a single user by ID (restricted to admin or manager roles)
 router.get(
   '/:id',
   authenticateToken,
-  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
+  checkRole(['Admin', 'Manager']), 
   logAudit,
   userController.getUserById
 );
@@ -54,9 +72,8 @@ router.get(
 router.put(
   '/:id',
   authenticateToken,
-  validate(userIdSchema), // Validate ID parameter
+  checkRole(['Admin', 'Manager', 'Driver']), 
   validate(userValidationSchema), // Validate request body
-  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
   logAudit,
   userController.updateUser
 );
@@ -65,8 +82,7 @@ router.put(
 router.delete(
   '/:id',
   authenticateToken,
-  validate(userIdSchema), // Validate ID parameter
-  checkRole(['Admin', 'Manager', 'Driver']), // Admin and manager access
+  checkRole(['Admin', 'Manager', 'Driver']), 
   logAudit,
   userController.deleteUser
 );

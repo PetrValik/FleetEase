@@ -8,10 +8,5 @@ exports.userValidationSchema = Joi.object({
   last_name: Joi.string().max(255).optional(),
   phone_number: Joi.string().optional(),
   roles_id: Joi.number().integer().optional(),
-  company_id: Joi.number().integer().optional(),
-});
-
-// Validation schema for user ID parameter
-exports.userIdSchema = Joi.object({
-  id: Joi.number().integer().min(1).required(),
+  company_id: Joi.number().integer().optional().allow(null),
 });

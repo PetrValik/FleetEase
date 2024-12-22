@@ -10,5 +10,5 @@ module.exports = Joi.object({
     reservation_status: Joi.string()
         .valid('Pending', 'Confirmed', 'Cancelled', 'Completed', 'Rejected')
         .required(),
-    notes: Joi.string().max(1000).optional(),
+    notes: Joi.string().max(1000).optional().allow(null),
 });

@@ -1,7 +1,7 @@
 module.exports = {
     tableName: 'DefectTypes',
     fields: {
-        id: 'id',
+        id: 'type_id',
         name: 'name',
         description: 'description',
     },

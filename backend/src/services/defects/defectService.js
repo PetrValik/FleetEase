@@ -4,9 +4,9 @@ const DefectModel = require('../../models/defects/defectModel');
 // Validate if defect type exists
 exports.validateDefectType = async (typeId) => {
     const { data, error } = await supabase
-        .from('defect_types')
-        .select('id')
-        .eq('id', typeId)
+        .from('DefectTypes')
+        .select('type_id')
+        .eq('type_id', typeId)
         .single();
 
     if (error || !data) {
@@ -31,7 +31,6 @@ exports.getDefectById = async (id) => {
         .select('*')
         .eq('defect_id', id)
         .single();
-
     if (error || !data) {
         throw new Error('Defect not found');
     }
@@ -69,6 +68,32 @@ exports.deleteDefect = async (id) => {
 
     if (error) {
         throw new Error('Failed to delete defect');
+    }
+    return data;
+};
+
+// Get defects by user ID
+exports.getDefectsByUserId = async (userId) => {
+    const { data, error } = await supabase
+        .from(DefectModel.tableName)
+        .select('*')
+        .eq('user_id', userId); // Assuming `user_id` is a column in the defects table.
+
+    if (error) {
+        throw new Error('Failed to fetch defects for the user');
+    }
+    return data;
+};
+
+// Get defects by vehicle ID
+exports.getDefectsByVehicleId = async (vehicleId) => {
+    const { data, error } = await supabase
+        .from(DefectModel.tableName)
+        .select('*')
+        .eq('vehicle_id', vehicleId); // Assuming `vehicle_id` is a column in the defects table.
+
+    if (error) {
+        throw new Error('Failed to fetch defects for the vehicle');
     }
     return data;
 };

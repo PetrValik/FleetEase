@@ -11,6 +11,7 @@ export * from './insurances/insuranceCompanies';
 export * from './reservations/reservations';
 
 export * from './users/users';
+export * from './users/role';
 
 export * from './vehicles/countries';
 export * from './vehicles/vehicleBrand';

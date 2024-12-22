@@ -14,16 +14,16 @@ router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), lo
 router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, reservationController.getById);
 
 // Create a new reservation
-router.post('/', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.create);
+router.post('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), validate(reservationSchema), logAudit, reservationController.create);
 
 // Update a reservation
-router.put('/:id', authenticateToken, checkRole(['Admin', 'Driver']), validate(reservationSchema), logAudit, reservationController.update);
+router.put('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), validate(reservationSchema), logAudit, reservationController.update);
 
 // Delete a reservation
-router.delete('/:id', authenticateToken, checkRole(['Admin', 'Driver']), logAudit, reservationController.delete);
+router.delete('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, reservationController.delete);
 
 // Get all reservations by vehicle ID
-router.get('/vehicle/:vehicle_id', authenticateToken, checkRole(['Admin', 'Driver']), logAudit, reservationController.getReservationsByVehicleId);
+router.get('/vehicle/:vehicle_id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, reservationController.getReservationsByVehicleId);
 
 // Get all vehicles with reservations by user ID
 router.get(

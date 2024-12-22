@@ -11,7 +11,7 @@ const logAudit = require('../../middlewares/auditLogger');
 router.get(
     '/',
     authenticateToken,
-    checkRole(['admin', 'manager', 'Driver']),
+    checkRole(['Admin', 'Manager', 'Driver']),
     logAudit,
     defectTypeController.getAllDefectTypes
 );
@@ -20,7 +20,7 @@ router.get(
 router.get(
     '/:id',
     authenticateToken,
-    checkRole(['admin', 'manager', 'Driver']),
+    checkRole(['Admin', 'Manager', 'Driver']),
     logAudit,
     defectTypeController.getDefectTypeById
 );
@@ -29,7 +29,7 @@ router.get(
 router.post(
     '/',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     validate(defectTypeSchema), // Validate request body
     logAudit,
     defectTypeController.createDefectType
@@ -39,7 +39,7 @@ router.post(
 router.put(
     '/:id',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     validate(defectTypeSchema), // Validate request body
     logAudit,
     defectTypeController.updateDefectType
@@ -49,7 +49,7 @@ router.put(
 router.delete(
     '/:id',
     authenticateToken,
-    checkRole(['admin']),
+    checkRole(['Admin']),
     logAudit,
     defectTypeController.deleteDefectType
 );

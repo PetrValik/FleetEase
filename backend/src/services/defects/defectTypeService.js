@@ -1,5 +1,5 @@
 const supabase = require('../../config/supabaseClient');
-const DefectTypeModel = require('../../validationSchemas/defects/defectTypeValidationSchema');
+const DefectTypeModel = require('../../models/defects/defectTypeModel');
 
 // Get all defect types
 exports.getAllDefectTypes = async () => {

@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
-import Vehicles from "./pages/vehicles/Vehicles";
-import VehicleDetailPage from "./pages/vehicles/Vehicles";
 import Dashboard from "./pages/dashboard/Dashboard";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
@@ -15,7 +13,7 @@ import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
-import InsurancePage from "./components/insurance/InsurancePage";
+// import InsurancePage from "./components/insurance/InsurancePage";
 import TestPage from "./pages/testPage/TestPage";
 
 const App: React.FC = () => {
@@ -71,7 +69,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            /*
+          /*
           path="/User_Management"
           element={
           /<RoleBasedRoute allowedRoles={["Admin"]}>
@@ -81,24 +79,6 @@ const App: React.FC = () => {
           </RoleBasedRoute>
           }
           */
-            path="/vehicles"
-            element={
-              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
-                <Layout>
-                  <Vehicles />
-                </Layout>
-              </RoleBasedRoute>
-            }
-          />
-          <Route
-            path="/vehicle/:vehicleId"
-            element={
-              <RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
-                <Layout>
-                  <VehicleDetailPage />
-                </Layout>
-              </RoleBasedRoute>
-            }
           />
           <Route
             path="/user_management"

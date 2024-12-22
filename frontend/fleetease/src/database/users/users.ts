@@ -1,20 +1,30 @@
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
-import { User } from '../../contexts/UserContext';
+import { User, Role } from '../../contexts/UserContext';
 import { handleApiError } from '../../utils/apiErrorHandler';
 
 const BASE_URL = config.USERS_ENDPOINT;
 
-interface LoginResponse {
+export interface LoginResponse {
   token: string;
   user: User;
 }
 
-interface RegisterResponse {
+export interface RegisterResponse {
   user_id: number;
   email: string;
   first_name: string;
   last_name: string;
+}
+
+export interface UpdateUser {
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string | null;
+  created_at: string;
+  company_id: number | null;
+  roles_id: number;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -63,11 +73,43 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
   }
 };
 
-export const getRoleById = async (role_id: number): Promise<boolean> => {
+// Get all users
+export const getAllUsers = async (): Promise<User[]> => {
   try {
-    const response = await apiClient.get<{ exists: boolean }>(`${BASE_URL}/roles/${role_id}`);
-    return response.data.exists;
+    const response = await apiClient.get<User[]>(`${BASE_URL}/`);
+    return response.data;
   } catch (error) {
-    return handleApiError<boolean>(error, false);
+    return handleApiError<User[]>(error, []);
+  }
+};
+
+// Get all users without a company
+export const getAllUsersWithoutCompany = async (): Promise<User[]> => {
+  try {
+    const response = await apiClient.get<User[]>(`${BASE_URL}/without-company`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<User[]>(error, []);
+  }
+};
+
+// Get all users from a specific company
+export const getAllUsersFromCompany = async (companyId: number): Promise<User[]> => {
+  try {
+    const response = await apiClient.get<User[]>(`${BASE_URL}/company/${companyId}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<User[]>(error, []);
+  }
+};
+
+// Update a user
+export const updateUser = async (id: number, userData: Partial<User>): Promise<User> => {
+  try {
+    const response = await apiClient.put<User>(`${BASE_URL}/${id}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update user:', error);
+    throw new Error('An unexpected error occurred while updating the user');
   }
 };

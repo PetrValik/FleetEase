@@ -3,22 +3,21 @@ import { useLocation } from "react-router-dom";
 import {
   Home,
   Car,
-  PenToolIcon as Tool,
   Calendar,
   Users,
-  Settings,
-  FileText,
   AlertTriangle,
   CalendarClock,
   BookA,
   UserCog,
   IdCard,
+  FileSignature,
+  Wrench,
+  TestTube,
 } from "lucide-react";
 import { useUser } from "../../contexts/UserContext";
 import type { Role } from "../../contexts/UserContext";
 import SidebarNavItem from "./SidebarNavItem";
 import SidebarToggle from "./SidebarToggle";
-
 interface NavItem {
   path: string;
   label: string;
@@ -37,18 +36,20 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: "/vehicles", label: "My Vehicles", icon: Car },
       { path: "/defects", label: "Report Defect", icon: AlertTriangle },
       { path: "/schedule", label: "My Schedule", icon: Calendar },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Manager: [
       { path: "/vehicles", label: "Vehicles", icon: Car },
-      { path: "/defects", label: "Defects", icon: Tool },
+      { path: "/defects", label: "Defects", icon: Wrench },
       { path: "/schedule", label: "Schedule", icon: Calendar },
       { path: "/drivers", label: "Drivers", icon: Users },
-      { path: "/insurances", label: "Insurances", icon: Calendar },
+      { path: "/insurances", label: "Insurances", icon: FileSignature },
       {
         path: "/Roles&Company",
         label: "Roles and Company",
         icon: IdCard,
       },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Admin: [
       { path: "/user_management", label: "User Management", icon: UserCog },
@@ -58,6 +59,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
         icon: CalendarClock,
       },
       { path: "/auditlog_book", label: "Auditlog Book", icon: BookA },
+      { path: "/testing", label: "Tests", icon: TestTube },
     ],
   };
   return role ? [...commonItems, ...roleItems[role]] : commonItems;

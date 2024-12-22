@@ -17,4 +17,5 @@ export const config = {
   VEHICLE_INSPECTIONS_ENDPOINT: `${API_BASE_URL}/vehicle-inspections`,
   DEFECTS_ENDPOINT: `${API_BASE_URL}/defects`,
   DEFECT_TYPES_ENDPOINT: `${API_BASE_URL}/defect-types`,
+  ROLES_ENDPOINT: `${API_BASE_URL}/roles`,
 };

@@ -41,9 +41,9 @@ const VehicleDetailPage: React.FC = () => {
     return <div>Loading...</div>;  // Show loading message while fetching data
   }
 
-  // If not authenticated, show message
-  if (!isAuthenticated) {
-    return <div>Please sign in to view this page.</div>; // Inform user to sign in
+  // If not authenticated, inform the user without redirecting
+  if (!isAuthenticated) { // nenastane
+    return <div>Please sign in to view this page.</div>; // Inform the user to sign in if not authenticated
   }
 
   // If vehicle data is not found

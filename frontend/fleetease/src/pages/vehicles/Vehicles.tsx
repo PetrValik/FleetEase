@@ -69,7 +69,7 @@ const VehicleDetailPage: React.FC = () => {
             <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
             {/* Only render ReservationCalendar if user is not null */}
             {user ? (
-              <ReservationCalendar reservations={reservations} user={user} />
+              <ReservationCalendar reservations={reservations} user={user} vehicleId={Number(vehicleId)} />
             ) : (
               <div>Please log in to view the reservation calendar.</div>
             )}

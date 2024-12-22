@@ -22,9 +22,10 @@ interface ReservationCalendarProps {
       role_name: 'Admin' | 'Manager' | 'Driver';
     };
   }; // Add the user prop to the interface
+  vehicleId: number; // Pass vehicleId from parent component
 }
 
-const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations, user }) => {
+const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations, user, vehicleId }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [pickupLocation, setPickupLocation] = useState('');
@@ -74,7 +75,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations,
 
     // Prepare the reservation data to be sent to the API
     const reservationData = {
-      vehicle_id: 1, // Replace this with the actual vehicle ID
+      vehicle_id: vehicleId, // Use the vehicleId prop here
       user_id: user.user_id, // Use the current user's ID
       start_time: startDate.toISOString(),
       end_time: endDate.toISOString(),

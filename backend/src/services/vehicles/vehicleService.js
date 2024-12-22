@@ -23,10 +23,10 @@ exports.getById = async (id) => {
 
 // Create a new vehicle
 exports.create = async (vehicleData) => {
-    const { data, error } = await supabase.from(tableName).insert([vehicleData]);
+    const { data, error } = await supabase.from(tableName).insert([vehicleData]).select('*'); // Use .select('*') to return the inserted record
     if (error) throw new Error('Failed to create vehicle');
-    return data;
-};
+    return data[0]; // Return the first record if insertion is successful
+  };
 
 // Update an existing vehicle
 exports.update = async (id, updates) => {

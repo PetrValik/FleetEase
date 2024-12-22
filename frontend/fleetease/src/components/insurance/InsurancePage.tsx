@@ -1,40 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
-import { Insurance, InsuranceCompany } from './types';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import InsuranceDialog from './components/InsuranceDialog';
 import InsuranceTable from './components/InsuranceTable';
 import InsuranceStats from './components/InsuranceStats';
+import * as Database from '../../database/database';
+import { useUser } from '../../contexts/UserContext';
 
 export default function InsurancePage() {
-  const [insurances, setInsurances] = useState<Insurance[]>([]);
-  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
+  const [insurances, setInsurances] = useState<Database.Insurance[]>([]);
+  const [insuranceCompanies, setInsuranceCompanies] = useState<Database.InsuranceCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedInsurance, setSelectedInsurance] = useState<Insurance | null>(null);
+  const [selectedInsurance, setSelectedInsurance] = useState<Database.Insurance | null>(null);
+  const { user } = useUser();
 
   const fetchInsurances = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      
-      const response = await axios.get(config.INSURANCES_ENDPOINT, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (Array.isArray(response.data)) {
-        setInsurances(response.data);
-      } else {
-        console.error('Received non-array insurance data:', response.data);
-        setInsurances([]);
+      if (user == null || user.company_id == null) {
+        throw new Error();
       }
+      const data = await Database.getInsurancesByCompany(user.company_id);
+      setInsurances(data);
     } catch (error) {
       console.error('Error fetching insurances:', error);
       setInsurances([]);
@@ -45,17 +38,7 @@ export default function InsurancePage() {
 
   const fetchCompanies = async () => {
     try {
-      const token = localStorage.getItem('token');
-<<<<<<< Updated upstream
-=======
-      console.log('Fetching companies with token:', token);
->>>>>>> Stashed changes
-      
-      const response = await axios.get(config.INSURANCE_COMPANIES_ENDPOINT, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiClient.get(config.INSURANCE_COMPANIES_ENDPOINT);
       
       if (Array.isArray(response.data)) {
         setInsuranceCompanies(response.data);
@@ -79,7 +62,7 @@ export default function InsurancePage() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (insurance: Insurance) => {
+  const handleEdit = (insurance: Database.Insurance) => {
     setSelectedInsurance(insurance);
     setIsDialogOpen(true);
   };
@@ -87,12 +70,7 @@ export default function InsurancePage() {
   const handleDelete = async (insuranceId: number) => {
     if (window.confirm('Are you sure you want to delete this insurance?')) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.delete(`${config.INSURANCES_ENDPOINT}/${insuranceId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await apiClient.delete(`${config.INSURANCES_ENDPOINT}/${insuranceId}`);
         if (response.status === 200) {
           await fetchInsurances();
         }
@@ -102,113 +80,51 @@ export default function InsurancePage() {
     }
   };
 
-  const handleSaveInsurance = async (insuranceData: Partial<Insurance>) => {
+  const handleSaveInsurance = async (insuranceData: Partial<Database.Insurance>) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('No token found');
-        return;
+      if (user == null || user.company_id == null) {
+        throw new Error();
       }
-  
-<<<<<<< Updated upstream
-      // Debug log původních dat
-      console.log('Original insurance data:', insuranceData);
-      console.log('Selected insurance:', selectedInsurance);
-  
+      // Zajistíme, že máme všechna povinná pole
       const formattedData = {
-        ...(selectedInsurance?.insurance_id && { insurance_id: selectedInsurance.insurance_id }),
-        insurance_types: insuranceData.insurance_types,
+        insurance_types: insuranceData.insurance_types || 'Vehicle',
         registration_number: insuranceData.registration_number || null,
-        name: insuranceData.name || null,
         start_date: insuranceData.start_date,
         end_date: insuranceData.end_date,
-        payment_method: insuranceData.payment_method,
-        insurance_status: insuranceData.insurance_status,
+        name: insuranceData.name || null,
+        payment_method: insuranceData.payment_method || 'Annual',
+        insurance_status: insuranceData.insurance_status || 'Active',
         insurance_company_id: Number(insuranceData.insurance_company_id),
-        company_id: Number(insuranceData.insurance_company_id),
+        company_id: user.company_id,
         description: insuranceData.description || null
       };
-  
-      const axiosConfig = {
-=======
-      // Validace a formátování dat
-      const formattedData: Record<string, any> = {
-        registration_number: insuranceData.registration_number || null,
-        insurance_type: insuranceData.insurance_types || null,
-        start_date: insuranceData.start_date || null,
-        end_date: insuranceData.end_date || null,
-        name: insuranceData.name || null,
-        payment_method: insuranceData.payment_method || null,
-        insurance_status: insuranceData.insurance_status || 'Pending',
-        insurance_company_id: insuranceData.insurance_company_id ? Number(insuranceData.insurance_company_id) : undefined,
-        company_id: insuranceData.company_id ? Number(insuranceData.company_id) : undefined,
-        description: insuranceData.description || ''
-      };
-  
-      console.log('Final formatted data:', formattedData);
-  
-      // Odeslání dat
-      const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, {
->>>>>>> Stashed changes
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-<<<<<<< Updated upstream
-      };
-  
-      // Debug log dat a URL před odesláním
-      if (selectedInsurance?.insurance_id) {
-        const updateUrl = `${config.INSURANCES_ENDPOINT}/${selectedInsurance.insurance_id}`;
-        console.log('UPDATE - Sending PUT request to:', updateUrl);
-        console.log('UPDATE - With data:', formattedData);
-        
-        const response = await axios.put(updateUrl, formattedData, axiosConfig);
-        console.log('UPDATE - Response:', response);
-        
-        if (response.status === 200) {
-          setIsDialogOpen(false);
-          await fetchInsurances();
-        }
-      } else {
-        console.log('CREATE - Sending POST request to:', config.INSURANCES_ENDPOINT);
-        console.log('CREATE - With data:', formattedData);
-        
-        const response = await axios.post(config.INSURANCES_ENDPOINT, formattedData, axiosConfig);
-        console.log('CREATE - Response:', response);
-        
-        if (response.status === 201) {
-          setIsDialogOpen(false);
-          await fetchInsurances();
-        }
-      }
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        console.error('Full error response:', error.response);
-        console.error('Error data:', error.response?.data);
-        console.error('Error status:', error.response?.status);
-        alert(`Error: ${error.response?.data?.error || 'Failed to save insurance'}`);
-      } else {
-        console.error('Unexpected error:', error);
-        alert('An unexpected error occurred');
-=======
-      });
-  
-      if (response.status === 201 || response.status === 200) {
-        console.log('Insurance saved successfully:', response.data);
-        setIsDialogOpen(false);
-        await fetchInsurances();
-      }
-    } catch (error: any) {
-      if (axios.isAxiosError(error)) {
-        console.error('Error response from server:', error.response?.data);
-        console.error('HTTP Status:', error.response?.status);
-      } else {
-        console.error('Unexpected error:', error);
->>>>>>> Stashed changes
-      }
+
+    let response;
+    if (insuranceData.insurance_id) {
+      // Update
+      response = await apiClient.put(
+        `${config.INSURANCES_ENDPOINT}/${insuranceData.insurance_id}`,
+        formattedData
+      );
+    } else {
+      // Create
+      response = await apiClient.post(
+        config.INSURANCES_ENDPOINT,
+        formattedData
+      );
     }
-  };
+
+    if (response.status === 200 || response.status === 201) {
+      setIsDialogOpen(false);
+      await fetchInsurances();
+    }
+  } catch (error: any) {
+    console.error('Error saving insurance:', error);
+    if (error.response?.data) {
+      console.error('Server error details:', error.response.data);
+    }
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#edf2f7] p-6">
@@ -271,6 +187,7 @@ export default function InsurancePage() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               loading={loading}
+              insuranceCompanies={insuranceCompanies}
             />
           </div>
         </Card>

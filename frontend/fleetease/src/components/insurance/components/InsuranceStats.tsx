@@ -1,16 +1,19 @@
 import React from 'react';
 import { CarFront, User, Shield } from 'lucide-react';
-import { Insurance } from '../types';
+import * as Database from '../../../database/database';
 
 interface InsuranceStatsProps {
-  insurances: Insurance[];
+  insurances?: Database.Insurance[];
 }
 
 const InsuranceStats: React.FC<InsuranceStatsProps> = ({ insurances = [] }) => {
+  // Ensure insurances is an array
+  const safeInsurances = Array.isArray(insurances) ? insurances : [];
+
   const stats = {
-    Vehicle: insurances.filter(i => i.insurance_types === 'Vehicle').length,
-    Driver: insurances.filter(i => i.insurance_types === 'Driver').length,
-    Liability: insurances.filter(i => i.insurance_types === 'Liability').length
+    Vehicle: safeInsurances.filter(i => i.insurance_types === 'Vehicle').length,
+    Driver: safeInsurances.filter(i => i.insurance_types === 'Driver').length,
+    Liability: safeInsurances.filter(i => i.insurance_types === 'Liability').length
   };
 
   return (
@@ -41,3 +44,4 @@ const InsuranceStats: React.FC<InsuranceStatsProps> = ({ insurances = [] }) => {
 };
 
 export default InsuranceStats;
+

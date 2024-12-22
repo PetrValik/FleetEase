@@ -1,21 +1,26 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { UserProvider } from './contexts/UserContext';
-import Layout from './components/layout/Layout';
-import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
-import MainPage from './pages/dashboard/MainPage';
-import SignUp from './pages/auth/SignUp';
-import SignIn from './pages/auth/SignIn';
-import { getStoredToken } from './utils/authUtils';
-import axios from 'axios';
-import RoleBasedRoute from './components/auth/RoleBasedRoute';
-import InsurancePage from './components/insurance/InsurancePage';  // Přidat import
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { UserProvider } from "./contexts/UserContext";
+import Layout from "./components/layout/Layout";
+import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
+import Vehicles from './pages/vehicles/Vehicles';
+import VehicleDetailPage from './pages/vehicles/Vehicles';
+import Dashboard from './pages/dashboard/Dashboard';
+import SignUp from "./pages/auth/SignUp";
+import SignIn from "./pages/auth/SignIn";
+import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
+import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
+import { getStoredToken } from "./utils/authUtils";
+import axios from "axios";
+import RoleBasedRoute from "./components/auth/RoleBasedRoute";
+import InsurancePage from './components/insurance/InsurancePage';
+import TestPage from "./pages/testPage/TestPage";
 
 const App: React.FC = () => {
   useEffect(() => {
     const token = getStoredToken();
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   }, []);
 
@@ -27,7 +32,7 @@ const App: React.FC = () => {
             path="/signin"
             element={
               <RedirectIfAuthenticated>
-                <Layout> 
+                <Layout>
                   <SignIn />
                 </Layout>
               </RedirectIfAuthenticated>
@@ -37,23 +42,88 @@ const App: React.FC = () => {
             path="/signup"
             element={
               <RedirectIfAuthenticated>
-                <Layout> 
+                <Layout>
                   <SignUp />
                 </Layout>
               </RedirectIfAuthenticated>
             }
           />
           <Route
+            path="/testing"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <TestPage />
+                </Layout>
+                </RoleBasedRoute>
+            }
+          />
+          <Route
             path="/"
             element={
-              <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
           />
-          {/* Přidat novou routu pro pojistky */}
+          <Route
+            path="/vehicles"
+            element={<RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+              <Layout>
+                <Vehicles />
+              </Layout>
+            </RoleBasedRoute>}
+          />
+          <Route
+            path="/vehicle/:vehicleId"
+            element={<RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
+              <Layout>
+                <VehicleDetailPage />
+              </Layout>
+            </RoleBasedRoute>}
+          />
+          <Route
+            path="/user_management"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/inspection_intervals"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Inspection_Intervals />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/auditlog_book"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <Auditlog_Book />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/Roles&Company"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager"]}>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
           <Route
             path="/insurances"
             element={
@@ -64,12 +134,12 @@ const App: React.FC = () => {
               </RoleBasedRoute>
             }
           />
-          <Route 
-            path="*" 
+          <Route
+            path="*"
             element={
-              <RoleBasedRoute allowedRoles={['Admin', 'Manager', 'Driver']}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <MainPage />
+                  <Dashboard />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -78,6 +148,6 @@ const App: React.FC = () => {
       </Router>
     </UserProvider>
   );
-}
+};
 
 export default App;

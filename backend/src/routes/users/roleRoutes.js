@@ -5,7 +5,6 @@ const authenticateToken = require('../../middlewares/authenticateToken'); // Mid
 const logAudit = require('../../middlewares/auditLogger'); // Middleware for audit logging
 const checkRole = require('../../middlewares/checkRole'); // Middleware for role-based access control
 
-// Get all roles (accessible only to authenticated admin users)
 router.get(
   '/',
   authenticateToken,
@@ -14,7 +13,6 @@ router.get(
   roleController.getAllRoles
 );
 
-// Get a role by ID (accessible only to authenticated admin users)
 router.get(
   '/:id',
   authenticateToken,

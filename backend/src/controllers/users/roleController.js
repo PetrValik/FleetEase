@@ -4,7 +4,7 @@ const roleService = require('../../services/users/roleService');
 exports.getAllRoles = async (req, res) => {
   try {
     const roles = await roleService.getAllRoles();
-    res.json(roles);
+    res.status(200).json(roles);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch roles' });
@@ -16,7 +16,7 @@ exports.getRoleById = async (req, res) => {
   try {
     const role = await roleService.getRoleById(req.params.id);
     if (!role) return res.status(404).json({ error: 'Role not found' });
-    res.json(role);
+    res.status(200).json(role);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch role' });

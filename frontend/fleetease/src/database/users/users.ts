@@ -1,6 +1,6 @@
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
-import { User } from '../../contexts/UserContext';
+import { User, Role } from '../../contexts/UserContext';
 import { handleApiError } from '../../utils/apiErrorHandler';
 
 const BASE_URL = config.USERS_ENDPOINT;
@@ -67,15 +67,6 @@ export const register = async (
 export const checkEmailExists = async (email: string): Promise<boolean> => {
   try {
     const response = await apiClient.get<{ exists: boolean }>(`${BASE_URL}/email/${email}`);
-    return response.data.exists;
-  } catch (error) {
-    return handleApiError<boolean>(error, false);
-  }
-};
-
-export const getRoleById = async (role_id: number): Promise<boolean> => {
-  try {
-    const response = await apiClient.get<{ exists: boolean }>(`${BASE_URL}/roles/${role_id}`);
     return response.data.exists;
   } catch (error) {
     return handleApiError<boolean>(error, false);

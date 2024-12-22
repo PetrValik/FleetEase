@@ -8,6 +8,8 @@ import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
 import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
+//import User_Management from "./pages/admin_pages/User_Management";
+// import Roles_Company from "./pages/manager_pages/Roles_Company";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute"; // Import nové komponenty
@@ -55,17 +57,19 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/user_management"
-            element={
-              <RoleBasedRoute allowedRoles={["Admin"]}>
-                <Layout>
-                  <MainPage />
-                </Layout>
-              </RoleBasedRoute>
-            }
+          /*
+          path="/User_Management"
+          element={
+          /<RoleBasedRoute allowedRoles={["Admin"]}>
+          <Layout>
+          <User_Management />
+          </Layout>
+          </RoleBasedRoute>
+          }
+          */
           />
           <Route
-            path="/inspection_intervals"
+            path="/Inspection_Intervals"
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
@@ -75,7 +79,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/auditlog_book"
+            path="/Auditlog_Book"
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
@@ -85,14 +89,16 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/Roles&Company"
+          /*
+            path="/Roles_Company"
             element={
               <RoleBasedRoute allowedRoles={["Manager"]}>
                 <Layout>
-                  <MainPage />
+                  <Roles_Company />
                 </Layout>
               </RoleBasedRoute>
             }
+              */
           />
           <Route
             path="*"

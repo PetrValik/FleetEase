@@ -1,0 +1,236 @@
+/* Dashboard Container */
+.dashboard-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem 1.5rem 1.5rem;
+    position: relative;
+    z-index: 1; /* Ensure it’s below the modals */
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    position: relative; /* Ensure it doesn’t interfere with modals */
+    z-index: 5; /* Above content but below modal overlay */
+}
+
+/* Dashboard Subheader */
+.dashboard-subheader {
+    color: #718096;
+    margin-bottom: 1.5rem;
+}
+
+/* Stats Grid */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+/* Dashboard Stats Card */
+.dashboard-stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f7fafc;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1cm;
+}
+
+/* Button Container */
+.dashboard-btn-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Vertically align the buttons and search bar */
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Button Styles */
+.dashboard-btn-add, .dashboard-btn-filter {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid;
+    cursor: pointer;
+    color: white;
+    height: 40px;
+}
+
+.dashboard-btn-add {
+    background-color: #10b91d;
+    border-color: #10b91d;
+}
+
+.dashboard-btn-add:hover {
+    background-color: #0d9917;
+}
+
+.dashboard-btn-filter {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+}
+
+.dashboard-btn-filter:hover {
+    background-color: #3b82f6;
+}
+
+/* Filter Popover Styles (Updated) */
+.filter-modal-overlay {
+    position: absolute;
+    z-index: 1000; /* Ensure it’s above the content */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 250px; /* Fixed width for the filter */
+    max-height: 80vh;
+    overflow-y: auto;
+    top: 100%; /* Position the popover below the button */
+    left: 0; /* Align the popover to the right of the button container */
+    margin-top: 8px; /* Add some space between the button and the filter popover */
+}
+
+/* Filter Modal Content */
+.filter-modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    min-width: 250px;
+}
+
+/* Close Button for Filter Modal */
+.filter-modal-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Filter Modal Arrow */
+.filter-modal-arrow {
+    position: absolute;
+    top: -5px;
+    right: 15px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #fff; /* White arrow */
+}
+
+/* Add Vehicle Modal (with overlay) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it’s above the content */
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10001; /* Ensure it’s above the overlay */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Close Button for Add Vehicle Modal */
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #718096;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10002; /* Ensure it’s above the modal content */
+}
+
+.modal-close-btn:hover {
+    color: #2d3748;
+}
+
+/* Search Bar Container */
+.search-bar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Input container */
+.input-container {
+    position: relative;
+    display: flex;
+    width: 100%; /* Make the input flexible */
+    min-width: 250px; /* Prevent the input from shrinking too much */
+    align-items: center; /* Ensure the input and button align vertically */
+}
+  
+.search-input {
+    width: 100%;
+    height: 41px;
+    padding: 10px 40px 10px 10px; /* Add padding on the right for the icon */
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+  
+/* Search Button */
+.search-button {
+    position: absolute;
+    right: 15px; /* Move the icon slightly to the left */
+    background: none;
+    border: none;
+    cursor: pointer;
+    height: 41px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+/* Search Icon */
+.search-icon {
+    width: 20px;
+    height: 20px;
+    color: #1e3a8a;
+}
+
+/* Dashboard Stats Card */
+.dashboard-stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f7fafc;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1cm;
+}

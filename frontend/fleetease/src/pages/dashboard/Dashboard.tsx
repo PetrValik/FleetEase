@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    /*try {
+    try {
       const createdVehicle = await Database.createVehicle(newVehicle);
 
       if (createdVehicle) {
@@ -88,7 +88,7 @@ const Dashboard: React.FC = () => {
       setError('Failed to create vehicle. Please try again.');
     } finally {
       setLoading(false);
-    }*/
+    }
   };
 
   const handleApplyFilter = (newFilters: any) => {

@@ -33,23 +33,19 @@ const getNavItems = (role: Role | null): NavItem[] => {
   // Role-specific items
   const roleItems: Record<Role, NavItem[]> = {
     Driver: [
-      { path: "/vehicles", label: "My Vehicles", icon: Car },
       { path: "/defects", label: "Report Defect", icon: AlertTriangle },
-      { path: "/schedule", label: "My Schedule", icon: Calendar },
-      { path: "/testing", label: "Tests", icon: TestTube },
+      //{ path: "/testing", label: "Tests", icon: TestTube },
     ],
     Manager: [
-      { path: "/vehicles", label: "Vehicles", icon: Car },
       { path: "/defects", label: "Defects", icon: Wrench },
-      { path: "/schedule", label: "Schedule", icon: Calendar },
-      { path: "/drivers", label: "Drivers", icon: Users },
+      //{ path: "/drivers", label: "Drivers", icon: Users },
       { path: "/insurances", label: "Insurances", icon: FileSignature },
       {
         path: "/Roles&Company",
         label: "Roles and Company",
         icon: IdCard,
       },
-      { path: "/testing", label: "Tests", icon: TestTube },
+      //{ path: "/testing", label: "Tests", icon: TestTube },
     ],
     Admin: [
       { path: "/user_management", label: "User Management", icon: UserCog },
@@ -59,7 +55,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
         icon: CalendarClock,
       },
       { path: "/auditlog_book", label: "Auditlog Book", icon: BookA },
-      { path: "/testing", label: "Tests", icon: TestTube },
+      //{ path: "/testing", label: "Tests", icon: TestTube },
     ],
   };
   return role ? [...commonItems, ...roleItems[role]] : commonItems;

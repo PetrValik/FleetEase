@@ -147,8 +147,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         company_id: user.company_id,
       };
 
-      const createdVehicle = await Database.createVehicle(newVehicle);
-      onSave(createdVehicle);
+      onSave(newVehicle);
       onClose();
     } catch (error) {
       console.error('Error creating vehicle:', error);

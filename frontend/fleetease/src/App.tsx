@@ -8,7 +8,7 @@ import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
 import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
-//import User_Management from "./pages/admin_pages/User_Management";
+import User_Management from "./pages/admin_pages/User_Management";
 import Role_Company from "./pages/manager_pages/Role_Company";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
@@ -69,21 +69,21 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/user_management"
-            element={
-              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </RoleBasedRoute>
-            }
-          />
-          <Route
             path="/Inspection_Intervals"
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
                   <Inspection_Intervals />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/User_Management"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <User_Management />
                 </Layout>
               </RoleBasedRoute>
             }

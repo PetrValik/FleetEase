@@ -8,10 +8,10 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
-  phone_number: string | null;
+  phone_number: string;
   created_at: string; // time without time zone
   is_active: boolean;
-  company_id: number | null;
+  company_id: number;
   role: {
     role_id: number;
     role_name: Role;

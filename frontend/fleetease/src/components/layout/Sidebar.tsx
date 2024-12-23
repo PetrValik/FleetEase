@@ -48,7 +48,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Admin: [
-      { path: "/user_management", label: "User Management", icon: UserCog },
+      { path: "/User_Management", label: "User Management", icon: UserCog },
       {
         path: "/inspection_intervals",
         label: "Inspection Interval",

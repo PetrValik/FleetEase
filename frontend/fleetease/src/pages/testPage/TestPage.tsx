@@ -71,7 +71,7 @@ const TestPage: React.FC = () => {
     first_name: "John",
     last_name: "Doe",
     phone_number: "987-654-3210",
-    company_id: null,
+    company_id: 1,
     roles_id: 3,
   };
 

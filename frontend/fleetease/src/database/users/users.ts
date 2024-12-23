@@ -21,8 +21,8 @@ export interface UpdateUser {
   email?: string;
   first_name?: string;
   last_name?: string;
-  phone_number?: string | null;
-  company_id?: number | null;
+  phone_number?: string;
+  company_id?: number;
   roles_id?: number;
 }
 

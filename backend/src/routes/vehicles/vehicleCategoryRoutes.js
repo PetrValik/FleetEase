@@ -8,10 +8,10 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all vehicle categories
-router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleCategoryController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleCategoryController.getAll);
 
 // Get one vehicle category by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleCategoryController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleCategoryController.getById);
 
 // Create a new vehicle category
 router.post('/', authenticateToken, checkRole(['Admin']), validate(vehicleCategorySchema), logAudit, vehicleCategoryController.create);

@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { setLogoutHandler } from '../utils/apiClient';
-import { removeStoredToken } from '../utils/authUtils';
-
-export type Role = 'Admin' | 'Manager' | 'Driver';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { setLogoutHandler } from "../utils/apiClient";
+import { removeStoredToken } from "../utils/authUtils";
+export type Role = "Admin" | "Manager" | "Driver";
 
 export interface User {
   user_id: number;
@@ -28,7 +27,9 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
 
   const isAuthenticated = user !== null;
@@ -38,10 +39,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     removeStoredToken();
   };
 
-    // Set the logout handler for API client
-    React.useEffect(() => {
-      setLogoutHandler(logout);
-    }, []);
+  // Set the logout handler for API client
+  React.useEffect(() => {
+    setLogoutHandler(logout);
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>
@@ -53,8 +54,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 };
-

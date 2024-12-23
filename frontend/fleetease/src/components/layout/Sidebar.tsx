@@ -44,11 +44,7 @@ const getNavItems = (role: Role | null): NavItem[] => {
       { path: "/schedule", label: "Schedule", icon: Calendar },
       { path: "/drivers", label: "Drivers", icon: Users },
       { path: "/insurances", label: "Insurances", icon: FileSignature },
-      {
-        path: "/Roles&Company",
-        label: "Roles and Company",
-        icon: IdCard,
-      },
+      { path: "/Role_Company", label: "Role & Company", icon: IdCard },
       { path: "/testing", label: "Tests", icon: TestTube },
     ],
     Admin: [

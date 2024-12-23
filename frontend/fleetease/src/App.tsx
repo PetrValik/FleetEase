@@ -69,18 +69,6 @@ const App: React.FC = () => {
             }
           />
           <Route
-          /*
-          path="/User_Management"
-          element={
-          /<RoleBasedRoute allowedRoles={["Admin"]}>
-          <Layout>
-          <User_Management />
-          </Layout>
-          </RoleBasedRoute>
-          }
-          */
-          />
-          <Route
             path="/user_management"
             element={
               <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
@@ -120,7 +108,6 @@ const App: React.FC = () => {
               </RoleBasedRoute>
             }
           />
-
           <Route
           /*
             path="/insurances"

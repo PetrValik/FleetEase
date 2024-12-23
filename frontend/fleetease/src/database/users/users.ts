@@ -18,13 +18,12 @@ export interface RegisterResponse {
 }
 
 export interface UpdateUser {
-  email: string;
-  first_name: string;
-  last_name: string;
-  phone_number: string | null;
-  created_at: string;
-  company_id: number | null;
-  roles_id: number;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string | null;
+  company_id?: number | null;
+  roles_id?: number;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -104,9 +103,9 @@ export const getAllUsersFromCompany = async (companyId: number): Promise<User[]>
 };
 
 // Update a user
-export const updateUser = async (id: number, userData: Partial<User>): Promise<User> => {
+export const updateUser = async (id: number, userData: Partial<UpdateUser>): Promise<UpdateUser> => {
   try {
-    const response = await apiClient.put<User>(`${BASE_URL}/${id}`, userData);
+    const response = await apiClient.put<UpdateUser>(`${BASE_URL}/${id}`, userData);
     return response.data;
   } catch (error) {
     console.error('Failed to update user:', error);

@@ -8,10 +8,10 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all vehicle brands
-router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleBrandController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleBrandController.getAll);
 
 // Get one vehicle brand by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, vehicleBrandController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, vehicleBrandController.getById);
 
 // Create a new vehicle brand
 router.post('/', authenticateToken, checkRole(['Admin']), validate(vehicleBrandSchema), logAudit, vehicleBrandController.create);

@@ -1,9 +1,5 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
-import { getAllUsers, updateUser } from "../../database/users/users";
-import { getAllRoles } from "../../database/users/role";
-import type { User } from "../../contexts/UserContext";
+import * as Database from "../../database/database";
 
 type Role = {
   role_id: number;
@@ -26,9 +22,9 @@ const mapRoleToLocal = (role: any): Role => {
 };
 
 const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<Database.GetUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackMessage | null>(null);
@@ -36,14 +32,14 @@ const UserManagement: React.FC = () => {
   const fetchData = async () => {
     try {
       const [usersData, rolesData] = await Promise.all([
-        getAllUsers(),
-        getAllRoles(),
+        Database.getAllUsers(),
+        Database.getAllRoles(),
       ]);
 
       setUsers(
         usersData.map((user) => ({
           ...user,
-          role: mapRoleToLocal(user.role),
+          role: mapRoleToLocal(user.roles_id),
         }))
       );
 
@@ -61,19 +57,19 @@ const UserManagement: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleEditUser = async (updatedUser: User) => {
+  const handleEditUser = async (updatedUser: Database.GetUser) => {
     console.log("Saving user changes:", updatedUser);
     setIsLoading(true);
     setFeedback(null);
     try {
-      const updatedUserData = (await updateUser(updatedUser.user_id, {
+      const updatedUserData = await Database.updateUser(updatedUser.user_id, {
         first_name: updatedUser.first_name,
         last_name: updatedUser.last_name,
         email: updatedUser.email,
-        phone_number: updatedUser.phone_number,
-        company_id: updatedUser.company_id,
-        roles_id: updatedUser.role.role_id,
-      })) as User;
+        phone_number: updatedUser.phone_number || undefined,
+        company_id: updatedUser.company_id || undefined,
+        roles_id: updatedUser.roles_id,
+      });
 
       console.log("User updated successfully", updatedUserData);
 
@@ -98,7 +94,7 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const openModal = (user: User) => {
+  const openModal = (user: Database.GetUser) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
@@ -221,11 +217,11 @@ const UserManagement: React.FC = () => {
                 </label>
                 <input
                   type="tel"
-                  value={selectedUser.phone_number}
+                  value={selectedUser.phone_number || ""}
                   onChange={(e) =>
                     setSelectedUser({
                       ...selectedUser,
-                      phone_number: e.target.value,
+                      phone_number: e.target.value || null,
                     })
                   }
                   className="w-full border rounded-md p-2"
@@ -236,11 +232,11 @@ const UserManagement: React.FC = () => {
                 <label className="block text-sm font-medium">Company ID:</label>
                 <input
                   type="number"
-                  value={selectedUser.company_id}
+                  value={selectedUser.company_id || ""}
                   onChange={(e) =>
                     setSelectedUser({
                       ...selectedUser,
-                      company_id: parseInt(e.target.value, 10),
+                      company_id: e.target.value ? parseInt(e.target.value, 10) : null,
                     })
                   }
                   className="w-full border rounded-md p-2"
@@ -251,13 +247,13 @@ const UserManagement: React.FC = () => {
                 <label className="block text-sm font-medium">Role:</label>
                 <select
                   className="w-full border rounded-md p-2"
-                  value={selectedUser.role?.role_id || ""}
+                  value={selectedUser.roles_id || ""}
                   onChange={(e) => {
                     const roleId = parseInt(e.target.value, 10);
-                    const role = roles.find((r) => r.role_id === roleId);
-                    if (role) {
-                      setSelectedUser({ ...selectedUser, role });
-                    }
+                    setSelectedUser({
+                      ...selectedUser,
+                      roles_id: roleId,
+                    });
                   }}
                 >
                   <option value="">Select Role</option>
@@ -292,3 +288,4 @@ const UserManagement: React.FC = () => {
 };
 
 export default UserManagement;
+

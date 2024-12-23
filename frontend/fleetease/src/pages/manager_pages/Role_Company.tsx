@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import * as Database from "../../database/database";
-import { getAllRoles } from "../../database/users/role";
 import { useUser } from "../../contexts/UserContext";
-import type { User } from "../../contexts/UserContext";
 
 type Role = {
   role_id: number;
@@ -41,7 +39,7 @@ const Role_Company: React.FC = () => {
     try {
       const [rolesData, companyUsersData, unassignedUsersData] =
         await Promise.all([
-          getAllRoles(),
+          Database.getAllRoles(),
           Database.getAllUsersFromCompany(currentUser?.company_id || 1, 1000),
           Database.getAllUsersWithoutCompany(),
         ]);

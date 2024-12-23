@@ -26,6 +26,18 @@ export interface UpdateUser {
   roles_id?: number;
 }
 
+export interface GetUser {
+  user_id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string | null;
+  created_at: string; // time without time zone
+  is_active: boolean;
+  company_id: number | null;
+  roles_id: number;
+}
+
 export const login = async (
   email: string,
   password: string
@@ -83,22 +95,22 @@ export const checkEmailExists = async (email: string): Promise<boolean> => {
 };
 
 // Get all users
-export const getAllUsers = async (): Promise<User[]> => {
+export const getAllUsers = async (): Promise<GetUser[]> => {
   try {
-    const response = await apiClient.get<User[]>(`${BASE_URL}/`);
+    const response = await apiClient.get<GetUser[]>(`${BASE_URL}/`);
     return response.data;
   } catch (error) {
-    return handleApiError<User[]>(error, []);
+    return handleApiError<GetUser[]>(error, []);
   }
 };
 
 // Get all users without a company
-export const getAllUsersWithoutCompany = async (): Promise<User[]> => {
+export const getAllUsersWithoutCompany = async (): Promise<GetUser[]> => {
   try {
-    const response = await apiClient.get<User[]>(`${BASE_URL}/without-company`);
+    const response = await apiClient.get<GetUser[]>(`${BASE_URL}/without-company`);
     return response.data;
   } catch (error) {
-    return handleApiError<User[]>(error, []);
+    return handleApiError<GetUser[]>(error, []);
   }
 };
 
@@ -106,15 +118,15 @@ export const getAllUsersWithoutCompany = async (): Promise<User[]> => {
 export const getAllUsersFromCompany = async (
   companyId: number,
   currentUserId: number
-): Promise<User[]> => {
+): Promise<GetUser[]> => {
   try {
-    const response = await apiClient.get<User[]>(
+    const response = await apiClient.get<GetUser[]>(
       `${BASE_URL}/company/${companyId}`,
       { params: { excludeUserId: currentUserId } } // Pass the current user ID as a query parameter
     );
     return response.data;
   } catch (error) {
-    return handleApiError<User[]>(error, []);
+    return handleApiError<GetUser[]>(error, []);
   }
 };
 

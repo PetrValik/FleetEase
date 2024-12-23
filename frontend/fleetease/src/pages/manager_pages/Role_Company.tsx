@@ -1,12 +1,7 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
-import {
-  getAllUsersWithoutCompany,
-  getAllUsersFromCompany,
-  updateUser,
-} from "../../database/users/users";
+import * as Database from "../../database/database";
 import { getAllRoles } from "../../database/users/role";
+import { useUser } from "../../contexts/UserContext";
 import type { User } from "../../contexts/UserContext";
 
 type Role = {
@@ -22,41 +17,38 @@ const mapRoleToLocal = (role: any): Role => {
     };
   }
 
-  return { role_id: 1, role_name: "Driver" };
+  return { role_id: 3, role_name: "Driver" };
 };
 
 const Role_Company: React.FC = () => {
-  const [companyUsers, setCompanyUsers] = useState<User[]>([]);
-  const [unassignedUsers, setUnassignedUsers] = useState<User[]>([]);
+  const { user: currentUser } = useUser();
+  const [companyUsers, setCompanyUsers] = useState<Database.GetUser[]>([]);
+  const [unassignedUsers, setUnassignedUsers] = useState<Database.GetUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
+  const [originalRole, setOriginalRole] = useState<number | null>(null);
   const [modalMode, setModalMode] = useState<"edit" | "assign">("assign");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const roleMap: { [key: number]: string } = {
+    1: "Admin",
+    2: "Manager",
+    3: "Driver",
+  };
 
   const fetchUserData = async () => {
     try {
       const [rolesData, companyUsersData, unassignedUsersData] =
         await Promise.all([
           getAllRoles(),
-          getAllUsersFromCompany(1, 1000),
-          getAllUsersWithoutCompany(),
+          Database.getAllUsersFromCompany(currentUser?.company_id || 1, 1000),
+          Database.getAllUsersWithoutCompany(),
         ]);
 
       setRoles(rolesData.map(mapRoleToLocal));
-
-      setCompanyUsers(
-        companyUsersData.map((user) => ({
-          ...user,
-          role: mapRoleToLocal(user.role),
-        }))
-      );
-
-      setUnassignedUsers(
-        unassignedUsersData.map((user) => ({
-          ...user,
-          role: mapRoleToLocal(user.role),
-        }))
-      );
+      setCompanyUsers(companyUsersData);
+      setUnassignedUsers(unassignedUsersData);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
     }
@@ -64,37 +56,43 @@ const Role_Company: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [currentUser]);
 
-  const handleCompanyAssignment = async (userId: number, companyId: number) => {
+  const handleCompanyAssignment = async (userId: number) => {
     try {
       if (modalMode === "edit" && selectedUser) {
-        // Update both company and role
-        await updateUser(userId, {
-          company_id: companyId,
-          roles_id: selectedUser.role.role_id,
+        await Database.updateUser(userId, {
+          company_id: currentUser?.company_id || 1,
+          roles_id: selectedUser.roles_id,
         });
       } else {
-        // Just update company
-        await updateUser(userId, {
-          company_id: companyId,
+        await Database.updateUser(userId, {
+          company_id: currentUser?.company_id || 1,
         });
       }
-      await fetchUserData(); // Refresh data after update
+      await fetchUserData();
+      closeModal();
     } catch (error) {
       console.error("Failed to update user:", error);
     }
   };
 
-  const openModal = (user: User, mode: "edit" | "assign") => {
+  const openModal = (user: Database.GetUser, mode: "edit" | "assign") => {
     setSelectedUser(user);
+    setOriginalRole(user.roles_id);
     setModalMode(mode);
-    setIsModalOpen(true);
+    if (mode === "assign") {
+      setShowConfirmation(true);
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   const closeModal = () => {
     setSelectedUser(null);
+    setOriginalRole(null);
     setIsModalOpen(false);
+    setShowConfirmation(false);
   };
 
   return (
@@ -103,7 +101,7 @@ const Role_Company: React.FC = () => {
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4">
-            Uživatelé z Vaší společnosti
+            Users from Your Company
           </h2>
           <div className="space-y-2">
             {companyUsers.map((user) => (
@@ -118,13 +116,13 @@ const Role_Company: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-gray-600 font-semibold">
-                    {user.role?.role_name || "Driver"}
+                    {roleMap[user.roles_id]}
                   </span>
                   <button
                     onClick={() => openModal(user, "edit")}
                     className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
-                    Upravit
+                    Edit
                   </button>
                 </div>
               </div>
@@ -137,7 +135,7 @@ const Role_Company: React.FC = () => {
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4">
-            Uživatelé bez rolí a zařazení
+            Users without company
           </h2>
           <div className="space-y-2">
             {unassignedUsers.map((user) => (
@@ -151,12 +149,14 @@ const Role_Company: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-600 font-semibold">Driver</span>
+                  <span className="text-gray-600 font-semibold">
+                    {roleMap[user.roles_id]}
+                  </span>
                   <button
                     onClick={() => openModal(user, "assign")}
                     className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
-                    Přiřadit
+                    Assign
                   </button>
                 </div>
               </div>
@@ -165,15 +165,12 @@ const Role_Company: React.FC = () => {
         </div>
       </div>
 
-      {isModalOpen && selectedUser && (
+      {/* Confirmation Modal */}
+      {showConfirmation && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {modalMode === "edit"
-                  ? "Upravit roli uživatele"
-                  : "Přiřadit uživatele"}
-              </h2>
+              <h2 className="text-lg font-semibold">Add User</h2>
               <button
                 onClick={closeModal}
                 className="text-gray-500 hover:text-gray-700"
@@ -181,84 +178,84 @@ const Role_Company: React.FC = () => {
                 ×
               </button>
             </div>
-
-            {modalMode === "assign" ? (
-              <div className="space-y-4">
-                <p className="mb-2">
-                  Jméno: {selectedUser.first_name} {selectedUser.last_name}
-                </p>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">Firma:</label>
-                  <select
-                    className="w-full border rounded-md p-2"
-                    onChange={(e) => {
-                      const companyId = parseInt(e.target.value);
-                      handleCompanyAssignment(selectedUser.user_id, companyId);
-                      closeModal();
-                    }}
-                  >
-                    <option value="">Vyberte firmu</option>
-                    <option value="1">FleetEase</option>
-                    <option value="2">ExampleCompany</option>
-                  </select>
-                </div>
+            <div className="space-y-4">
+              <p className="text-center mb-4">
+                Do you really want to add the user {selectedUser.first_name}{" "}
+                {selectedUser.last_name} to your company?
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleCompanyAssignment(selectedUser.user_id)}
+                  className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140]"
+                >
+                  Confirm
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="mb-2">
-                  Jméno: {selectedUser.first_name} {selectedUser.last_name}
-                </p>
-                <p className="mb-4">
-                  Současná role: {selectedUser.role.role_name}
-                </p>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium">
-                    Nová role:
-                  </label>
-                  <select
-                    className="w-full border rounded-md p-2"
-                    onChange={async (e) => {
-                      const roleId = parseInt(e.target.value);
-                      const role = roles.find((r) => r.role_id === roleId);
-                      if (role && selectedUser) {
-                        const updatedUser = {
-                          ...selectedUser,
-                          role: role,
-                        };
-                        setSelectedUser(updatedUser);
-                      }
-                    }}
-                    value={selectedUser.role.role_id}
-                  >
-                    <option value="">Vyberte roli</option>
-                    {roles
-                      .filter((role) => role.role_name !== "Admin")
-                      .map((role) => (
-                        <option key={role.role_id} value={role.role_id}>
-                          {role.role_name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-            )}
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Edit Modal */}
+      {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Edit User Role</h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-4">
+              <p className="mb-2">
+                Name: {selectedUser.first_name} {selectedUser.last_name}
+              </p>
+              <p className="mb-4">
+                Current role: {roleMap[originalRole!]}
+              </p>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  New role:
+                </label>
+                <select
+                  className="w-full border rounded-md p-2"
+                  onChange={(e) => {
+                    const roleId = parseInt(e.target.value);
+                    if (selectedUser) {
+                      setSelectedUser({
+                        ...selectedUser,
+                        roles_id: roleId,
+                      });
+                    }
+                  }}
+                  value={selectedUser.roles_id}
+                >
+                  <option value="">Select role</option>
+                  {roles
+                    .filter((role) => role.role_name !== "Admin")
+                    .map((role) => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {roleMap[role.role_id]}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
             <div className="flex justify-end mt-6">
               <button
-                onClick={() => {
-                  if (modalMode === "edit" && selectedUser) {
-                    handleCompanyAssignment(
-                      selectedUser.user_id,
-                      selectedUser.company_id || 1
-                    );
-                  } else {
-                    handleCompanyAssignment(selectedUser!.user_id, 1);
-                  }
-                  closeModal();
-                }}
+                onClick={() => handleCompanyAssignment(selectedUser.user_id)}
                 className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140]"
               >
-                {modalMode === "edit" ? "Uložit změny" : "Přiřadit"}
+                Save changes
               </button>
             </div>
           </div>
@@ -269,3 +266,4 @@ const Role_Company: React.FC = () => {
 };
 
 export default Role_Company;
+

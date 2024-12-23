@@ -1,65 +1,88 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Defect, DefectFormData, DefectType, DefectSeverityLevel } from '../types';
-import { getAllDefectTypes } from '../../../database/defects/defectTypeService';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-  } from "../ui/dialog";
-  import { Button } from "../ui/button";
-  import { Input } from "../ui/input";
-  import { Label } from "../ui/label";
-  import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "../ui/select";
-  import { Textarea } from "../ui/textarea";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
-  interface DefectDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSave: (defect: DefectFormData) => Promise<void>;
-    defect?: Defect;
-    mode: 'create' | 'edit';
-    defectTypes: DefectType[]; 
-  }
+interface DefectDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (defect: DefectFormData) => Promise<void>;
+  mode: 'create' | 'edit';
+  defect?: Defect;
+  defectTypes: DefectType[];
+}
 
-export default function DefectDialog({ 
-  isOpen, 
-  onClose, 
+export default function DefectDialog({
+  isOpen,
+  onClose,
   onSave,
+  mode,
   defect,
-  mode 
+  defectTypes
 }: DefectDialogProps) {
   const [formData, setFormData] = useState<DefectFormData>({
     vehicle_id: defect?.vehicle_id || 0,
-    defect_severity: defect?.defect_severity || 'Medium',
     type_id: defect?.type_id || 0,
+    defect_severity: defect?.defect_severity || 'Medium',
     description: defect?.description || '',
-    repair_cost: defect?.repair_cost || undefined
+    repair_cost: defect?.repair_cost ?? null
   });
 
-  const [defectTypes, setDefectTypes] = useState<DefectType[]>([]);
-
   useEffect(() => {
-    const fetchDefectTypes = async () => {
-      const types = await getAllDefectTypes();
-      if (types) {
-        setDefectTypes(types);
-      }
-    };
-    fetchDefectTypes();
-  }, []);
+    if (defect) {
+      setFormData({
+        vehicle_id: defect.vehicle_id,
+        type_id: defect.type_id,
+        defect_severity: defect.defect_severity,
+        description: defect.description,
+        repair_cost: defect.repair_cost
+      });
+    }
+  }, [defect]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
+  };
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value ? Number(e.target.value) : null;
+    setFormData(prev => ({
+      ...prev,
+      repair_cost: value
+    }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -77,9 +100,10 @@ export default function DefectDialog({
               <Label htmlFor="vehicle">ID Vozidla</Label>
               <Input
                 id="vehicle"
+                name="vehicle_id"
                 type="number"
                 value={formData.vehicle_id}
-                onChange={(e) => setFormData({ ...formData, vehicle_id: Number(e.target.value) })}
+                onChange={handleInputChange}
                 placeholder="Zadejte ID vozidla"
                 required
               />
@@ -87,15 +111,15 @@ export default function DefectDialog({
             <div className="grid gap-2">
               <Label htmlFor="type">Typ defektu</Label>
               <Select
-                value={formData.type_id.toString()}
-                onValueChange={(value) => setFormData({ ...formData, type_id: Number(value) })}
+                value={String(formData.type_id)}
+                onValueChange={(value) => handleSelectChange('type_id', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Vyberte typ defektu" />
                 </SelectTrigger>
                 <SelectContent>
                   {defectTypes.map((type) => (
-                    <SelectItem key={type.type_id} value={type.type_id.toString()}>
+                    <SelectItem key={type.type_id} value={String(type.type_id)}>
                       {type.type_name}
                     </SelectItem>
                   ))}
@@ -104,11 +128,10 @@ export default function DefectDialog({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="severity">Závažnost</Label>
-              <Select 
-                value={String(formData.defect_severity)}
-                onValueChange={(value: string) => 
-                setFormData({ ...formData, defect_severity: value as DefectSeverityLevel })}
-                >
+              <Select
+                value={formData.defect_severity}
+                onValueChange={(value) => handleSelectChange('defect_severity', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Vyberte závažnost" />
                 </SelectTrigger>
@@ -125,8 +148,9 @@ export default function DefectDialog({
               <Label htmlFor="description">Popis defektu</Label>
               <Textarea
                 id="description"
+                name="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={handleInputChange}
                 placeholder="Popište zjištěný defekt..."
                 className="h-24"
                 required
@@ -138,11 +162,8 @@ export default function DefectDialog({
                 <Input
                   id="repair_cost"
                   type="number"
-                  value={formData.repair_cost || ''}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    repair_cost: e.target.value ? Number(e.target.value) : undefined 
-                  })}
+                  value={formData.repair_cost ?? ''}
+                  onChange={handleNumberChange}
                   placeholder="Zadejte náklady na opravu"
                 />
               </div>

@@ -1,14 +1,5 @@
-// Enum typy podle databáze
 export type DefectSeverityLevel = 'Minor' | 'Low' | 'Medium' | 'High' | 'Critical';
-export const DEFECT_STATUSES = {
-  REPORTED: 'Reported',
-  IN_PROGRESS: 'In Progress',
-  REPAIRED: 'Repaired',
-  CLOSED: 'Closed',
-  DEFERRED: 'Deferred'
-} as const;
-
-export type DefectStatus = typeof DEFECT_STATUSES[keyof typeof DEFECT_STATUSES];
+export type DefectStatus = 'Reported' | 'In Progress' | 'Repaired' | 'Closed' | 'Deferred';
 
 // Interface pro typ defektu
 export interface DefectType {
@@ -37,6 +28,8 @@ export interface DefectFormData {
   type_id: number;
   defect_severity: DefectSeverityLevel;
   description: string;
+  repair_cost: number | null;
+  date_reported?: string;
+  user_id?: number;
   defect_status?: DefectStatus;
-  repair_cost?: number;
 }

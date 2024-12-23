@@ -1,52 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { Defect } from './types'; 
+import { useState, useEffect } from 'react';
+import { Defect, DefectType, DefectFormData, DefectStatus } from './types';
 import { getAllDefects, createDefect } from '../../database/defects/defects';
+import { getAllDefectTypes } from '../../database/defects/defectTypeService';
 import DefectTable from './components/DefectTable';
 import DefectDialog from './components/DefectDialog';
 
 const DriverDefectsPage: React.FC = () => {
-    const [defects, setDefects] = useState<Defect[]>([]);
-    const [dialogOpen, setDialogOpen] = useState(false);
-  
-    useEffect(() => {
-      loadDefects();
-    }, []);
-  
-    const loadDefects = async () => {
-      try {
-        const data = await getAllDefects();
-        setDefects(data);
-      } catch (error) {
-        console.error('Error fetching defects:', error);
-      }
-    };
-  
-    const handleCreateDefect = async (newDefect: Omit<Defect, 'defect_id' | 'created_at'>) => {
-        try {
-          const createdDefect = await createDefect(newDefect);
-          if (createdDefect) {
-            setDefects([...defects, createdDefect]);
-            setDialogOpen(false);
-          }
-        } catch (error) {
-          console.error('Error creating defect:', error);
-        }
-      };
-  
-    return (
-      <div>
-        <h1>Moje nahlášené defekty</h1>
-        <button onClick={() => setDialogOpen(true)}>Nahlásit defekt</button>
-        
-        <DefectTable defects={defects} />
-        
-        <DefectDialog
-          open={dialogOpen}
-          onClose={() => setDialogOpen(false)}
-          onSubmit={handleCreateDefect}
-        />
-      </div>
-    );
+  const [defects, setDefects] = useState<Defect[]>([]);
+  const [defectTypes, setDefectTypes] = useState<DefectType[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [defectsData, typesData] = await Promise.all([
+        getAllDefects(),
+        getAllDefectTypes()
+      ]);
+      setDefects(defectsData);
+      setDefectTypes(typesData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
-  
-  export default DriverDefectsPage;
+
+  const handleCreateDefect = async (formData: DefectFormData) => {
+    try {
+      const currentDate = new Date().toISOString();
+      const userId = 1; // Zde použijte skutečné ID přihlášeného uživatele
+      
+      const newDefect = {
+        ...formData,
+        date_reported: currentDate,
+        user_id: userId,
+        defect_status: 'Reported' as DefectStatus
+      };
+      
+      const createdDefect = await createDefect(newDefect);
+      if (createdDefect) {
+        setDefects([...defects, createdDefect]);
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error creating defect:', error);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Moje nahlášené defekty</h1>
+      <button onClick={() => setIsDialogOpen(true)}>Nahlásit defect</button>
+      
+      <DefectTable 
+        defects={defects}
+        defectTypes={defectTypes}
+        loading={isLoading}
+      />
+      
+      <DefectDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSave={handleCreateDefect}
+        mode="create"
+        defectTypes={defectTypes}
+      />
+    </div>
+  );
+};
+
+export default DriverDefectsPage;

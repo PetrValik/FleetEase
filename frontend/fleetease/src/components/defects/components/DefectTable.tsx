@@ -1,5 +1,5 @@
 import React from 'react';
-import { Defect, DefectType } from '../types';
+import { Defect, DefectType, DefectStatus } from '../types';
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ interface DefectTableProps {
   isManager?: boolean;
   onEdit?: (defect: Defect) => void;
   onDelete?: (id: number) => void;
-  onStatusChange?: (id: number, newStatus: Defect['defect_status']) => void;
+  onStatusChange?: (id: number, newStatus: DefectStatus) => void;
   loading: boolean;
 }
 
@@ -121,44 +121,44 @@ export default function DefectTable({
                 </TableCell>
               )}
               {(onEdit || onDelete || onStatusChange) && (
-                <TableCell className="text-right">
-                  <div className="flex justify-end space-x-2">
-                    {onStatusChange && defect.defect_status !== 'Closed' && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onStatusChange(defect.defect_id, 'Closed')}
-                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        <span className="sr-only">Uzavřít</span>
-                      </Button>
-                    )}
-                    {onEdit && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onEdit(defect)}
-                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                        <span className="sr-only">Upravit</span>
-                      </Button>
-                    )}
-                    {onDelete && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onDelete(defect.defect_id)}
-                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Smazat</span>
-                      </Button>
-                    )}
-                  </div>
-                </TableCell>
-              )}
+  <TableCell className="text-right">
+    <div className="flex justify-end space-x-2">
+      {onStatusChange && defect.defect_status !== 'Closed' && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onStatusChange(defect.defect_id, 'Closed')}
+          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+        >
+          <CheckCircle className="h-4 w-4" />
+          <span className="sr-only">Uzavřít</span>
+        </Button>
+      )}
+      {onEdit && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onEdit(defect)}
+          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+        >
+          <Edit2 className="h-4 w-4" />
+          <span className="sr-only">Upravit</span>
+        </Button>
+      )}
+      {onDelete && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onDelete(defect.defect_id)}
+          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="sr-only">Smazat</span>
+        </Button>
+      )}
+    </div>
+  </TableCell>
+)}
             </TableRow>
           ))}
         </TableBody>

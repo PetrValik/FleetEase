@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   getAllUsersWithoutCompany,
@@ -67,10 +69,13 @@ const Role_Company: React.FC = () => {
   const handleCompanyAssignment = async (userId: number, companyId: number) => {
     try {
       if (modalMode === "edit" && selectedUser) {
+        // Update both company and role
         await updateUser(userId, {
+          company_id: companyId,
           roles_id: selectedUser.role.role_id,
         });
       } else {
+        // Just update company
         await updateUser(userId, {
           company_id: companyId,
         });

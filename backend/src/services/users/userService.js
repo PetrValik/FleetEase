@@ -150,11 +150,12 @@ exports.checkEmailExists = async (email) => {
   return !!data; // Return true if email exists, otherwise false
 };
 
-exports.getAllUsersFromCompany = async (companyId) => {
+exports.getAllUsersFromCompany = async (companyId, excludeUserId) => {
   const { data, error } = await supabase
     .from('Users')
     .select('user_id, email, first_name, last_name, roles_id, company_id')
-    .eq('company_id', companyId); // Fetch users belonging to the specified company
+    .eq('company_id', companyId)
+    .neq('user_id', excludeUserId); // Exclude the current user
 
   if (error) {
     throw new Error('Failed to fetch users from the specified company');
@@ -163,11 +164,13 @@ exports.getAllUsersFromCompany = async (companyId) => {
   return data;
 };
 
+
 exports.getAllUsersWithoutCompany = async () => {
   const { data, error } = await supabase
     .from('Users')
     .select('user_id, email, first_name, last_name, roles_id, company_id')
-    .is('company_id', null); // Fetch users where company_id is null
+    .is('company_id', null) // Fetch users where company_id is null
+    .neq('roles_id', 1); // Exclude users with roles_id = 1 (Admin)
 
   if (error) {
     throw new Error('Failed to fetch users without a company');

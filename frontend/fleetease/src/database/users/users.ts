@@ -104,11 +104,13 @@ export const getAllUsersWithoutCompany = async (): Promise<User[]> => {
 
 // Get all users from a specific company
 export const getAllUsersFromCompany = async (
-  companyId: number
+  companyId: number,
+  currentUserId: number
 ): Promise<User[]> => {
   try {
     const response = await apiClient.get<User[]>(
-      `${BASE_URL}/company/${companyId}`
+      `${BASE_URL}/company/${companyId}`,
+      { params: { excludeUserId: currentUserId } } // Pass the current user ID as a query parameter
     );
     return response.data;
   } catch (error) {

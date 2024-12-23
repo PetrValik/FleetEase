@@ -1,6 +1,6 @@
 import apiClient from "../../utils/apiClient";
 import { config } from "../../config";
-import { User } from "../../contexts/UserContext";
+import { User, Role } from "../../contexts/UserContext";
 import { handleApiError } from "../../utils/apiErrorHandler";
 
 const BASE_URL = config.USERS_ENDPOINT;

@@ -24,7 +24,7 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   }
 
   // If the user does not have the required role, show MainPage
-  if (!user.role || !allowedRoles.includes(user.role.role_name)) {
+  if (!allowedRoles.includes(user.role.role_name)) {
     return (
       <Layout>
         <MainPage />

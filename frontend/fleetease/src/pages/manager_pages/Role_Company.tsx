@@ -14,8 +14,11 @@ type Role = {
   role_name: "Admin" | "Driver" | "Manager";
 };
 
-const mapRoleToLocal = (role: any): Role | null => {
-  if (!role || !role.role_name) return null;
+// Ensure every user has a valid role, defaulting to Driver if missing
+const mapRoleToLocal = (role: any): Role => {
+  if (!role || !role.role_id || !role.role_name) {
+    return { role_id: 1, role_name: "Driver" }; // Default role is Driver
+  }
   return {
     role_id: role.role_id,
     role_name: role.role_name as "Admin" | "Driver" | "Manager",
@@ -30,53 +33,47 @@ const Role_Company: React.FC = () => {
   const [modalMode, setModalMode] = useState<"edit" | "assign">("edit");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Function to fetch and update user data from the backend
   const fetchUserData = async () => {
-    const [rolesData, companyUsersData, unassignedUsersData] =
-      await Promise.all([
-        getAllRoles(),
-        getAllUsersFromCompany(1),
-        getAllUsersWithoutCompany(),
-      ]);
+    try {
+      const [rolesData, companyUsersData, unassignedUsersData] =
+        await Promise.all([
+          getAllRoles(),
+          getAllUsersFromCompany(1),
+          getAllUsersWithoutCompany(),
+        ]);
 
-    setRoles(
-      rolesData
-        .map(mapRoleToLocal)
-        .filter((role): role is Role => role !== null)
-    );
+      setRoles(rolesData.map(mapRoleToLocal));
 
-    setCompanyUsers(
-      companyUsersData.map((user) => ({
-        ...user,
-        role: user.role ? mapRoleToLocal(user.role) : null,
-      }))
-    );
+      setCompanyUsers(
+        companyUsersData.map((user) => ({
+          ...user,
+          role: mapRoleToLocal(user.role),
+        }))
+      );
 
-    setUnassignedUsers(
-      unassignedUsersData.map((user) => ({
-        ...user,
-        role: user.role ? mapRoleToLocal(user.role) : null,
-      }))
-    );
+      setUnassignedUsers(
+        unassignedUsersData.map((user) => ({
+          ...user,
+          role: mapRoleToLocal(user.role),
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
   };
 
   useEffect(() => {
     fetchUserData();
   }, []);
 
-  const handleUserUpdate = async (
-    userId: number,
-    role: Role,
-    companyId: number
-  ) => {
+  const handleUserUpdate = async (userId: number, role: Role) => {
     try {
-      // Update the user on the backend
+      // Update user role in the backend
       await updateUser(userId, {
         roles_id: role.role_id,
-        company_id: companyId,
       });
 
-      // Fetch updated data from the backend
+      // Trigger a full reload of the data
       await fetchUserData();
 
       // Close the modal
@@ -99,15 +96,8 @@ const Role_Company: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold">
-            Editace rolí, přiřazení do společnosti
-          </h1>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow">
+      {/* Users from the company */}
+      <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4">
             Uživatelé z Vaší společnosti
@@ -116,7 +106,7 @@ const Role_Company: React.FC = () => {
             {companyUsers.map((user) => (
               <div
                 key={user.user_id}
-                className="flex items-center justify-between p-4 border rounded-lg"
+                className="flex items-center justify-between p-4 border rounded-lg bg-gray-100"
               >
                 <div className="flex flex-col">
                   <span>
@@ -124,12 +114,12 @@ const Role_Company: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-600">
-                    {user.role?.role_name || "Žádná role"}
+                  <span className="text-gray-600 font-semibold">
+                    {user.role.role_name}
                   </span>
                   <button
                     onClick={() => openModal(user, "edit")}
-                    className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
                     Upravit
                   </button>
@@ -140,7 +130,8 @@ const Role_Company: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
+      {/* Users without a company */}
+      <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4">
             Uživatelé bez rolí a zařazení
@@ -149,7 +140,7 @@ const Role_Company: React.FC = () => {
             {unassignedUsers.map((user) => (
               <div
                 key={user.user_id}
-                className="flex items-center justify-between p-4 border rounded-lg"
+                className="flex items-center justify-between p-4 border rounded-lg bg-gray-100"
               >
                 <div className="flex flex-col">
                   <span>
@@ -157,10 +148,12 @@ const Role_Company: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-600">Nepřiřazeno</span>
+                  <span className="text-gray-600 font-semibold">
+                    {user.role.role_name}
+                  </span>
                   <button
                     onClick={() => openModal(user, "assign")}
-                    className="px-4 py-2 border rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
                     Přiřadit
                   </button>
@@ -171,9 +164,10 @@ const Role_Company: React.FC = () => {
         </div>
       </div>
 
+      {/* Modal for role assignment */}
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-[425px] p-6">
+          <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">
                 {modalMode === "edit"
@@ -195,8 +189,7 @@ const Role_Company: React.FC = () => {
                 </p>
                 {modalMode === "edit" && (
                   <p className="mb-4">
-                    Současná role:{" "}
-                    {selectedUser.role?.role_name || "Žádná role"}
+                    Současná role: {selectedUser.role.role_name}
                   </p>
                 )}
               </div>
@@ -210,10 +203,10 @@ const Role_Company: React.FC = () => {
                     const role = roles.find((r) => r.role_id === roleId);
                     setSelectedUser((prevUser) => ({
                       ...prevUser!,
-                      role: role || null,
+                      role: role!,
                     }));
                   }}
-                  value={selectedUser.role?.role_id || ""}
+                  value={selectedUser.role.role_id}
                 >
                   <option value="">Vyberte roli</option>
                   {roles
@@ -225,34 +218,12 @@ const Role_Company: React.FC = () => {
                     ))}
                 </select>
               </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Firma:</label>
-                <select
-                  className="w-full border rounded-md p-2"
-                  onChange={(e) =>
-                    setSelectedUser((prevUser) => ({
-                      ...prevUser!,
-                      company_id: parseInt(e.target.value),
-                    }))
-                  }
-                  value={selectedUser.company_id || ""}
-                >
-                  <option value="1">FleetEase</option>
-                </select>
-              </div>
             </div>
 
             <div className="flex justify-end mt-6">
               <button
                 onClick={() => {
-                  if (selectedUser.role) {
-                    handleUserUpdate(
-                      selectedUser.user_id,
-                      selectedUser.role,
-                      selectedUser.company_id || 1
-                    );
-                  }
+                  handleUserUpdate(selectedUser.user_id, selectedUser.role);
                 }}
                 className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140]"
               >

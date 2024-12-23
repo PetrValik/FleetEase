@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
+<<<<<<< Updated upstream
 import { register } from '../../database/database';
+=======
+import * as Database from '../../database/database';
+import { supabase } from '../../utils/supabaseClient';
+>>>>>>> Stashed changes
 import axios from 'axios';
 
 const SignUp: React.FC = () => {
@@ -43,6 +48,26 @@ const SignUp: React.FC = () => {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+
+      if (error) throw error;
+
+      // The user will be redirected to Google for authentication
+      // After successful authentication, they will be redirected back to your app
+      // You can handle this in your app's callback route
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An error occurred during Google sign-up');
+      }
+    }
+  };
+
   return (
     <div className="w-full max-w-md px-4 mx-auto h-full flex flex-col justify-center">
       <AuthHeader />
@@ -50,7 +75,7 @@ const SignUp: React.FC = () => {
         title="Sign Up"
         onSubmit={handleSubmit}
         googleButtonText="Sign up with Google"
-        onGoogleClick={() => console.log('Google sign up clicked')}
+        onGoogleClick={handleGoogleSignUp}
         linkText="Already have an account? Sign In"
         linkTo="/signin"
       >

@@ -5,6 +5,7 @@ import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
 import { login } from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
+import { supabase } from '../../utils/supabaseClient';
 import axios from 'axios';
 
 const SignIn: React.FC = () => {
@@ -36,9 +37,24 @@ const SignIn: React.FC = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google sign in logic
-    console.log('Google sign in clicked');
+  const handleGoogleSignIn = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+
+      if (error) throw error;
+
+      // The user will be redirected to Google for authentication
+      // After successful authentication, they will be redirected back to your app
+      // You can handle this in your app's callback route
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An error occurred during Google sign-in');
+      }
+    }
   };
 
   return (

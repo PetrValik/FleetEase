@@ -97,15 +97,14 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations,
   };
 
   return (
-    <div className="w-96 bg-white shadow-md rounded-lg p-4">
+    <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">
       <CalendarHeader currentDate={currentDate} setCurrentDate={setCurrentDate} />
       <CalendarGrid
         daysInMonth={daysInMonth}
         selectedDates={selectedDates}
         handleDateClick={handleDateSelect}
       />
-
-      {/* Conditionally render the ReservationForm if dates are selected */}
+  
       {selectedDates.length > 0 && (
         <ReservationForm
           selectedDates={selectedDates}
@@ -114,7 +113,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations,
           setPickupLocation={setPickupLocation}
           setReturnLocation={setReturnLocation}
           handleReservationSubmit={handleReservationSubmit}
-          errorMessage={errorMessage}  // Pass error message to the form
+          errorMessage={errorMessage}
         />
       )}
     </div>

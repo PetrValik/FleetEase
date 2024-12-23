@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../../contexts/UserContext'; // User context for authentication
 import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Vehicle details component
 import ReservationCalendar from '../../components/vehicle/ReservationCalendar'; // Reservation calendar component
-import CurrentReservations from '../../components/vehicle/CurrentReservations'; // Import the new CurrentReservations component
+import CurrentReservations from '../../components/vehicle/CurrentReservations'; // Current reservations component
 import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations'; // Fetch reservations by vehicle ID
 import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // Fetch vehicle details by ID
 import { useParams } from 'react-router-dom'; // React Router for capturing vehicleId from URL params
@@ -18,37 +18,36 @@ const VehicleDetailPage: React.FC = () => {
   // Fetch vehicle data and reservations data
   useEffect(() => {
     const fetchVehicleData = async () => {
-      const vehicleData = await getVehicleById(Number(vehicleId)); // Fetch vehicle by ID (ensure it's a number)
-      setVehicle(vehicleData); // Store vehicle details
+      const vehicleData = await getVehicleById(Number(vehicleId));
+      setVehicle(vehicleData);
     };
 
     const fetchReservations = async () => {
-      const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId)); // Fetch reservations
-      setReservations(fetchedReservations); // Store reservations
+      const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
+      setReservations(fetchedReservations);
     };
 
-    // Only fetch data if the user is authenticated
     if (isAuthenticated && vehicleId) {
-      fetchVehicleData(); // Fetch vehicle data
-      fetchReservations(); // Fetch reservations data
+      fetchVehicleData();
+      fetchReservations();
     }
 
-    setIsLoading(false); // Set loading to false after fetching
-  }, [vehicleId, isAuthenticated]); // Dependency array to re-fetch if vehicleId or authentication changes
+    setIsLoading(false);
+  }, [vehicleId, isAuthenticated]);
 
-  // Check loading state
+  // Loading state
   if (isLoading) {
-    return <div>Loading...</div>;  // Show loading message while fetching data
+    return <div>Loading...</div>;
   }
 
-  // If not authenticated, inform the user without redirecting
-  if (!isAuthenticated) { // nenastane
-    return <div>Please sign in to view this page.</div>; // Inform the user to sign in if not authenticated
+  // User not authenticated
+  if (!isAuthenticated) {
+    return <div>Please sign in to view this page.</div>;
   }
 
-  // If vehicle data is not found
+  // Vehicle not found
   if (!vehicle) {
-    return <div>Vehicle not found.</div>;  // Show message if vehicle not found
+    return <div>Vehicle not found.</div>;
   }
 
   return (
@@ -58,29 +57,30 @@ const VehicleDetailPage: React.FC = () => {
         <header className="text-3xl font-bold mb-6">
           Vehicle Details
         </header>
-        <VehicleDetailsCard vehicleId={Number(vehicleId)} /> {/* Pass vehicleId to VehicleDetailsCard */}
+        <VehicleDetailsCard vehicleId={Number(vehicleId)} />
       </div>
 
-      {/* Reservation Calendar and Current Reservations (same row) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Reservation Calendar */}
-        <div className="flex justify-center items-center w-full">
-          <div className="w-full max-w-4xl">
-            <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
-            {/* Only render ReservationCalendar if user is not null */}
-            {user ? (
-              <ReservationCalendar reservations={reservations} user={user} vehicleId={Number(vehicleId)} />
-            ) : (
-              <div>Please log in to view the reservation calendar.</div>
-            )}
-          </div>
+      {/* Calendar and Reservations Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Calendar (1/3 width on large screens) */}
+        <div className="lg:col-span-1 w-full">
+          <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
+          {user ? (
+            <ReservationCalendar
+              reservations={reservations}
+              user={user}
+              vehicleId={Number(vehicleId)}
+            />
+          ) : (
+            <div>Please log in to view the reservation calendar.</div>
+          )}
         </div>
 
-        {/* Right Column: Current Reservations */}
-        <div className="w-full">
+        {/* Current Reservations (2/3 width on large screens) */}
+        <div className="lg:col-span-2 w-full">
           <h3 className="text-2xl font-semibold mb-4">Current Reservations</h3>
-          {/* Display CurrentReservations component */}
-          <CurrentReservations vehicleId={Number(vehicleId)} /> {/* Pass vehicleId to CurrentReservations */}
+          <CurrentReservations vehicleId={Number(vehicleId)} />
         </div>
       </div>
     </div>

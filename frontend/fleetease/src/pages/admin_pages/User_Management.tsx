@@ -111,7 +111,9 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">User Management</h1>
+      <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6 mb-6">
+        <h1 className="text-2xl font-bold">User Management</h1>
+      </div>
 
       {feedback && (
         <div

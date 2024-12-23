@@ -3,12 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
-<<<<<<< Updated upstream
-import { register } from '../../database/database';
-=======
 import * as Database from '../../database/database';
 import { supabase } from '../../utils/supabaseClient';
->>>>>>> Stashed changes
 import axios from 'axios';
 
 const SignUp: React.FC = () => {
@@ -31,9 +27,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      console.log('Attempting to register...'); // Debug log
-      const response = await register(email, password, firstName, lastName);
-      console.log('Registration successful:', response); // Debug log
+      await Database.register(email, password, firstName, lastName);
       // Registration successful, redirect to sign in page
       navigate('/signin');
     } catch (error) {

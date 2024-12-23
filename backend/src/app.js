@@ -1,7 +1,6 @@
 const express = require('express');
 require('dotenv').config(); // Načtení `.env`
 const cors = require('cors');
-
 const supabase = require('./config/supabaseClient');
 
 // Routes import
@@ -33,6 +32,7 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 // Middleware for json 
 app.use(express.json());
+app.use(express.static('../frontend/fleetease/build'))
 
 // Add role routes
 app.use('/api/roles', roleRoutes);
@@ -84,11 +84,6 @@ app.use('/api/vehicles', vehicleRoutes);
 
 // Add auditLogs routes
 app.use('/api/logs', auditLogsRoutes);
-
-// Endpoint for test
-app.get('/', (req, res) => {
-    res.send('Supabase backend is working!');
-});
 
 // Server start
 app.listen(PORT, () => {

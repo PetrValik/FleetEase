@@ -12,10 +12,7 @@ export interface User {
   created_at: string; // time without time zone
   is_active: boolean;
   company_id: number | null;
-  role: {
-    role_id: number;
-    role_name: Role;
-  };
+  role: { role_id: number; role_name: "Admin" | "Driver" | "Manager" } | null;
 }
 
 interface UserContextType {

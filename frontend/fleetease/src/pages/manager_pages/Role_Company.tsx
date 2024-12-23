@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   getAllUsersWithoutCompany,
@@ -12,118 +14,12 @@ type Role = {
   role_name: "Admin" | "Driver" | "Manager";
 };
 
-const mapRoleToLocal = (role: any): Role => ({
-  role_id: role.role_id,
-  role_name: role.role_name as "Admin" | "Driver" | "Manager",
-});
-
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  user: User | null;
-  roles: Role[];
-  onSubmit: (userId: number, role: Role, companyId: number) => Promise<void>;
-  mode: "edit" | "assign";
-}
-
-const UserModal: React.FC<UserModalProps> = ({
-  isOpen,
-  onClose,
-  user,
-  roles,
-  onSubmit,
-  mode,
-}) => {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<string>(
-    user?.company_id?.toString() || "1"
-  );
-
-  useEffect(() => {
-    if (user) {
-      setSelectedRole(user.role || null);
-      setSelectedCompany(user.company_id?.toString() || "1");
-    }
-  }, [user]);
-
-  if (!isOpen || !user) return null;
-
-  const handleSubmit = async () => {
-    if (user && selectedRole) {
-      await onSubmit(user.user_id, selectedRole, parseInt(selectedCompany));
-      onClose();
-    }
+const mapRoleToLocal = (role: any): Role | null => {
+  if (!role || !role.role_name) return null;
+  return {
+    role_id: role.role_id,
+    role_name: role.role_name as "Admin" | "Driver" | "Manager",
   };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-[425px] p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
-            {mode === "edit" ? "Upravit roli uživatele" : "Přiřadit uživatele"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <p className="mb-2">
-              Jméno: {user.first_name} {user.last_name}
-            </p>
-            {mode === "edit" && (
-              <p className="mb-4">Současná role: {user.role?.role_name}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Nová role:</label>
-            <select
-              className="w-full border rounded-md p-2"
-              onChange={(e) => {
-                const roleId = parseInt(e.target.value);
-                const selectedRole = roles.find((r) => r.role_id === roleId);
-                setSelectedRole(selectedRole || null);
-              }}
-              value={selectedRole?.role_id || ""}
-            >
-              <option value="">Vyberte roli</option>
-              {roles.map((role) => (
-                <option key={role.role_id} value={role.role_id}>
-                  {role.role_name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Firma:</label>
-            <select
-              className="w-full border rounded-md p-2"
-              onChange={(e) => setSelectedCompany(e.target.value)}
-              value={selectedCompany}
-            >
-              <option value="">Vyberte firmu</option>
-              <option value="1">FleetEase</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex justify-end mt-6">
-          <button
-            onClick={handleSubmit}
-            className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140]"
-          >
-            {mode === "edit" ? "Uložit změny" : "Přiřadit"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 const Role_Company: React.FC = () => {
@@ -134,21 +30,38 @@ const Role_Company: React.FC = () => {
   const [modalMode, setModalMode] = useState<"edit" | "assign">("edit");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Function to fetch and update user data from the backend
+  const fetchUserData = async () => {
+    const [rolesData, companyUsersData, unassignedUsersData] =
+      await Promise.all([
+        getAllRoles(),
+        getAllUsersFromCompany(1),
+        getAllUsersWithoutCompany(),
+      ]);
+
+    setRoles(
+      rolesData
+        .map(mapRoleToLocal)
+        .filter((role): role is Role => role !== null)
+    );
+
+    setCompanyUsers(
+      companyUsersData.map((user) => ({
+        ...user,
+        role: user.role ? mapRoleToLocal(user.role) : null,
+      }))
+    );
+
+    setUnassignedUsers(
+      unassignedUsersData.map((user) => ({
+        ...user,
+        role: user.role ? mapRoleToLocal(user.role) : null,
+      }))
+    );
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const [rolesData, companyUsersData, unassignedUsersData] =
-        await Promise.all([
-          getAllRoles(),
-          getAllUsersFromCompany(1), // Assuming company ID 1 for FleetEase
-          getAllUsersWithoutCompany(),
-        ]);
-
-      setRoles(rolesData.map(mapRoleToLocal)); // Use the mapper here
-      setCompanyUsers(companyUsersData);
-      setUnassignedUsers(unassignedUsersData);
-    };
-
-    fetchData();
+    fetchUserData();
   }, []);
 
   const handleUserUpdate = async (
@@ -157,27 +70,17 @@ const Role_Company: React.FC = () => {
     companyId: number
   ) => {
     try {
+      // Update the user on the backend
       await updateUser(userId, {
-        role: { role_id: role.role_id, role_name: role.role_name },
+        roles_id: role.role_id,
         company_id: companyId,
-      } as Partial<User>);
+      });
 
-      const updatedUserIndex = unassignedUsers.findIndex(
-        (user) => user.user_id === userId
-      );
-      if (updatedUserIndex > -1) {
-        const updatedUser = {
-          ...unassignedUsers[updatedUserIndex],
-          role: { role_id: role.role_id, role_name: role.role_name },
-          company_id: companyId,
-        };
+      // Fetch updated data from the backend
+      await fetchUserData();
 
-        // Update the UI
-        setUnassignedUsers((prev) =>
-          prev.filter((user) => user.user_id !== userId)
-        );
-        setCompanyUsers((prev) => [...prev, updatedUser]);
-      }
+      // Close the modal
+      setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to update user:", error);
     }
@@ -187,6 +90,11 @@ const Role_Company: React.FC = () => {
     setSelectedUser(user);
     setModalMode(mode);
     setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedUser(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -216,7 +124,9 @@ const Role_Company: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-gray-600">{user.role?.role_name}</span>
+                  <span className="text-gray-600">
+                    {user.role?.role_name || "Žádná role"}
+                  </span>
                   <button
                     onClick={() => openModal(user, "edit")}
                     className="px-4 py-2 border rounded-md hover:bg-gray-50"
@@ -261,14 +171,97 @@ const Role_Company: React.FC = () => {
         </div>
       </div>
 
-      <UserModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        user={selectedUser}
-        roles={roles}
-        onSubmit={handleUserUpdate}
-        mode={modalMode}
-      />
+      {isModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-full max-w-[425px] p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">
+                {modalMode === "edit"
+                  ? "Upravit roli uživatele"
+                  : "Přiřadit uživatele"}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="mb-2">
+                  Jméno: {selectedUser.first_name} {selectedUser.last_name}
+                </p>
+                {modalMode === "edit" && (
+                  <p className="mb-4">
+                    Současná role:{" "}
+                    {selectedUser.role?.role_name || "Žádná role"}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Nová role:</label>
+                <select
+                  className="w-full border rounded-md p-2"
+                  onChange={(e) => {
+                    const roleId = parseInt(e.target.value);
+                    const role = roles.find((r) => r.role_id === roleId);
+                    setSelectedUser((prevUser) => ({
+                      ...prevUser!,
+                      role: role || null,
+                    }));
+                  }}
+                  value={selectedUser.role?.role_id || ""}
+                >
+                  <option value="">Vyberte roli</option>
+                  {roles
+                    .filter((role) => role.role_name !== "Admin")
+                    .map((role) => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {role.role_name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Firma:</label>
+                <select
+                  className="w-full border rounded-md p-2"
+                  onChange={(e) =>
+                    setSelectedUser((prevUser) => ({
+                      ...prevUser!,
+                      company_id: parseInt(e.target.value),
+                    }))
+                  }
+                  value={selectedUser.company_id || ""}
+                >
+                  <option value="1">FleetEase</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => {
+                  if (selectedUser.role) {
+                    handleUserUpdate(
+                      selectedUser.user_id,
+                      selectedUser.role,
+                      selectedUser.company_id || 1
+                    );
+                  }
+                }}
+                className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140]"
+              >
+                {modalMode === "edit" ? "Uložit změny" : "Přiřadit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,13 +26,13 @@ const app = express();
 
 app.use(cors()); // all origins allowed
 
-const PORT = process.env.PORT || 3000; // default port
+const PORT = process.env.PORT || 8080; // default port
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 // Middleware for json 
 app.use(express.json());
-app.use(express.static('../frontend/fleetease/build'))
+app.use(express.static('backend/build'))
 
 // Add role routes
 app.use('/api/roles', roleRoutes);
@@ -87,5 +87,5 @@ app.use('/api/logs', auditLogsRoutes);
 
 // Server start
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on ${PORT}`);
 });

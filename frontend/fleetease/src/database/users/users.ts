@@ -178,3 +178,12 @@ export const googleLogin = async (user: any): Promise<LoginResponse> => {
     throw new Error("An unexpected error occurred during login");
   }
 };
+
+export const getUserById = async (id: number): Promise<GetUser | null> => {
+  try {
+    const response = await apiClient.get<GetUser>(`${BASE_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    return handleApiError<GetUser | null>(error, null);
+  }
+};

@@ -5,7 +5,7 @@ import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
 import * as Database from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../../utils/firebase';
 import axios from 'axios';
 

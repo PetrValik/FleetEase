@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useState } from "react"
 import { useUser } from "../../contexts/UserContext"
 import { Building2, Users, Car, FileCheck, AlertTriangle } from 'lucide-react'

@@ -11,24 +11,50 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
   const [error, setError] = useState<string | null>(null); // State for error handling
 
   // Function to handle search
-  const handleSearch = async () => {
+  const handleSearch = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    console.log("Search button clicked"); // Debugging to check if this is being called
+    if (!searchTerm.trim()) {
+      setError('Please enter a valid registration number.');
+      return;
+    }
+  
     setLoading(true);
     setError(null); // Reset error state
-
+  
     try {
       // Fetch all vehicles from the API
       const vehicles = await getAllVehicles();
+  
+      if (vehicles.length === 0) {
+        setError('No vehicles found.');
+        return;
+      }
+  
+      console.log(vehicles); // Log the fetched vehicles
+  
+      // Normalize both registration number and search term by removing spaces and converting to lowercase
+      const formattedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
+  
       // Find the vehicle by its registration number
       const result = vehicles.find(
-        (vehicle) => vehicle.registration_number.toLowerCase() === searchTerm.toLowerCase()
+        (vehicle) =>
+          vehicle.registration_number.replace(/\s+/g, '').toLowerCase() === formattedSearchTerm
       );
-      onSearchResult(result || null); // Pass the result back to the parent component
+  
+      console.log(result); // Log the result of the search
+  
+      // Pass the result back to the parent component
+      onSearchResult(result || null);
     } catch (error) {
+      console.error('Error fetching vehicles:', error);
       setError('Failed to fetch vehicles. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   return (
     <div className="search-bar-container">

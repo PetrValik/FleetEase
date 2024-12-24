@@ -8,10 +8,10 @@ const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
 // Get all countries
-router.get('/', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, countryController.getAll);
+router.get('/', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, countryController.getAll);
 
 // Get one country by ID
-router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager']), logAudit, countryController.getById);
+router.get('/:id', authenticateToken, checkRole(['Admin', 'Manager', 'Driver']), logAudit, countryController.getById);
 
 // Create a new country
 router.post('/', authenticateToken, checkRole(['Admin']), validate(countrySchema), logAudit, countryController.create);

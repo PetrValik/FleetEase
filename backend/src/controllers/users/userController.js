@@ -113,3 +113,14 @@ exports.getAllUsersWithoutCompany = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch users without a company' });
   }
 };
+
+exports.googleSign = async (req, res) => {
+  try {
+    const { firstName, lastName, email, localId, providerId } = req.body;
+    const { token, user }  = await userService.googleSign(firstName, lastName, email, localId, providerId );
+    res.json({ token, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch users without a company' });
+  }
+};

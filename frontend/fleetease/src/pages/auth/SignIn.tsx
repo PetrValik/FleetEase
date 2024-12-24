@@ -5,7 +5,8 @@ import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
 import * as Database from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
-import { supabase } from '../../utils/supabaseClient';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../../utils/firebase';
 import axios from 'axios';
 
 const SignIn: React.FC = () => {
@@ -21,7 +22,6 @@ const SignIn: React.FC = () => {
 
     try {
       const response = await Database.login(email, password);
-      
       // Set the user in context
       setUser(response.user);
       // Redirect to dashboard
@@ -38,16 +38,13 @@ const SignIn: React.FC = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
-
-      if (error) throw error;
-
-      // The user will be redirected to Google for authentication
-      // After successful authentication, they will be redirected back to your app
-      // You can handle this in your app's callback route
+    try {      
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const response = await Database.googleLogin(user);
+      setUser(response.user);
+      navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);

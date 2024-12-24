@@ -146,3 +146,35 @@ export const updateUser = async (
     throw new Error("An unexpected error occurred while updating the user");
   }
 };
+
+export const googleLogin = async (user: any): Promise<LoginResponse> => {
+  try {
+    // Extrahování požadovaných dat z uživatelského objektu
+    const firstName = user.displayName.split(' ')[0]; // První část jména
+    const lastName = user.displayName.split(' ')[1];  // Druhá část jména
+    const email = user.email;
+    const localId = user.uid; // Jedinečný identifikátor uživatele
+    const providerId = user.providerId; // ID poskytovatele (Google)
+
+    // Poslání dat na backend
+    const response = await apiClient.post<LoginResponse>(`${BASE_URL}/googleSign`, {
+      firstName,
+      lastName,
+      email,
+      localId,
+      providerId,
+    });
+
+    // Store the token in localStorage
+    localStorage.setItem("token", response.data.token);
+    // Set the default Authorization header for future requests
+    apiClient.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${response.data.token}`;
+    return response.data;
+
+  } catch (error) {
+    console.error("Login failed:", error);
+    throw new Error("An unexpected error occurred during login");
+  }
+};

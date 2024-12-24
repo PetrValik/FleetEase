@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { useUser } from "../../contexts/UserContext";
 import TestButton from "./components/TestButton";
 import * as Database from "../../database/database";
 
 const TestPage: React.FC = () => {
-  const { isAuthenticated } = useUser();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   // Helper to run tests

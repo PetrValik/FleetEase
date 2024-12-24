@@ -370,4 +370,3 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 };
 
 export default AddVehicleModal;
-

@@ -14,7 +14,7 @@ interface ReservationCardProps {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md mb-4 relative">
         {/* Delete Button positioned at the top-right corner */}
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-6 right-4">
           <DeleteButton onDelete={() => onDelete(reservation.reservation_id)} itemName={`reservation ${reservation.reservation_id}`} />
         </div>
   

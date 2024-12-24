@@ -36,12 +36,15 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         setVehicle(fetchedVehicle);
 
         if (fetchedVehicle) {
-          // Fetch brand, model, category, and country details
-          const brand = await getVehicleBrandById(fetchedVehicle.category_id);
+          // Fetch all required data in parallel for better performance
           const model = await getVehicleModelById(fetchedVehicle.model_id);
-          const category = await getVehicleCategoryById(fetchedVehicle.category_id);
-          const country = await getCountryById(fetchedVehicle.country_id);
+          const [brand, category, country] = await Promise.all([
+            model ? getVehicleBrandById(model.brand_id) : null, // Fetch brand only if model exists
+            getVehicleCategoryById(fetchedVehicle.category_id),
+            getCountryById(fetchedVehicle.country_id),
+          ]);
 
+          // Update state with fetched data or fallback values
           setVehicleBrand(brand?.brand_name || 'Not available');
           setVehicleModel(model?.model_name || 'Not available');
           setVehicleCategory(category?.category_name || 'Not available');

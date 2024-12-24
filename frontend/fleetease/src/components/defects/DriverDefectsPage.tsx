@@ -1,3 +1,6 @@
+/* Komponenta pro zobrazení a správu defektů z pohledu řidiče.
+ * Umožňuje řidičům zobrazit jejich nahlášené defekty a vytvářet nové.
+ */
 import { useState, useEffect } from "react";
 import { AlertTriangle, Plus, History } from "lucide-react";
 import { Button } from "./ui/button";
@@ -11,18 +14,27 @@ import { useUser } from "../../contexts/UserContext";
 import { BackendUser } from "./types";
 
 export const DriverDefectsPage = () => {
-  const { user } = useUser();
-  const [defects, setDefects] = useState<Defect[]>([]);
-  const [defectTypes, setDefectTypes] = useState<DefectType[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // --- State Management ---
+  const { user } = useUser(); // Aktuálně přihlášený uživatel
+  const [defects, setDefects] = useState<Defect[]>([]); // Seznam všech defektů
+  const [defectTypes, setDefectTypes] = useState<DefectType[]>([]); // Seznam typů defektů
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Stav dialogu pro vytvoření defektu
+  const [isLoading, setIsLoading] = useState(true); // Indikátor načítání dat
 
+  // --- Effect Hooks ---
   useEffect(() => {
     if (user) {
       loadData();
     }
   }, [user]);
 
+  // --- Data Loading ---
+  /**
+   * Načte všechny potřebné data ze serveru:
+   * - Seznam defektů
+   * - Seznam typů defektů
+   * Filtruje defekty podle aktuálně přihlášeného uživatele
+   */
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -30,7 +42,8 @@ export const DriverDefectsPage = () => {
         getAllDefects(),
         getAllDefectTypes(),
       ]);
-      console.log(defectsData, typesData);
+      
+      // Filtruje defekty pouze pro přihlášeného uživatele
       const userDefects = defectsData.filter(
         (d) => user && d.user_id === user.user_id,
       );
@@ -43,6 +56,11 @@ export const DriverDefectsPage = () => {
     }
   };
 
+  // --- Event Handlers ---
+  /**
+   * Zpracuje vytvoření nového defektu
+   * @param formData Data z formuláře pro vytvoření defektu
+   */
   const handleCreateDefect = async (formData: DefectFormData) => {
     if (!user || !user.user_id) return;
 
@@ -63,17 +81,19 @@ export const DriverDefectsPage = () => {
     }
   };
 
+  // Filtruje pouze aktivní defekty (ty, které nejsou uzavřené)
   const activeDefects = defects.filter((d) => d.defect_status !== "Closed");
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-[#F8F9FC]">
+      {/* Hlavička stránky */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#061f3f]">
-            Moje nahlášené defekty
+            My Reported Defects
           </h1>
           <p className="text-muted-foreground">
-            Přehled a nahlášení defektů vozidel
+            Overview and reporting of vehicle defects
           </p>
         </div>
         <Button
@@ -81,15 +101,16 @@ export const DriverDefectsPage = () => {
           onClick={() => setIsDialogOpen(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Nahlásit defekt
+          Report Defect
         </Button>
       </div>
 
+      {/* Statistické karty */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-semibold text-[#061f3f]">
-              Aktivní defekty
+              Active Defects
             </CardTitle>
             <AlertTriangle className="h-8 w-8 text-[#061f3f]" />
           </CardHeader>
@@ -103,7 +124,7 @@ export const DriverDefectsPage = () => {
         <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-semibold text-[#061f3f]">
-              Celkem nahlášeno
+              Total Reported
             </CardTitle>
             <History className="h-8 w-8 text-[#061f3f]" />
           </CardHeader>
@@ -115,10 +136,11 @@ export const DriverDefectsPage = () => {
         </Card>
       </div>
 
+      {/* Tabulka defektů */}
       <Card className="bg-white shadow-sm">
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-[#061f3f]">
-            Přehled defektů
+            Defects Overview
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -130,6 +152,7 @@ export const DriverDefectsPage = () => {
         </CardContent>
       </Card>
 
+      {/* Dialog pro vytvoření nového defektu */}
       <DefectDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}

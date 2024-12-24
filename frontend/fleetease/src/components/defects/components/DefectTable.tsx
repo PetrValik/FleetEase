@@ -1,3 +1,11 @@
+/** Komponenta pro zobrazení seznamu defektů v tabulce.
+ * Podporuje různé funkce podle typu uživatele (manažer/řidič):
+ * - Zobrazení detailů defektu
+ * - Správu defektů (úprava, smazání)
+ * - Změnu statusu
+ * - Barevné označení závažnosti a statusu
+ */
+
 import React from 'react';
 import { Defect, DefectType, DefectStatus } from '../types';
 import {
@@ -11,6 +19,16 @@ import {
 import { Button } from "../ui/button";
 import { CheckCircle, Edit2, Trash2 } from 'lucide-react';
 
+/**
+ * Props rozhraní pro DefectTable komponentu
+ * @property {Defect[]} defects - Seznam defektů k zobrazení
+ * @property {DefectType[]} defectTypes - Seznam typů defektů pro mapování ID na názvy
+ * @property {boolean} isManager - Určuje, zda má uživatel manažerská oprávnění
+ * @property {function} onEdit - Callback pro úpravu defektu
+ * @property {function} onDelete - Callback pro smazání defektu
+ * @property {function} onStatusChange - Callback pro změnu statusu defektu
+ * @property {boolean} loading - Indikátor načítání dat
+ */
 interface DefectTableProps {
   defects: Defect[];
   defectTypes: DefectType[];
@@ -32,9 +50,12 @@ export default function DefectTable({
 }: DefectTableProps) {
   const getDefectTypeName = (typeId: number) => {
     const defectType = defectTypes.find(type => type.type_id === typeId);
-    return defectType?.type_name || 'Neznámý typ';
+    return defectType?.type_name || 'Unknown Type';
   };
 
+  /**
+   * Vrátí CSS třídy pro barevné označení závažnosti
+   */
   const getSeverityColor = (severity: Defect['defect_severity']) => {
     switch (severity) {
       case 'Critical':
@@ -52,6 +73,9 @@ export default function DefectTable({
     }
   };
 
+  /**
+   * Vrátí CSS třídy pro barevné označení statusu
+   */
   const getStatusColor = (status: Defect['defect_status']) => {
     switch (status) {
       case 'Reported':
@@ -69,12 +93,14 @@ export default function DefectTable({
     }
   };
 
+  // Zobrazení stavu načítání
   if (loading) {
-    return <div className="text-center py-4">Načítání...</div>;
+    return <div className="text-center py-4">Loading...</div>;
   }
 
+  // Zobrazení prázdného stavu
   if (defects.length === 0) {
-    return <div className="text-center py-4">Žádné defekty k zobrazení</div>;
+    return <div className="text-center py-4">No defects to display</div>;
   }
 
   return (
@@ -82,15 +108,15 @@ export default function DefectTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-gray-50">
-            <TableHead className="font-semibold">SPZ</TableHead>
-            <TableHead className="font-semibold">Typ defektu</TableHead>
-            <TableHead className="font-semibold">Závažnost</TableHead>
+            <TableHead className="font-semibold">Vehicle ID</TableHead>
+            <TableHead className="font-semibold">Defect Type</TableHead>
+            <TableHead className="font-semibold">Severity</TableHead>
             <TableHead className="font-semibold">Status</TableHead>
-            <TableHead className="font-semibold">Popis</TableHead>
-            <TableHead className="font-semibold">Datum nahlášení</TableHead>
-            {isManager && <TableHead className="font-semibold">Náklady</TableHead>}
+            <TableHead className="font-semibold">Description</TableHead>
+            <TableHead className="font-semibold">Report Date</TableHead>
+            {isManager && <TableHead className="font-semibold">Repair Cost</TableHead>}
             {(onEdit || onDelete || onStatusChange) && (
-              <TableHead className="font-semibold text-right">Akce</TableHead>
+              <TableHead className="font-semibold text-right">Actions</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -114,51 +140,54 @@ export default function DefectTable({
                 </span>
               </TableCell>
               <TableCell>{defect.description}</TableCell>
-              <TableCell>{new Date(defect.date_reported).toLocaleDateString('cs-CZ')}</TableCell>
+              <TableCell>{new Date(defect.date_reported).toLocaleDateString('en-US')}</TableCell>
               {isManager && (
                 <TableCell>
-                  {defect.repair_cost ? `${defect.repair_cost} Kč` : 'N/A'}
+                  {defect.repair_cost ? `$${defect.repair_cost}` : 'N/A'}
                 </TableCell>
               )}
               {(onEdit || onDelete || onStatusChange) && (
-  <TableCell className="text-right">
-    <div className="flex justify-end space-x-2">
-      {onStatusChange && defect.defect_status !== 'Closed' && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onStatusChange(defect.defect_id, 'Closed')}
-          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-        >
-          <CheckCircle className="h-4 w-4" />
-          <span className="sr-only">Uzavřít</span>
-        </Button>
-      )}
-      {onEdit && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onEdit(defect)}
-          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-        >
-          <Edit2 className="h-4 w-4" />
-          <span className="sr-only">Upravit</span>
-        </Button>
-      )}
-      {onDelete && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onDelete(defect.defect_id)}
-          className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Smazat</span>
-        </Button>
-      )}
-    </div>
-  </TableCell>
-)}
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-2">
+                    {onStatusChange && defect.defect_status !== 'Closed' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onStatusChange(defect.defect_id, 'Closed')}
+                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+                        aria-label="Close defect"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
+                      </Button>
+                    )}
+                    {onEdit && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onEdit(defect)}
+                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+                        aria-label="Edit defect"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                    )}
+                    {onDelete && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onDelete(defect.defect_id)}
+                        className="h-8 w-8 p-0 border-[#061f3f] text-[#061f3f] hover:bg-gray-50"
+                        aria-label="Delete defect"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

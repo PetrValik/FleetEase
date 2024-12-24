@@ -1,3 +1,13 @@
+/**
+ * DefectDialog.tsx
+ * 
+ * Modální dialogové okno pro vytváření a úpravu defektů.
+ * Komponenta poskytuje formulář s validací pro zadání všech potřebných
+ * informací o defektu. Podporuje dva módy:
+ * - vytvoření nového defektu
+ * - úprava existujícího defektu
+ */
+
 import { useState, useEffect } from 'react';
 import { Defect, DefectFormData, DefectType, DefectSeverityLevel } from '../types';
 import {
@@ -19,6 +29,15 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
+/**
+ * Props rozhraní pro DefectDialog komponentu
+ * @property {boolean} isOpen - Určuje, zda je dialog otevřený
+ * @property {function} onClose - Callback pro zavření dialogu
+ * @property {function} onSave - Callback pro uložení dat z formuláře
+ * @property {'create' | 'edit'} mode - Mód dialogu (vytvoření/úprava)
+ * @property {Defect} defect - Data existujícího defektu (pouze pro edit mód)
+ * @property {DefectType[]} defectTypes - Seznam dostupných typů defektů
+ */
 interface DefectDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -36,6 +55,7 @@ export default function DefectDialog({
   defect,
   defectTypes
 }: DefectDialogProps) {
+  // --- State Management ---
   const [formData, setFormData] = useState<DefectFormData>({
     vehicle_id: defect?.vehicle_id || 0,
     type_id: defect?.type_id || 0,
@@ -56,6 +76,7 @@ export default function DefectDialog({
     }
   }, [defect]);
 
+  // --- Event Handlers ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSave(formData);
@@ -88,33 +109,37 @@ export default function DefectDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? 'Nahlášení defektu' : 'Úprava defektu'}</DialogTitle>
+          <DialogTitle>
+            {mode === 'create' ? 'Report Defect' : 'Edit Defect'}
+          </DialogTitle>
           <DialogDescription>
-            Vyplňte prosím všechny údaje o zjištěném defektu vozidla.
+            Please fill in all details about the vehicle defect.
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="vehicle">ID Vozidla</Label>
+              <Label htmlFor="vehicle">Vehicle ID</Label>
               <Input
                 id="vehicle"
                 name="vehicle_id"
                 type="number"
                 value={formData.vehicle_id}
                 onChange={handleInputChange}
-                placeholder="Zadejte ID vozidla"
+                placeholder="Enter vehicle ID"
                 required
               />
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="type">Typ defektu</Label>
+              <Label htmlFor="type">Defect Type</Label>
               <Select
                 value={String(formData.type_id)}
                 onValueChange={(value) => handleSelectChange('type_id', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Vyberte typ defektu" />
+                  <SelectValue placeholder="Select defect type" />
                 </SelectTrigger>
                   {defectTypes.map((type) => (
                     <SelectItem key={type.type_id} value={String(type.type_id)}>
@@ -123,60 +148,64 @@ export default function DefectDialog({
                   ))}
               </Select>
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="severity">Závažnost</Label>
+              <Label htmlFor="severity">Severity</Label>
               <Select
                 value={formData.defect_severity}
                 onValueChange={(value) => handleSelectChange('defect_severity', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Vyberte závažnost" />
+                  <SelectValue placeholder="Select severity" />
                 </SelectTrigger>
-                  <SelectItem value="Critical">Kritická</SelectItem>
-                  <SelectItem value="High">Vysoká</SelectItem>
-                  <SelectItem value="Medium">Střední</SelectItem>
-                  <SelectItem value="Low">Nízká</SelectItem>
-                  <SelectItem value="Minor">Minimální</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Minor">Minor</SelectItem>
               </Select>
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="description">Popis defektu</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Popište zjištěný defekt..."
+                placeholder="Describe the defect..."
                 className="h-24"
                 required
               />
             </div>
+
             {mode === 'edit' && (
               <div className="grid gap-2">
-                <Label htmlFor="repair_cost">Náklady na opravu</Label>
+                <Label htmlFor="repair_cost">Repair Cost</Label>
                 <Input
                   id="repair_cost"
                   type="number"
                   value={formData.repair_cost ?? ''}
                   onChange={handleNumberChange}
-                  placeholder="Zadejte náklady na opravu"
+                  placeholder="Enter repair cost"
                 />
               </div>
             )}
           </div>
+
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
             >
-              Zrušit
+              Cancel
             </Button>
             <Button 
               type="submit"
               className="bg-[#3b82ff] hover:bg-[#1e3a8f] text-white"
             >
-              {mode === 'create' ? 'Nahlásit defekt' : 'Uložit změny'}
+              {mode === 'create' ? 'Report Defect' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>

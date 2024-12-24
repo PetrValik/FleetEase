@@ -1,3 +1,9 @@
+/**
+ * Komponenta pro správu defektů z pohledu manažera.
+ * Umožňuje manažerům zobrazit všechny defekty, filtrovat je,
+ * vytvářet nové, upravovat existující a označovat je jako vyřešené.
+ */
+
 import { useState, useEffect } from "react";
 import {
   Plus,
@@ -41,6 +47,7 @@ import { useUser } from "./../../contexts/UserContext";
 import { BackendUser } from "./types";
 
 export function ManagerDefectsPage() {
+  // --- State Management ---
   const { user } = useUser();
   const [defects, setDefects] = useState<Defect[]>([]);
   const [defectTypes, setDefectTypes] = useState<DefectType[]>([]);
@@ -48,14 +55,13 @@ export function ManagerDefectsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDefect, setSelectedDefect] = useState<Defect | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [severityFilter, setSeverityFilter] = useState<
-    DefectSeverityLevel | "all"
-  >("all");
+  const [severityFilter, setSeverityFilter] = useState<DefectSeverityLevel | "all">("all");
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // --- Data Loading ---
   const loadData = async () => {
     try {
       setIsLoading(true);
@@ -77,58 +83,59 @@ export function ManagerDefectsPage() {
     }
   };
 
+  // --- Event Handlers ---
   const handleCreateDefect = async (data: DefectFormData) => {
     try {
-    const newDefect = await createDefect({
+      const newDefect = await createDefect({
         ...data,
         user_id: user?.user_id || 0,
         date_reported: new Date().toISOString(),
         defect_status: "Reported",
-    });
-    
-    if (newDefect) {
-      setDefects((prev) => [...prev, newDefect]);
-      setIsDialogOpen(false);
-  }
-} catch (error) {
-  console.error("Error creating defect:", error);
-}
-};
+      });
+      
+      if (newDefect) {
+        setDefects((prev) => [...prev, newDefect]);
+        setIsDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Error creating defect:", error);
+    }
+  };
 
-const handleEditDefect = async (defectId: number, data: DefectFormData) => {
-  try {
-  const updatedDefect = await updateDefect(defectId, {
-      ...data,
-  });
- 
-  if (updatedDefect) {
-  setDefects((prev) =>
-      prev.map((d) => (d.defect_id === defectId ? updatedDefect : d))
-   );
-       setIsDialogOpen(false);
-       setSelectedDefect(null);
-  }
- } catch (error) {
- console.error("Error updating defect:", error);
-}
-};
-
-const handleCloseDefect = async (defectId: number) => {
-  try {
-  const updatedDefect = await updateDefect(defectId, {
-      defect_status: "Closed",
-      user_id: user?.user_id,
-   });
-
-    if (updatedDefect) {
+  const handleEditDefect = async (defectId: number, data: DefectFormData) => {
+    try {
+      const updatedDefect = await updateDefect(defectId, {
+        ...data,
+      });
+     
+      if (updatedDefect) {
         setDefects((prev) =>
-        prev.map((d) => (d.defect_id === defectId ? updatedDefect : d))
-       );
+          prev.map((d) => (d.defect_id === defectId ? updatedDefect : d))
+        );
+        setIsDialogOpen(false);
+        setSelectedDefect(null);
       }
-   } catch (error) {
+    } catch (error) {
+      console.error("Error updating defect:", error);
+    }
+  };
+
+  const handleCloseDefect = async (defectId: number) => {
+    try {
+      const updatedDefect = await updateDefect(defectId, {
+        defect_status: "Closed",
+        user_id: user?.user_id,
+      });
+
+      if (updatedDefect) {
+        setDefects((prev) =>
+          prev.map((d) => (d.defect_id === defectId ? updatedDefect : d))
+        );
+      }
+    } catch (error) {
       console.error("Error closing defect:", error);
-      }
- };
+    }
+  };
 
   const handleDeleteDefect = async (defectId: number) => {
     try {
@@ -139,6 +146,7 @@ const handleCloseDefect = async (defectId: number) => {
     }
   };
 
+  // --- Computed Properties ---
   const activeDefects = defects.filter((d) => d.defect_status !== "Closed");
   const resolvedDefects = defects.filter((d) => d.defect_status === "Closed");
 
@@ -157,9 +165,9 @@ const handleCloseDefect = async (defectId: number) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#061f3f]">Správa defektů</h1>
+          <h1 className="text-2xl font-bold text-[#061f3f]">Defect Management</h1>
           <p className="text-muted-foreground">
-            Přehled všech nahlášených defektů vozidel
+            Overview of all reported vehicle defects
           </p>
         </div>
         <Button
@@ -167,7 +175,7 @@ const handleCloseDefect = async (defectId: number) => {
           className="bg-[#3b82ff] hover:bg-[#1e3a8f] text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Přidat defekt
+          Add Defect
         </Button>
       </div>
 
@@ -176,7 +184,7 @@ const handleCloseDefect = async (defectId: number) => {
         <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-semibold text-[#061f3f]">
-              Aktivní defekty
+              Active Defects
             </CardTitle>
             <AlertTriangle className="h-8 w-8 text-[#061f3f]" />
           </CardHeader>
@@ -190,7 +198,7 @@ const handleCloseDefect = async (defectId: number) => {
         <Card className="bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-semibold text-[#061f3f]">
-              Vyřešené tento měsíc
+              Resolved This Month
             </CardTitle>
             <History className="h-8 w-8 text-[#061f3f]" />
           </CardHeader>
@@ -213,13 +221,13 @@ const handleCloseDefect = async (defectId: number) => {
                   value="active"
                   className="px-4 py-2 rounded-md data-[state=active]:bg-white"
                 >
-                  Aktivní defekty
+                  Active Defects
                 </Tabs.Trigger>
                 <Tabs.Trigger
                   value="history"
                   className="px-4 py-2 rounded-md data-[state=active]:bg-white"
                 >
-                  Historie
+                  History
                 </Tabs.Trigger>
               </Tabs.List>
 
@@ -228,7 +236,7 @@ const handleCloseDefect = async (defectId: number) => {
                 <div className="relative flex-1 min-w-[200px]">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Hledat podle SPZ..."
+                    placeholder="Search by vehicle ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-8"
@@ -243,13 +251,13 @@ const handleCloseDefect = async (defectId: number) => {
                 >
                   <SelectTrigger className="w-[180px]">
                     <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Filtrovat" />
+                    <SelectValue placeholder="Filter by severity" />
                   </SelectTrigger>
-                  <SelectItem value="all">Všechny</SelectItem>
-                  <SelectItem value="Critical">Kritická</SelectItem>
-                  <SelectItem value="High">Vysoká</SelectItem>
-                  <SelectItem value="Medium">Střední</SelectItem>
-                  <SelectItem value="Low">Nízká</SelectItem>
+                  <SelectItem value="all">All Severities</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
                 </Select>
               </div>
             </div>
@@ -259,26 +267,26 @@ const handleCloseDefect = async (defectId: number) => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>SPZ</TableHead>
-                    <TableHead>Typ defektu</TableHead>
-                    <TableHead>Závažnost</TableHead>
-                    <TableHead>Popis</TableHead>
-                    <TableHead>Datum nahlášení</TableHead>
-                    <TableHead>Nahlásil</TableHead>
-                    <TableHead className="text-right">Akce</TableHead>
+                    <TableHead>Vehicle ID</TableHead>
+                    <TableHead>Defect Type</TableHead>
+                    <TableHead>Severity</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Report Date</TableHead>
+                    <TableHead>Reported By</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center">
-                        Načítání...
+                        Loading...
                       </TableCell>
                     </TableRow>
                   ) : filteredDefects.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center">
-                        Žádné defekty k zobrazení
+                        No defects found
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -287,7 +295,7 @@ const handleCloseDefect = async (defectId: number) => {
                         <TableCell>{defect.vehicle_id}</TableCell>
                         <TableCell>
                           {defectTypes.find((t) => t.type_id === defect.type_id)
-                            ?.type_name || "Neznámý typ"}
+                            ?.type_name || "Unknown Type"}
                         </TableCell>
                         <TableCell>
                           <span
@@ -307,7 +315,7 @@ const handleCloseDefect = async (defectId: number) => {
                         <TableCell>{defect.description}</TableCell>
                         <TableCell>
                           {new Date(defect.date_reported).toLocaleDateString(
-                            "cs-CZ",
+                            "en-US",
                           )}
                         </TableCell>
                         <TableCell>{defect.user_id}</TableCell>
@@ -320,6 +328,7 @@ const handleCloseDefect = async (defectId: number) => {
                                 handleCloseDefect(defect.defect_id)
                               }
                               className="h-8 w-8 p-0"
+                              aria-label="Mark as resolved"
                             >
                               <CheckCircle className="h-4 w-4" />
                             </Button>
@@ -331,6 +340,7 @@ const handleCloseDefect = async (defectId: number) => {
                                 setIsDialogOpen(true);
                               }}
                               className="h-8 w-8 p-0"
+                              aria-label="Edit defect"
                             >
                               <Edit2 className="h-4 w-4" />
                             </Button>
@@ -341,6 +351,7 @@ const handleCloseDefect = async (defectId: number) => {
                                 handleDeleteDefect(defect.defect_id)
                               }
                               className="h-8 w-8 p-0"
+                              aria-label="Delete defect"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

@@ -1,3 +1,13 @@
+/**
+ * Komponenta pro filtrování seznamu defektů. Umožňuje:
+ * - Vyhledávání podle SPZ vozidla
+ * - Filtrování podle závažnosti defektu
+ * - Filtrování podle statusu defektu
+ * 
+ * Tato komponenta je používána především v manažerském rozhraní
+ * pro efektivní procházení a třídění většího množství defektů.
+ */
+
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -10,6 +20,15 @@ import {
 } from '../ui/select';
 import { DefectSeverityLevel, DefectStatus } from '../types';
 
+/**
+ * Props rozhraní pro DefectFilters komponentu
+ * @property {string} searchTerm - Aktuální vyhledávaný text
+ * @property {function} onSearchChange - Callback pro změnu vyhledávaného textu
+ * @property {DefectSeverityLevel | 'all'} selectedSeverity - Vybraná úroveň závažnosti
+ * @property {function} onSeverityChange - Callback pro změnu úrovně závažnosti
+ * @property {DefectStatus | 'all'} selectedStatus - Vybraný status defektu
+ * @property {function} onStatusChange - Callback pro změnu statusu
+ */
 interface DefectFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
@@ -29,16 +48,20 @@ export default function DefectFilters({
 }: DefectFiltersProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+      {/* Vyhledávací pole s ikonou */}
       <div className="relative flex-1 min-w-[200px]">
         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Hledat podle SPZ..."
+          placeholder="Search by license plate..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-8"
         />
       </div>
+
+      {/* Filtry pro závažnost a status */}
       <div className="flex gap-4">
+        {/* Select pro filtrování podle závažnosti */}
         <Select
           value={selectedSeverity}
           onValueChange={(value) => onSeverityChange(value as DefectSeverityLevel | 'all')}
@@ -48,15 +71,16 @@ export default function DefectFilters({
             <SelectValue placeholder="Závažnost" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Všechny</SelectItem>
-            <SelectItem value="Critical">Kritická</SelectItem>
-            <SelectItem value="High">Vysoká</SelectItem>
-            <SelectItem value="Medium">Střední</SelectItem>
-            <SelectItem value="Low">Nízká</SelectItem>
-            <SelectItem value="Minor">Minimální</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Critical">Critical</SelectItem>
+            <SelectItem value="High">High</SelectItem>
+            <SelectItem value="Medium">Medium</SelectItem>
+            <SelectItem value="Low">Low</SelectItem>
+            <SelectItem value="Minor">Minor</SelectItem>
           </SelectContent>
         </Select>
 
+        {/* Select pro filtrování podle statusu */}
         <Select
           value={selectedStatus}
           onValueChange={(value) => onStatusChange(value as DefectStatus | 'all')}
@@ -66,12 +90,12 @@ export default function DefectFilters({
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Všechny</SelectItem>
-            <SelectItem value="Reported">Nahlášeno</SelectItem>
-            <SelectItem value="In Progress">V řešení</SelectItem>
-            <SelectItem value="Repaired">Opraveno</SelectItem>
-            <SelectItem value="Closed">Uzavřeno</SelectItem>
-            <SelectItem value="Deferred">Odloženo</SelectItem>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="Reported">Reported</SelectItem>
+            <SelectItem value="In Progress">In Progress</SelectItem>
+            <SelectItem value="Repaired">Repaired</SelectItem>
+            <SelectItem value="Closed">Closed</SelectItem>
+            <SelectItem value="Deferred">Deferred</SelectItem>
           </SelectContent>
         </Select>
       </div>

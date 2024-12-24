@@ -10,9 +10,6 @@ yarn-error.log*
 pm2.log
 logs/*
 
-# Production build
-build/
-
 # Runtime data
 pids
 *.pid

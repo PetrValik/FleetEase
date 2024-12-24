@@ -157,7 +157,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Manager", "Driver"]}>
                 <Layout>
-                  <DefectsPage />
+                  <ManagerDefectsPage />
                 </Layout>
               </RoleBasedRoute>
             }

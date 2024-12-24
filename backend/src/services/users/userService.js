@@ -83,15 +83,18 @@ exports.loginUser = async (email, password) => {
   };
 };
 
-// Get all users
+// Get all users sorted by user_id
 exports.getAllUsers = async () => {
-  // Fetch all users with selected fields
+  // Fetch all users with selected fields and sort by user_id
   const { data, error } = await supabase
     .from('Users')
-    .select('user_id, email, phone_number, first_name, last_name, roles_id, company_id');
+    .select('user_id, email, phone_number, first_name, last_name, roles_id, company_id')
+    .order('user_id', { ascending: true }); // Sort by user_id in ascending order
+
   if (error) throw error; // Throw error if fetching fails
-  return data; // Return list of users
+  return data; // Return sorted list of users
 };
+
 
 // Get a single user by ID
 exports.getUserById = async (id) => {

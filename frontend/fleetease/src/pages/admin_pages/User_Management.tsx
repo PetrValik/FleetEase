@@ -1,29 +1,21 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import * as Database from "../../database/database";
-
-type Role = {
-  role_id: number;
-  role_name: "Admin" | "Driver" | "Manager";
-};
 
 type FeedbackMessage = {
   type: "success" | "error";
   message: string;
 };
 
-const mapRoleToLocal = (role: any): Role => {
-  if (role && role.role_id && role.role_name) {
-    return {
-      role_id: role.role_id,
-      role_name: role.role_name,
-    };
-  }
-  return { role_id: 1, role_name: "Driver" }; // Default role
+const roleMap: { [key: number]: string } = {
+  1: "Admin",
+  2: "Manager",
+  3: "Driver",
 };
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<Database.GetUser[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
   const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,19 +23,8 @@ const UserManagement: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [usersData, rolesData] = await Promise.all([
-        Database.getAllUsers(),
-        Database.getAllRoles(),
-      ]);
-
-      setUsers(
-        usersData.map((user) => ({
-          ...user,
-          role: mapRoleToLocal(user.roles_id),
-        }))
-      );
-
-      setRoles(rolesData.map(mapRoleToLocal));
+      const usersData = await Database.getAllUsers();
+      setUsers(usersData);
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setFeedback({
@@ -82,6 +63,7 @@ const UserManagement: React.FC = () => {
       );
 
       setFeedback({ type: "success", message: "User updated successfully" });
+      await fetchData(); // Refresh the user list
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to update user:", error);
@@ -137,6 +119,9 @@ const UserManagement: React.FC = () => {
                     {user.first_name} {user.last_name}
                   </span>
                   <span className="text-sm text-gray-500">{user.email}</span>
+                  <span className="text-sm text-gray-500">
+                    Role: {roleMap[user.roles_id]}
+                  </span>
                 </div>
                 <div className="flex items-center gap-4">
                   <button
@@ -247,19 +232,17 @@ const UserManagement: React.FC = () => {
                 <label className="block text-sm font-medium">Role:</label>
                 <select
                   className="w-full border rounded-md p-2"
-                  value={selectedUser.roles_id || ""}
+                  value={selectedUser.roles_id}
                   onChange={(e) => {
-                    const roleId = parseInt(e.target.value, 10);
                     setSelectedUser({
                       ...selectedUser,
-                      roles_id: roleId,
+                      roles_id: parseInt(e.target.value, 10),
                     });
                   }}
                 >
-                  <option value="">Select Role</option>
-                  {roles.map((role) => (
-                    <option key={role.role_id} value={role.role_id}>
-                      {role.role_name}
+                  {Object.entries(roleMap).map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name}
                     </option>
                   ))}
                 </select>

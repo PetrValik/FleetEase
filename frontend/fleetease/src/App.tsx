@@ -13,7 +13,7 @@ import Role_Company from "./pages/manager_pages/Role_Company";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
-// import InsurancePage from "./components/insurance/InsurancePage";
+import InsurancePage from "./components/insurance/InsurancePage";
 import TestPage from "./pages/testPage/TestPage";
 
 const App: React.FC = () => {
@@ -54,6 +54,16 @@ const App: React.FC = () => {
               <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
                   <TestPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+                    <Route
+            path="/insurances"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
+                <Layout>
+                  <InsurancePage />
                 </Layout>
               </RoleBasedRoute>
             }

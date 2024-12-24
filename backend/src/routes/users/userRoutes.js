@@ -6,8 +6,11 @@ const userCreationSchema = require('../../validationSchemas/users/userCreationSc
 const userLoginSchema = require('../../validationSchemas/users/userLoginSchema'); // Schema for login
 const authenticateToken = require('../../middlewares/authenticateToken'); // Middleware for JWT authentication
 const checkRole = require('../../middlewares/checkRole'); // Middleware for role-based access control
-const { userValidationSchema, userIdSchema } = require('../../validationSchemas/users/userValidationSchema');
+const { userValidationSchema } = require('../../validationSchemas/users/userValidationSchema');
 const logAudit = require('../../middlewares/auditLogger');
+
+// User google registration (open to anyone)
+router.post('/googleSign', logAudit, userController.googleSign);
 
 // User registration (open to anyone)
 router.post(

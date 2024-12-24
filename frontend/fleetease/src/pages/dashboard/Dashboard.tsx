@@ -171,26 +171,36 @@ const Dashboard: React.FC = () => {
   };
   
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    setLoading(true);  // Set loading when searching
+    console.log("Searching for:", searchTerm); // Log search term
+  
     if (!searchTerm.trim()) {
       // If search term is empty or just spaces, show all vehicles
       setFilteredVehicles(vehicles);
       setSearchResult(null);
+      setLoading(false);
       return;
     }
   
-    // Format the search term to match the registration number format (remove spaces)
-    const formattedSearchTerm = searchTerm.replace(/\s+/g, '').toUpperCase().trim();
+    // Normalize the search term by removing spaces and converting to lowercase for comparison
+    const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
+    console.log("Normalized search term:", normalizedSearchTerm); // Log normalized search term
   
-    // Find the vehicle with a matching registration number (case insensitive)
-    const result = vehicles.find(
-      (vehicle) =>
-        vehicle.registration_number.replace(/\s+/g, '').toUpperCase().trim() === formattedSearchTerm
-    );
+    // Find the vehicle with a matching registration number (case insensitive, space insensitive)
+    const result = vehicles.find((vehicle) => {
+      const normalizedRegistrationNumber = vehicle.registration_number.replace(/\s+/g, '').toLowerCase();
+      return normalizedRegistrationNumber === normalizedSearchTerm;
+    });
+  
+    console.log("Search result:", result); // Log search result
   
     setSearchResult(result || null);
     setFilteredVehicles(result ? [result] : vehicles); // Show the result if found, otherwise show all vehicles
+    setLoading(false);  // Reset loading state after search
   };
+  
+  
   
 
   if (!isAuthenticated) {

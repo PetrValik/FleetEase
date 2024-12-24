@@ -31,6 +31,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         setVehicle(fetchedVehicle);
 
         if (fetchedVehicle) {
+          // Fetch brand, model, category, and country details
           const brand = await getVehicleBrandById(fetchedVehicle.category_id);
           const model = await getVehicleModelById(fetchedVehicle.model_id);
           const category = await getVehicleCategoryById(fetchedVehicle.category_id);

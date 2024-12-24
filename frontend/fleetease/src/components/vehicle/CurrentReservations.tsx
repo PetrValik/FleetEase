@@ -93,16 +93,19 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId, re
   }
 
   return (
-    <div>
-      <ul className="space-y-4">
-        {reservations.map((reservation) => (
-          <ReservationCard
-            key={reservation.reservation_id}
-            reservation={reservation}
-            onDelete={handleDelete}
-          />
-        ))}
-      </ul>
+    <div className="reservations-container" style={{ padding: '20px' }}>
+      {/* Scrollable container for the entire reservations section */}
+      <div className="reservations-list" style={{ maxHeight: '490px', overflowY: 'auto' }}>
+        <ul style={{ listStyle: 'none', padding: '0' }}>
+          {reservations.map((reservation) => (
+            <ReservationCard
+              key={reservation.reservation_id}
+              reservation={reservation}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

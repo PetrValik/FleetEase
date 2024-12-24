@@ -18,35 +18,38 @@ const VehicleDetailPage: React.FC = () => {
 
   // Fetch vehicle data and reservations data
   useEffect(() => {
-    if (!isAuthenticated || !vehicleId) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchVehicleData = async () => {
-      try {
-        const vehicleData = await getVehicleById(Number(vehicleId));
-        setVehicle(vehicleData);
-      } catch (err) {
-        setError('Failed to fetch vehicle details');
-      }
-    };
-
-    const fetchReservations = async () => {
-      try {
-        const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
-        console.log("Fetched Reservations:", fetchedReservations); // Log to check the response
-        setReservations(fetchedReservations);
-      } catch (err) {
-        setError('Failed to fetch reservations');
-      }
-    };
-
-    fetchVehicleData();
-    fetchReservations();
-
+  if (!isAuthenticated || !vehicleId) {
     setIsLoading(false);
-  }, [vehicleId, isAuthenticated]);
+    return;
+  }
+
+  const fetchVehicleData = async () => {
+    try {
+      const vehicleData = await getVehicleById(Number(vehicleId));
+      setVehicle(vehicleData);
+    } catch (err) {
+      setError('Failed to fetch vehicle details');
+    }
+  };
+
+  const fetchReservations = async () => {
+    try {
+      const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
+      console.log("Fetched Reservations:", fetchedReservations); // Log to check the response
+      setReservations(fetchedReservations);
+    } catch (err) {
+      setError('Failed to fetch reservations');
+    }
+  };
+
+  const fetchData = async () => {
+    await Promise.all([fetchVehicleData(), fetchReservations()]); // Ensure both are done before finishing
+    setIsLoading(false);
+  };
+
+  fetchData();
+}, [vehicleId, isAuthenticated]);
+
 
   // Loading state
   if (isLoading) {

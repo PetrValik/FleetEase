@@ -1,25 +1,36 @@
-import React from 'react';
-import { useUser, Role } from '../../contexts/UserContext';
-import MainPage from '../../pages/dashboard/MainPage'; // Import MainPage
-import Layout from '../layout/Layout'; // Import Layout component
+import React from "react";
+import { useUser, Role } from "../../contexts/UserContext";
+import MainPage from "../../pages/dashboard/MainPage"; // Import MainPage
+import Layout from "../layout/Layout"; // Import Layout component
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
   allowedRoles: Role[];
 }
 
-const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles }) => {
+const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
   const { user, isAuthenticated } = useUser();
   console.log('RoleBasedRoute', user, isAuthenticated);
 
   // If the user is not authenticated, show MainPage
   if (!isAuthenticated || !user) {
-    window.location.href = '/signin'; // Redirect to the login page
+    return (
+      <Layout>
+        <MainPage />
+      </Layout>
+    );
   }
 
   // If the user does not have the required role, show MainPage
   if (!allowedRoles.includes(user.role.role_name)) {
-    return  <Layout><MainPage/></Layout>;
+    return (
+      <Layout>
+        <MainPage />
+      </Layout>
+    );
   }
 
   // If the user is authenticated and has the required role, render the children

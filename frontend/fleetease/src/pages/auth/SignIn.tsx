@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
-import { login } from '../../database/database';
+import * as Database from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 
@@ -19,7 +19,7 @@ const SignIn: React.FC = () => {
     setError('');
 
     try {
-      const response = await login(email, password);
+      const response = await Database.login(email, password);
       
       // Set the user in context
       setUser(response.user);

@@ -3,15 +3,16 @@ import { setLogoutHandler } from "../utils/apiClient";
 import { removeStoredToken } from "../utils/authUtils";
 
 export type Role = "Admin" | "Manager" | "Driver";
-export interface BackendUser {
+
+export interface User {
   user_id: number;
   email: string;
   first_name: string;
   last_name: string;
-  phone_number: string | null;
+  phone_number: string;
   created_at: string; // time without time zone
   is_active: boolean;
-  company_id: number | null;
+  company_id: number;
   role: {
     role_id: number;
     role_name: Role;
@@ -19,19 +20,18 @@ export interface BackendUser {
 }
 
 interface UserContextType {
-  user: BackendUser | null;
-  setUser: React.Dispatch<React.SetStateAction<BackendUser | null>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
   logout: () => void;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<BackendUser | null>(null);
-  console.log("Context", user)
+  const [user, setUser] = useState<User | null>(null);
 
   const isAuthenticated = user !== null;
 
@@ -54,7 +54,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useUser must be used within a UserProvider");
   }
   return context;

@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { UserProvider, useUser } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
-import Vehicles from "./pages/vehicles/Vehicles";
-import VehicleDetailPage from "./pages/vehicles/Vehicles";
 import Dashboard from "./pages/dashboard/Dashboard";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
 import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
+import User_Management from "./pages/admin_pages/User_Management";
+import Role_Company from "./pages/manager_pages/Role_Company";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
@@ -17,17 +17,8 @@ import InsurancePage from "./components/insurance/InsurancePage";
 import TestPage from "./pages/testPage/TestPage";
 import { ManagerDefectsPage } from "./components/defects/ManagerDefectsPage";
 import { DriverDefectsPage } from "./components/defects/DriverDefectsPage";
-import { BackendUser } from "./components/defects/types";
-
-const DefectsPage: React.FC = () => {
-  const { user, isAuthenticated } = useUser();
-  console.log(user);
-  if (user?.role?.role_name === "Manager") {
-    return <ManagerDefectsPage />;
-  }
-
-  return <DriverDefectsPage />;
-};
+import Vehicles from "./pages/vehicles/Vehicles"
+import VehicleDetailPage from "./pages/vehicles/Vehicles"
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -104,15 +95,15 @@ const App: React.FC = () => {
           <Route
             path="/user_management"
             element={
-              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <Dashboard />
+                  <Vehicles/>
                 </Layout>
               </RoleBasedRoute>
             }
           />
           <Route
-            path="/inspection_intervals"
+            path="/Inspection_Intervals"
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
@@ -122,7 +113,17 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/auditlog_book"
+            path="/User_Management"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin"]}>
+                <Layout>
+                  <User_Management />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/Auditlog_Book"
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
@@ -132,11 +133,11 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/Roles&Company"
+            path="/Role_Company"
             element={
               <RoleBasedRoute allowedRoles={["Manager"]}>
                 <Layout>
-                  <Dashboard />
+                  <Role_Company />
                 </Layout>
               </RoleBasedRoute>
             }

@@ -47,12 +47,13 @@ const Dashboard: React.FC = () => {
       syntheticFuels: false, 
     },
     stateFilters: { 
-      available: false, reserved: false, 
+      available: false,
+      reserved: false, 
     },
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Adjusted to use the Vehicle type
+  const [searchTerm, setSearchTerm] = useState<string>('');  // State to track the search term
+  const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Store the search result
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,7 +75,7 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    /*try {
+    try {
       const createdVehicle = await Database.createVehicle(newVehicle);
 
       if (createdVehicle) {
@@ -88,7 +89,7 @@ const Dashboard: React.FC = () => {
       setError('Failed to create vehicle. Please try again.');
     } finally {
       setLoading(false);
-    }*/
+    }
   };
 
   const handleApplyFilter = (newFilters: any) => {
@@ -107,7 +108,6 @@ const Dashboard: React.FC = () => {
       (newFilters.typeFilters.personal && vehicle.registration_number.toLowerCase().includes('personal')) ||
       (newFilters.typeFilters.special && vehicle.registration_number.toLowerCase().includes('special'));
 
-    
       // Fuel filters
       const fuelMatch =
       (!newFilters.fuelFilters.diesel && !newFilters.fuelFilters.natural95 && !newFilters.fuelFilters.natural98 &&
@@ -173,12 +173,26 @@ const Dashboard: React.FC = () => {
   
 
   const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      // If search term is empty or just spaces, show all vehicles
+      setFilteredVehicles(vehicles);
+      setSearchResult(null);
+      return;
+    }
+  
+    // Format the search term to match the registration number format (remove spaces)
+    const formattedSearchTerm = searchTerm.replace(/\s+/g, '').toUpperCase().trim();
+  
+    // Find the vehicle with a matching registration number (case insensitive)
     const result = vehicles.find(
-      (vehicle) => vehicle.registration_number.toLowerCase() === searchTerm.toLowerCase()
+      (vehicle) =>
+        vehicle.registration_number.replace(/\s+/g, '').toUpperCase().trim() === formattedSearchTerm
     );
+  
     setSearchResult(result || null);
     setFilteredVehicles(result ? [result] : vehicles); // Show the result if found, otherwise show all vehicles
   };
+  
 
   if (!isAuthenticated) {
     return <About />;

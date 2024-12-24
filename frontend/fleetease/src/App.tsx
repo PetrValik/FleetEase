@@ -6,16 +6,17 @@ import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
 import Dashboard from "./pages/dashboard/Dashboard";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
-import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
-import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
-import User_Management from "./pages/admin_pages/User_Management";
-import Role_Company from "./pages/manager_pages/Role_Company";
+import AuditlogBook from "./pages/admin_pages/Auditlog_Book";
+import InspectionIntervals from "./pages/admin_pages/Inspection_Intervals";
+import UserManagement from "./pages/admin_pages/User_Management";
+import RoleCompany from "./pages/manager_pages/Role_Company";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
 import InsurancePage from "./components/insurance/InsurancePage";
-import TestPage from "./pages/testPage/TestPage";
+import TestPage from "./pages/test_page/TestPage";
 import Vehicles from "./pages/vehicles/Vehicles"
+import DefectsPage from "./pages/defect_page/DefectsPage";
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -69,12 +70,12 @@ const App: React.FC = () => {
               </RoleBasedRoute>
             }
           />
-                    <Route
+          <Route
             path="/vehicle/:vehicleId"
             element={
               <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
-                  <Vehicles/>
+                  <Vehicles />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -84,7 +85,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <Inspection_Intervals />
+                  <InspectionIntervals />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -94,7 +95,7 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <User_Management />
+                  <UserManagement />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -104,7 +105,17 @@ const App: React.FC = () => {
             element={
               <RoleBasedRoute allowedRoles={["Admin"]}>
                 <Layout>
-                  <Auditlog_Book />
+                  <AuditlogBook />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/defects"
+            element={
+              <RoleBasedRoute allowedRoles={["Driver", "Manager", "Admin"]}>
+                <Layout>
+                  <DefectsPage />
                 </Layout>
               </RoleBasedRoute>
             }
@@ -112,9 +123,9 @@ const App: React.FC = () => {
           <Route
             path="/Role_Company"
             element={
-              <RoleBasedRoute allowedRoles={["Manager"]}>
+              <RoleBasedRoute allowedRoles={["Manager", "Admin"]}>
                 <Layout>
-                  <Role_Company />
+                  <RoleCompany />
                 </Layout>
               </RoleBasedRoute>
             }

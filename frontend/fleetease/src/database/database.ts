@@ -3,7 +3,7 @@ export * from './auditLog/auditLog';
 export * from './companies/companies';
 
 export * from './defects/defects';
-export * from './defects/defectTypeService';
+export * from './defects/defectType';
 
 export * from './insurances/insurances';
 export * from './insurances/insuranceCompanies';

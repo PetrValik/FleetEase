@@ -5,6 +5,8 @@ import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
 import * as Database from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../../utils/firebase';
 import axios from 'axios';
 
 const SignIn: React.FC = () => {
@@ -20,7 +22,6 @@ const SignIn: React.FC = () => {
 
     try {
       const response = await Database.login(email, password);
-      
       // Set the user in context
       setUser(response.user);
       // Redirect to dashboard
@@ -36,9 +37,21 @@ const SignIn: React.FC = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google sign in logic
-    console.log('Google sign in clicked');
+  const handleGoogleSignIn = async () => {
+    try {      
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const response = await Database.googleLogin(user);
+      setUser(response.user);
+      navigate('/');
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An error occurred during Google sign-in');
+      }
+    }
   };
 
   return (

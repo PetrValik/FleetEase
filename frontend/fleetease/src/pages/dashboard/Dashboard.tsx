@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../../contexts/UserContext'; // Import user context if needed
-import About from '../../components/dashboard/components/About';
-import { Truck, Shield, Clock, BarChart, Users, PlusCircle, Filter, Search } from 'lucide-react';
+import { PlusCircle, Filter, Search } from 'lucide-react';
 import VehicleList from '../../components/dashboard/components/VehicleList'; // Correct import for VehicleList
 import { Button } from '../../components/dashboard/components/ui/Button';
 import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
 import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
+import AdminStats from './AdminStats';
 import * as Database from '../../database/database';
 
 type FuelType = 'gas' | 'diesel' | 'electric' | 'hybrid'; // Updated fuel types based on real data
@@ -18,7 +18,7 @@ const getFuelFilterValue = (fuelType: string, fuelFilters: { [key: string]: bool
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated } = useUser();
+  const { user: currentUser } = useUser();
   const [vehicles, setVehicles] = useState<Database.Vehicle[]>([]); // Correct type for state
   const [filteredVehicles, setFilteredVehicles] = useState<Database.Vehicle[]>([]); // To store filtered vehicles
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState<boolean>(false);
@@ -51,30 +51,37 @@ const Dashboard: React.FC = () => {
     },
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');  // State to track the search term
+  const [searchTerm, setSearchTerm] = useState<string>(''); // State to track the search term
   const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Store the search result
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch vehicles on load
   useEffect(() => {
-    if (isAuthenticated) {
-      setLoading(true);
-      Database.getAllVehicles()
+    setLoading(true);
+    if (currentUser?.company_id != null) {
+      console.log("debug");
+      Database.getVehiclesByCompanyId(currentUser.company_id)
         .then((data) => {
           setVehicles(data);
           setFilteredVehicles(data); // Initialize filtered vehicles with the fetched data
         })
         .catch((err) => setError('Failed to fetch vehicles'))
         .finally(() => setLoading(false));
+    } else {
+      setError('Company ID is undefined');
+      setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [currentUser?.company_id]);
 
   const handleAddVehicle = async (newVehicle: Database.Vehicle) => {
     setLoading(true);
     setError(null);
 
     try {
+      if (currentUser?.company_id) {
+        setError('No company.');
+      }
       const createdVehicle = await Database.createVehicle(newVehicle);
 
       if (createdVehicle) {
@@ -173,8 +180,7 @@ const Dashboard: React.FC = () => {
 
   const handleSearch = async () => {
     setLoading(true);  // Set loading when searching
-    console.log("Searching for:", searchTerm); // Log search term
-  
+
     if (!searchTerm.trim()) {
       // If search term is empty or just spaces, show all vehicles
       setFilteredVehicles(vehicles);
@@ -185,43 +191,50 @@ const Dashboard: React.FC = () => {
   
     // Normalize the search term by removing spaces and converting to lowercase for comparison
     const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
-    console.log("Normalized search term:", normalizedSearchTerm); // Log normalized search term
-  
+
     // Find the vehicle with a matching registration number (case insensitive, space insensitive)
     const result = vehicles.find((vehicle) => {
       const normalizedRegistrationNumber = vehicle.registration_number.replace(/\s+/g, '').toLowerCase();
       return normalizedRegistrationNumber === normalizedSearchTerm;
-    });
-  
-    console.log("Search result:", result); // Log search result
-  
+    });  
     setSearchResult(result || null);
     setFilteredVehicles(result ? [result] : vehicles); // Show the result if found, otherwise show all vehicles
     setLoading(false);  // Reset loading state after search
   };
-  
 
-  if (!isAuthenticated) {
-    return <About />;
+  if (currentUser?.role.role_name == "Admin") {
+    return <AdminStats/>;
+
+  }
+
+  if (!currentUser?.company_id) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center p-4">
+          <h2 className="text-xl font-semibold text-gray-900">You are not member of any company</h2>
+          <p className="mt-2 text-gray-600">Please contact your administrator to get access.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-header">Welcome to Your Dashboard</h1>
-      {/* Removed "Here's an overview of your fleet management activities." and the statistics block */}
-      
       <section className="vehicle-list-section mt-12">
         <h2 className="text-2xl font-bold mb-4">Vehicle List</h2>
 
         <div className="dashboard-btn-container">
-          <Button
-            variant="outline"
-            className="dashboard-btn-add"
-            onClick={() => setIsAddVehicleModalOpen(true)}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add new vehicle
-          </Button>
+        {(currentUser?.role.role_name === 'Manager') && (
+            <Button
+              variant="outline"
+              className="dashboard-btn-add"
+              onClick={() => setIsAddVehicleModalOpen(true)}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add new vehicle
+            </Button>
+          )}
 
           <Button
             variant="outline"
@@ -248,16 +261,15 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Filter Popover: Positioned below the filter button */}
         {isFilterPopoverVisible && (
           <div className="filter-popover-container">
             <FilterPopover
-               typeFilters={filters.typeFilters}
-               fuelFilters={filters.fuelFilters}
-               stateFilters={filters.stateFilters}
-               onApplyFilter={handleApplyFilter}
-               onClearFilter={handleClearFilter}
-               onClose={() => setIsFilterPopoverVisible(false)}
+              typeFilters={filters.typeFilters}
+              fuelFilters={filters.fuelFilters}
+              stateFilters={filters.stateFilters}
+              onApplyFilter={handleApplyFilter}
+              onClearFilter={handleClearFilter}
+              onClose={() => setIsFilterPopoverVisible(false)}
             />
           </div>
         )}

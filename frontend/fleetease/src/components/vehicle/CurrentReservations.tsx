@@ -1,70 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { Reservation, getReservationsByVehicleId } from '../../database/reservations/reservations'; // API functions
+import React, { useState, useEffect } from 'react';
+import { Reservation, getReservationsByVehicleId, deleteReservation, createReservation } from '../../database/reservations/reservations';
+import ReservationCard from './reservations/ReservationCard';
 
 interface CurrentReservationsProps {
-  vehicleId: number; // Vehicle ID passed as a prop
+  vehicleId: number;
+  refreshReservations: () => Promise<void>; // Ensure it returns a promise to handle async
 }
 
-const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) => {
-  const [reservations, setReservations] = useState<Reservation[]>([]); // Store reservations data
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  const [error, setError] = useState<string | null>(null); // Error state for error handling
+const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId, refreshReservations }) => {
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchReservations = async () => {
-      try {
-        setIsLoading(true); // Set loading to true before fetching
-        const fetchedReservations = await getReservationsByVehicleId(vehicleId); // Fetch reservations for the given vehicleId
-        setReservations(fetchedReservations); // Set reservations data
-        setError(null); // Clear any previous errors
-      } catch (error) {
-        setError('Error fetching reservations. Please try again later.');
-        console.error('Error fetching reservations:', error);
-      } finally {
-        setIsLoading(false); // Set loading to false after fetching
+  // Fetch reservations for a given vehicle ID
+  const fetchReservations = async () => {
+    try {
+      setIsLoading(true);
+      console.log("Fetching reservations for vehicleId:", vehicleId);
+      const fetchedReservations = await getReservationsByVehicleId(vehicleId);
+      console.log("Fetched reservations:", fetchedReservations);  // Check the fetched data
+      setReservations(fetchedReservations); // Ensure state is updated
+      setError(null);
+    } catch (error) {
+      setError('Error fetching reservations. Please try again later.');
+      console.error('Error fetching reservations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle reservation submission (creation)
+  const handleAddReservation = async (reservationData: Omit<Reservation, 'reservation_id'>) => {
+    try {
+      console.log("Adding reservation data:", reservationData);
+      // Create reservation on the server
+      const createdReservation = await createReservation(reservationData);
+
+      if (createdReservation) {
+        console.log("Reservation created successfully:", createdReservation);
+
+        // Manually trigger fetchReservations after creation to ensure we update the state with new data
+        console.log("Manually triggering fetchReservations after adding a reservation...");
+        await fetchReservations(); // Manually fetch data to guarantee the UI gets updated
+      } else {
+        setError('Failed to create the reservation.');
       }
-    };
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+      setError('An unexpected error occurred while creating the reservation.');
+    }
+  };
 
-    fetchReservations(); // Trigger reservation fetch
-  }, [vehicleId]); // Run when vehicleId changes
+  // Handle reservation deletion
+  const handleDelete = async (reservationId: number) => {
+    try {
+      console.log("Deleting reservation with ID:", reservationId);
+      const success = await deleteReservation(reservationId);
+      if (success) {
+        // Filter the deleted reservation out of the state
+        setReservations((prev) =>
+          prev.filter((reservation) => reservation.reservation_id !== reservationId)
+        );
+        console.log("Deleted reservation, updated state:", reservations);  // Log to verify state update
+      } else {
+        setError('Failed to delete the reservation. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting reservation:', error);
+      setError('An unexpected error occurred while deleting the reservation.');
+    }
+  };
 
+  // Initial fetch of reservations when the component mounts
+  useEffect(() => {
+    console.log("Component mounted or vehicleId changed:", vehicleId);
+    fetchReservations();
+  }, [vehicleId]); // Only re-fetch when the vehicleId changes
+
+  // Loading state
   if (isLoading) {
-    return (
-      <div className="bg-white p-6 rounded shadow">
-        <div>Loading reservations...</div>
-      </div>
-    ); // Show loading state inside the card
+    return <div>Loading reservations...</div>;
   }
 
+  // Error handling
   if (error) {
-    return (
-      <div className="bg-white p-6 rounded shadow">
-        <div className="text-red-500">{error}</div>
-      </div>
-    ); // Show error message inside the card
+    return <div>{error}</div>;
   }
 
+  // No reservations found
   if (reservations.length === 0) {
-    return (
-      <div className="bg-white p-6 rounded shadow">
-        <div>No current reservations found for this vehicle.</div> 
-      </div>
-    ); // If no reservations are found, show the message inside the card
+    return <div>No current reservations found for this vehicle.</div>;
   }
 
   return (
-    <div className="bg-white p-6 rounded shadow">
-      <h3 className="text-xl font-semibold mb-4">Current Reservations for Vehicle ID: {vehicleId}</h3>
+    <div>
       <ul className="space-y-4">
         {reservations.map((reservation) => (
-          <li key={reservation.reservation_id} className="border-b pb-4">
-            <div><strong>Pickup Location:</strong> {reservation.pickup_location}</div>
-            <div><strong>Return Location:</strong> {reservation.return_location}</div>
-            <div><strong>Start Time:</strong> {new Date(reservation.start_time).toLocaleString()}</div>
-            <div><strong>End Time:</strong> {new Date(reservation.end_time).toLocaleString()}</div>
-            <div><strong>Status:</strong> {reservation.reservation_status}</div>
-            <div><strong>Notes:</strong> {reservation.notes || 'No notes available'}</div>
-          </li>
+          <ReservationCard
+            key={reservation.reservation_id}
+            reservation={reservation}
+            onDelete={handleDelete}
+          />
         ))}
       </ul>
     </div>

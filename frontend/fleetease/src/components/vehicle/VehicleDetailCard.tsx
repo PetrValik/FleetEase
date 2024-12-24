@@ -7,12 +7,15 @@ import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory'
 import { Edit, Trash2, Car } from 'lucide-react';
 import EditVehicleModal from './modals/EditVehicleModal';
 import DeleteButton from './ui/DeleteButton';
+import { useUser } from '../../contexts/UserContext';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 interface VehicleDetailsCardProps {
   vehicleId: number;
 }
 
 const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) => {
+  const { user } = useUser();  // Get the current user from context
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [vehicleBrand, setVehicleBrand] = useState<string | null>(null);
   const [vehicleModel, setVehicleModel] = useState<string | null>(null);
@@ -22,6 +25,8 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null); // State for error
+
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   useEffect(() => {
     const fetchVehicle = async () => {
@@ -74,6 +79,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       const success = await deleteVehicle(vehicleId);
       if (success) {
         setVehicle(null); // Clear vehicle state after deletion
+        navigate('/dashboard'); // Redirect to dashboard after successful deletion
       }
     } catch (error) {
       console.error('Error deleting vehicle:', error);
@@ -91,6 +97,9 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 
   const createdAtDate = new Date(vehicle.created_at).toLocaleString();
   const formattedVIN = vehicle.vin.toUpperCase();
+
+  // Check if the user is admin or manager
+  const isAdminOrManager = user?.role?.role_name === 'Admin' || user?.role?.role_name === 'Manager';
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -122,15 +131,19 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       </div>
 
       <div className="mt-6 flex justify-end space-x-4">
-        <button className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center" onClick={handleOpenModal}>
-          <Edit className="mr-2" />
-          Edit
-        </button>
-        <DeleteButton
-          vehicleId={vehicle.vehicle_id}
-          vehicleRegistrationNumber={vehicle.registration_number}
-          onDelete={handleDelete}
-        />
+        {isAdminOrManager && (
+          <>
+            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center" onClick={handleOpenModal}>
+              <Edit className="mr-2" />
+              Edit
+            </button>
+            <DeleteButton
+              vehicleId={vehicle.vehicle_id}
+              vehicleRegistrationNumber={vehicle.registration_number}
+              onDelete={handleDelete}
+            />
+          </>
+        )}
       </div>
 
       {/* Edit Vehicle Modal */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Reservation } from '../../database/reservations/reservations';
 import CalendarHeader from './calendar/CalendarHeader';
@@ -7,7 +7,6 @@ import ReservationForm from './calendar/ReservationForm';
 import { createReservation } from '../../database/reservations/reservations';
 
 interface ReservationCalendarProps {
-  reservations: Reservation[];
   user: {
     user_id: number;
     email: string;
@@ -23,24 +22,18 @@ interface ReservationCalendarProps {
     };
   };
   vehicleId: number;
-  refreshReservations: () => Promise<void>; // Prop to refresh reservations after creating one
 }
 
 const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
-  reservations,
   user,
   vehicleId,
-  refreshReservations,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [pickupLocation, setPickupLocation] = useState('');
   const [returnLocation, setReturnLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  if (!user) {
-    return <div>Please log in to make a reservation.</div>;
-  }
+  const [isLoading, setIsLoading] = useState(false);
 
   const daysInMonth = eachDayOfInterval({
     start: startOfMonth(currentDate),
@@ -59,7 +52,6 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   };
 
   const handleReservationSubmit = async () => {
-    // Validation: Ensure Pickup Location and Return Location are filled
     if (!pickupLocation || !returnLocation) {
       setErrorMessage('Pickup Location and Return Location are required!');
       return;
@@ -88,14 +80,12 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     };
 
     try {
-      // Create reservation
       const newReservation = await createReservation(reservationData);
 
       if (newReservation) {
         console.log('Reservation created:', newReservation);
-        // After creating the reservation, refresh the list of reservations
-        console.log("Triggering refreshReservations...");
-        await refreshReservations();
+        // Here, you could fetch the updated reservations list or update the UI state
+        // directly to reflect the new reservation.
       } else {
         setErrorMessage('Failed to create reservation.');
       }
@@ -113,7 +103,6 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         selectedDates={selectedDates}
         handleDateClick={handleDateSelect}
       />
-  
       {selectedDates.length > 0 && (
         <ReservationForm
           selectedDates={selectedDates}

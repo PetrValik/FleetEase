@@ -18,38 +18,37 @@ const VehicleDetailPage: React.FC = () => {
 
   // Fetch vehicle data and reservations data
   useEffect(() => {
-  if (!isAuthenticated || !vehicleId) {
-    setIsLoading(false);
-    return;
-  }
-
-  const fetchVehicleData = async () => {
-    try {
-      const vehicleData = await getVehicleById(Number(vehicleId));
-      setVehicle(vehicleData);
-    } catch (err) {
-      setError('Failed to fetch vehicle details');
+    if (!isAuthenticated || !vehicleId) {
+      setIsLoading(false);
+      return;
     }
-  };
 
-  const fetchReservations = async () => {
-    try {
-      const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
-      console.log("Fetched Reservations:", fetchedReservations); // Log to check the response
-      setReservations(fetchedReservations);
-    } catch (err) {
-      setError('Failed to fetch reservations');
-    }
-  };
+    const fetchVehicleData = async () => {
+      try {
+        const vehicleData = await getVehicleById(Number(vehicleId));
+        setVehicle(vehicleData);
+      } catch (err) {
+        setError('Failed to fetch vehicle details');
+      }
+    };
 
-  const fetchData = async () => {
-    await Promise.all([fetchVehicleData(), fetchReservations()]); // Ensure both are done before finishing
-    setIsLoading(false);
-  };
+    const fetchReservations = async () => {
+      try {
+        const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
+        console.log("Fetched Reservations:", fetchedReservations); // Log to check the response
+        setReservations(fetchedReservations);
+      } catch (err) {
+        setError('Failed to fetch reservations');
+      }
+    };
 
-  fetchData();
-}, [vehicleId, isAuthenticated]);
+    const fetchData = async () => {
+      await Promise.all([fetchVehicleData(), fetchReservations()]); // Ensure both are done before finishing
+      setIsLoading(false);
+    };
 
+    fetchData();
+  }, [vehicleId, isAuthenticated]);
 
   // Loading state
   if (isLoading) {
@@ -78,19 +77,6 @@ const VehicleDetailPage: React.FC = () => {
     );
   }
 
-  // Function to refresh the reservations list after a new reservation is added
-  const refreshReservations = async () => {
-    try {
-      console.log("Refreshing reservations...");
-      // Fetch updated reservations from the API
-      const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
-      console.log("Updated Reservations:", fetchedReservations); // Log to check the updated reservations
-      setReservations(fetchedReservations);
-    } catch (error) {
-      console.error('Error refreshing reservations:', error);
-    }
-  };
-
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -103,10 +89,8 @@ const VehicleDetailPage: React.FC = () => {
           <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
           {user ? (
             <ReservationCalendar
-              reservations={reservations}
               user={user}
               vehicleId={Number(vehicleId)}
-              refreshReservations={refreshReservations} // Pass the refresh function
             />
           ) : (
             <div>Please log in to view the reservation calendar.</div>
@@ -115,10 +99,7 @@ const VehicleDetailPage: React.FC = () => {
 
         <div className="lg:col-span-2 w-full">
           <h3 className="text-2xl font-semibold mb-4">Current Reservations</h3>
-          <CurrentReservations
-            vehicleId={Number(vehicleId)}
-            refreshReservations={refreshReservations} // Pass the refresh function
-          />
+          <CurrentReservations vehicleId={Number(vehicleId)} />
         </div>
       </div>
     </div>

@@ -33,14 +33,6 @@ export function SelectValue({ children, placeholder }: { children?: React.ReactN
   return <span>{children || placeholder}</span>
 }
 
-export function SelectContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn("absolute top-full left-0 w-full bg-white border rounded-md mt-1 py-1", className)}>
-      {children}
-    </div>
-  )
-}
-
 export function SelectItem({ value, children, className }: { value: string; children: React.ReactNode; className?: string }) {
   return (
     <option value={value} className={cn("px-3 py-2 hover:bg-gray-100 cursor-pointer", className)}>

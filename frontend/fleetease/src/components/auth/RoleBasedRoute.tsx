@@ -10,10 +10,11 @@ interface RoleBasedRouteProps {
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles }) => {
   const { user, isAuthenticated } = useUser();
+  console.log('RoleBasedRoute', user, isAuthenticated);
 
   // If the user is not authenticated, show MainPage
   if (!isAuthenticated || !user) {
-    return  <Layout><MainPage/></Layout>;
+    window.location.href = '/signin'; // Redirect to the login page
   }
 
   // If the user does not have the required role, show MainPage

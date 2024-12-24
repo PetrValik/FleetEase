@@ -4,8 +4,9 @@ import About from '../../components/dashboard/components/About';
 import { Truck, Shield, Clock, BarChart, Users, PlusCircle, Filter, Search } from 'lucide-react';
 import VehicleList from '../../components/dashboard/components/VehicleList'; // Correct import for VehicleList
 import { Button } from '../../components/dashboard/components/ui/Button';
-import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
-import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
+// Zakomentované problémové importy
+// import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
+// import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
 import * as Database from '../../database/database';
 
@@ -243,19 +244,19 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Filter Popover: Positioned below the filter button */}
-        {isFilterPopoverVisible && (
-          <div className="filter-popover-container">
-            <FilterPopover
-               typeFilters={filters.typeFilters}
-               fuelFilters={filters.fuelFilters}
-               stateFilters={filters.stateFilters}
-               onApplyFilter={handleApplyFilter}
-               onClearFilter={handleClearFilter}
-               onClose={() => setIsFilterPopoverVisible(false)}
-            />
-          </div>
-        )}
+        {/* Zakomentovat nebo odstranit FilterPopover sekci */}
+{/* {isFilterPopoverVisible && (
+  <div className="filter-popover-container">
+    <FilterPopover
+       typeFilters={filters.typeFilters}
+       fuelFilters={filters.fuelFilters}
+       stateFilters={filters.stateFilters}
+       onApplyFilter={handleApplyFilter}
+       onClearFilter={handleClearFilter}
+       onClose={() => setIsFilterPopoverVisible(false)}
+    />
+  </div>
+)} */}
 
         {loading ? (
           <div>Loading...</div>
@@ -266,13 +267,14 @@ const Dashboard: React.FC = () => {
         )}
       </section>
 
-      <AddVehicleModal
-        isOpen={isAddVehicleModalOpen}
-        onClose={() => setIsAddVehicleModalOpen(false)}
-        onSave={handleAddVehicle}
-        loading={loading}
-        error={error}
-      />
+      {/* Zakomentovat nebo odstranit AddVehicleModal sekci na konci */}
+{/* <AddVehicleModal
+  isOpen={isAddVehicleModalOpen}
+  onClose={() => setIsAddVehicleModalOpen(false)}
+  onSave={handleAddVehicle}
+  loading={loading}
+  error={error}
+/> */}
     </div>
   );
 };

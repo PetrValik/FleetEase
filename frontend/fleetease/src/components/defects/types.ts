@@ -1,14 +1,35 @@
+//types.ts
+export type Role = 'Admin' | 'Manager' | 'Driver';
+
 export type DefectSeverityLevel = 'Minor' | 'Low' | 'Medium' | 'High' | 'Critical';
 export type DefectStatus = 'Reported' | 'In Progress' | 'Repaired' | 'Closed' | 'Deferred';
 
-// Interface pro typ defektu
 export interface DefectType {
   type_id: number;
   type_name: string;
   description: string | null;
 }
+export interface FrontendUser {
+  id: number;
+  role: string;
+  name?: string;  // Pro reported_by
+}
 
-// Interface pro defekt
+export interface BackendUser {
+    user_id: number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+    created_at: string; // time without time zone
+    is_active: boolean;
+    company_id: number | null;
+    role: {
+        role_id: number;
+        role_name: Role;
+    };
+}
+
 export interface Defect {
   defect_id: number;
   vehicle_id: number;
@@ -20,9 +41,9 @@ export interface Defect {
   created_at: string;
   repair_cost: number | null;
   user_id: number;
+  reported_by?: string;
 }
 
-// Interface pro formulářová data
 export interface DefectFormData {
   vehicle_id: number;
   type_id: number;

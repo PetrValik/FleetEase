@@ -39,9 +39,12 @@ exports.getDefectById = async (id) => {
 
 // Create a new defect
 exports.createDefect = async (defect) => {
+    console.log(defect)
     const { data, error } = await supabase.from(DefectModel.tableName).insert(defect);
+    console.log(data)
     if (error) {
-        throw new Error('Failed to create defect');
+        console.error('Error creating defect:', error);
+        throw new Error('Failed to create defect', error);
     }
     return data;
 };

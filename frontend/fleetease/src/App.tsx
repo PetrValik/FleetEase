@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { UserProvider } from "./contexts/UserContext";
+import { UserProvider, useUser } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
-import Vehicles from './pages/vehicles/Vehicles';
-import VehicleDetailPage from './pages/vehicles/Vehicles';
-import Dashboard from './pages/dashboard/Dashboard';
+import Vehicles from "./pages/vehicles/Vehicles";
+import VehicleDetailPage from "./pages/vehicles/Vehicles";
+import Dashboard from "./pages/dashboard/Dashboard";
 import SignUp from "./pages/auth/SignUp";
 import SignIn from "./pages/auth/SignIn";
 import Auditlog_Book from "./pages/admin_pages/Auditlog_Book";
@@ -13,8 +13,21 @@ import Inspection_Intervals from "./pages/admin_pages/Inspection_Intervals";
 import { getStoredToken } from "./utils/authUtils";
 import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
-import InsurancePage from './components/insurance/InsurancePage';
+import InsurancePage from "./components/insurance/InsurancePage";
 import TestPage from "./pages/testPage/TestPage";
+import { ManagerDefectsPage } from "./components/defects/ManagerDefectsPage";
+import { DriverDefectsPage } from "./components/defects/DriverDefectsPage";
+import { BackendUser } from "./components/defects/types";
+
+const DefectsPage: React.FC = () => {
+  const { user, isAuthenticated } = useUser();
+  console.log(user);
+  if (user?.role?.role_name === "Manager") {
+    return <ManagerDefectsPage />;
+  }
+
+  return <DriverDefectsPage />;
+};
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -55,7 +68,7 @@ const App: React.FC = () => {
                 <Layout>
                   <TestPage />
                 </Layout>
-                </RoleBasedRoute>
+              </RoleBasedRoute>
             }
           />
           <Route
@@ -70,19 +83,23 @@ const App: React.FC = () => {
           />
           <Route
             path="/vehicles"
-            element={<RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
-              <Layout>
-                <Vehicles />
-              </Layout>
-            </RoleBasedRoute>}
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <Vehicles />
+                </Layout>
+              </RoleBasedRoute>
+            }
           />
           <Route
             path="/vehicle/:vehicleId"
-            element={<RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
-              <Layout>
-                <VehicleDetailPage />
-              </Layout>
-            </RoleBasedRoute>}
+            element={
+              <RoleBasedRoute allowedRoles={["Driver", "Manager", "Driver"]}>
+                <Layout>
+                  <VehicleDetailPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
           />
           <Route
             path="/user_management"
@@ -127,9 +144,29 @@ const App: React.FC = () => {
           <Route
             path="/insurances"
             element={
-              <RoleBasedRoute allowedRoles={['Admin', 'Manager']}>
+              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
                 <Layout>
                   <InsurancePage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/defects"
+            element={
+              <RoleBasedRoute allowedRoles={["Manager", "Driver"]}>
+                <Layout>
+                  <DefectsPage />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+          <Route
+            path="/Driver/defects"
+            element={
+              <RoleBasedRoute allowedRoles={["Driver"]}>
+                <Layout>
+                  <DriverDefectsPage />
                 </Layout>
               </RoleBasedRoute>
             }

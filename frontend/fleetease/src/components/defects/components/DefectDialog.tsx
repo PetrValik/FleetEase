@@ -13,7 +13,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
   Select,
-  SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -42,7 +41,7 @@ export default function DefectDialog({
     type_id: defect?.type_id || 0,
     defect_severity: defect?.defect_severity || 'Medium',
     description: defect?.description || '',
-    repair_cost: defect?.repair_cost ?? null
+    repair_cost: defect?.repair_cost ?? 0
   });
 
   useEffect(() => {
@@ -117,13 +116,11 @@ export default function DefectDialog({
                 <SelectTrigger>
                   <SelectValue placeholder="Vyberte typ defektu" />
                 </SelectTrigger>
-                <SelectContent>
                   {defectTypes.map((type) => (
                     <SelectItem key={type.type_id} value={String(type.type_id)}>
                       {type.type_name}
                     </SelectItem>
                   ))}
-                </SelectContent>
               </Select>
             </div>
             <div className="grid gap-2">
@@ -135,13 +132,11 @@ export default function DefectDialog({
                 <SelectTrigger>
                   <SelectValue placeholder="Vyberte závažnost" />
                 </SelectTrigger>
-                <SelectContent>
                   <SelectItem value="Critical">Kritická</SelectItem>
                   <SelectItem value="High">Vysoká</SelectItem>
                   <SelectItem value="Medium">Střední</SelectItem>
                   <SelectItem value="Low">Nízká</SelectItem>
                   <SelectItem value="Minor">Minimální</SelectItem>
-                </SelectContent>
               </Select>
             </div>
             <div className="grid gap-2">

@@ -1,10 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { setLogoutHandler } from '../utils/apiClient';
-import { removeStoredToken } from '../utils/authUtils';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { setLogoutHandler } from "../utils/apiClient";
+import { removeStoredToken } from "../utils/authUtils";
 
-export type Role = 'Admin' | 'Manager' | 'Driver';
-
-export interface User {
+export type Role = "Admin" | "Manager" | "Driver";
+export interface BackendUser {
   user_id: number;
   email: string;
   first_name: string;
@@ -20,16 +19,19 @@ export interface User {
 }
 
 interface UserContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  user: BackendUser | null;
+  setUser: React.Dispatch<React.SetStateAction<BackendUser | null>>;
   isAuthenticated: boolean;
   logout: () => void;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType | null>(null);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [user, setUser] = useState<BackendUser | null>(null);
+  console.log("Context", user)
 
   const isAuthenticated = user !== null;
 
@@ -38,23 +40,22 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     removeStoredToken();
   };
 
-    // Set the logout handler for API client
-    React.useEffect(() => {
-      setLogoutHandler(logout);
-    }, []);
+  // Set the logout handler for API client
+  React.useEffect(() => {
+    setLogoutHandler(logout);
+  }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>
+    <UserContext.Provider value={{ user, setUser, logout, isAuthenticated }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUser = (): UserContextType => {
+export const useUser = () => {
   const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
+  if (!context) {
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 };
-

@@ -30,7 +30,7 @@ exports.createDefectType = async (defectType) => {
     const { data, error } = await supabase.from(DefectTypeModel.tableName).insert(defectType);
     if (error) {
         console.error('Error creating defect type:', error);
-        throw new Error('Failed to create defect type');
+        throw new Error('Failed to create defect type', error);
     }
     return data;
 };

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Import the vehicle details card component
-import ReservationCalendar from '../../components/vehicle/ReservationCalendar'; // Import the reservation calendar component
+// Zakomentovaný problémový import
+// import ReservationCalendar from '../../components/vehicle/ReservationCalendar';
 import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations'; // Import the reservation API
 import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // Import the vehicle API
 
@@ -60,11 +61,11 @@ const VehicleDetailPage: React.FC = () => {
         {/* Vehicle Details Card */}
         <VehicleDetailsCard vehicleId={vehicleId} />
 
-        {/* Reservation Calendar */}
-        <div className="mt-8">
-          <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
-          <ReservationCalendar reservations={reservations} />
-        </div>
+       {/* Reservation Calendar */}
+<div className="mt-8">
+  <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
+  {/* <ReservationCalendar reservations={reservations} /> */}
+</div>
       </div>
     </div>
   );

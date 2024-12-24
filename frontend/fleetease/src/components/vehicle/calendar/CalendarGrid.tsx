@@ -1,5 +1,4 @@
 import React from 'react';
-import { isSameDay } from 'date-fns';
 import DayCell from './DayCell';
 
 interface CalendarGridProps {
@@ -12,7 +11,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   daysInMonth, selectedDates, handleDateClick,
 }) => {
   // Create weeks array by slicing the daysInMonth into chunks of 7
-  const weeks = [];
+  const weeks: Date[][] = [];
   for (let i = 0; i < daysInMonth.length; i += 7) {
     weeks.push(daysInMonth.slice(i, i + 7));
   }
@@ -49,3 +48,4 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 };
 
 export default CalendarGrid;
+

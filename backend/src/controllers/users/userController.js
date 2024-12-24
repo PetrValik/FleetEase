@@ -93,14 +93,16 @@ exports.deleteUser = async (req, res) => {
 
 exports.getAllUsersFromCompany = async (req, res) => {
   const { companyId } = req.params;
+  const currentUserId = req.user?.user_id; // Assuming `req.user` is populated by a middleware
   try {
-    const users = await userService.getAllUsersFromCompany(companyId);
+    const users = await userService.getAllUsersFromCompany(companyId, currentUserId);
     res.json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch users from the specified company' });
   }
 };
+
 
 exports.getAllUsersWithoutCompany = async (req, res) => {
   try {

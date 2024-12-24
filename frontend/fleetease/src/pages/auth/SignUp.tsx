@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
-import { register } from '../../database/database';
+import * as Database from '../../database/database';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
+import { auth } from '../../utils/firebase';
+import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 
 const SignUp: React.FC = () => {
@@ -13,6 +16,7 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+    const { setUser } = useUser();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,9 +30,7 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      console.log('Attempting to register...'); // Debug log
-      const response = await register(email, password, firstName, lastName);
-      console.log('Registration successful:', response); // Debug log
+      await Database.register(email, password, firstName, lastName);
       // Registration successful, redirect to sign in page
       navigate('/signin');
     } catch (error) {
@@ -43,6 +45,25 @@ const SignUp: React.FC = () => {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const response = await Database.googleLogin(user);
+      setUser(response.user);
+
+      // Redirect to dashboard
+      navigate('/');
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An error occurred during Google sign-up');
+      }
+    }
+  };
+
   return (
     <div className="w-full max-w-md px-4 mx-auto h-full flex flex-col justify-center">
       <AuthHeader />
@@ -50,7 +71,7 @@ const SignUp: React.FC = () => {
         title="Sign Up"
         onSubmit={handleSubmit}
         googleButtonText="Sign up with Google"
-        onGoogleClick={() => console.log('Google sign up clicked')}
+        onGoogleClick={handleGoogleSignUp}
         linkText="Already have an account? Sign In"
         linkTo="/signin"
       >

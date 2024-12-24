@@ -93,8 +93,9 @@ exports.deleteUser = async (req, res) => {
 
 exports.getAllUsersFromCompany = async (req, res) => {
   const { companyId } = req.params;
+  const currentUserId = req.user?.user_id; // Assuming `req.user` is populated by a middleware
   try {
-    const users = await userService.getAllUsersFromCompany(companyId);
+    const users = await userService.getAllUsersFromCompany(companyId, currentUserId);
     res.json(users);
   } catch (error) {
     console.error(error);
@@ -102,10 +103,22 @@ exports.getAllUsersFromCompany = async (req, res) => {
   }
 };
 
+
 exports.getAllUsersWithoutCompany = async (req, res) => {
   try {
     const users = await userService.getAllUsersWithoutCompany();
     res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch users without a company' });
+  }
+};
+
+exports.googleSign = async (req, res) => {
+  try {
+    const { firstName, lastName, email, localId, providerId } = req.body;
+    const { token, user }  = await userService.googleSign(firstName, lastName, email, localId, providerId );
+    res.json({ token, user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch users without a company' });

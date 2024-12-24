@@ -1,30 +1,13 @@
-import React from 'react';
-import { useForm, Controller, FieldValues, FieldError } from 'react-hook-form';
-import { Button } from '../../dashboard/components/ui/Button'; // Assuming you have your own Button component
-import { Input } from '../../dashboard/components/ui/Input'; // Assuming you have your own Input component
-import { Select } from '../../dashboard/components/ui/Select'; // Assuming you have your own Select component
-import { Label } from '../../dashboard/components/ui/Label'; // Assuming you have your own Label component
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller, FieldValues } from 'react-hook-form';
+import Select from 'react-select';
+import { Button } from '../../dashboard/components/ui/Button';
+import { Input } from '../../dashboard/components/ui/Input';
+import { Label } from '../../dashboard/components/ui/Label';
+import { useUser } from '../../../contexts/UserContext';
+import * as Database from '../../../database/database';
 
-// List of states for suggestions
-const stateOptions = [
-  { value: 'Czechia', label: 'Czechia' },
-  { value: 'Germany', label: 'Germany' },
-  { value: 'Austria', label: 'Austria' },
-  { value: 'Poland', label: 'Poland' },
-  { value: 'Slovakia', label: 'Slovakia' },
-  { value: 'Hungary', label: 'Hungary' },
-  { value: 'France', label: 'France' },
-  { value: 'Italy', label: 'Italy' },
-  // Add more states as needed
-];
-
-const vehicleTypeOptions = [
-  { value: 'Car', label: 'Car' },
-  { value: 'Truck', label: 'Truck' },
-  { value: 'Motorcycle', label: 'Motorcycle' },
-  { value: 'Armored', label: 'Armored' }
-];
-
+// Define the fuel type options
 const fuelTypeOptions = [
   { value: 'Diesel', label: 'Diesel' },
   { value: 'Natural 95', label: 'Natural 95' },
@@ -40,27 +23,149 @@ const fuelTypeOptions = [
   { value: 'Synthetic Fuels', label: 'Synthetic Fuels' }
 ];
 
+
+type FuelType = 'Diesel' | 'Natural 95' | 'Natural 98' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid' | 'CNG' | 'LPG' | 'Hydrogen' | 'Ethanol' | 'Bio-Diesel' | 'Synthetic Fuels';
+
+
+interface VehicleFormData {
+  vehicleType: { value: number; label: string };
+  brand: { value: number; label: string };
+  model: { value: number; label: string };
+  registrationState: { value: number; label: string };
+  registrationNumber: string;
+  vin: string;
+  fuelType: { value: string; label: string };
+}
+
 interface EditVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedVehicle: any) => void; // Add specific type for updated vehicle
-  vehicle: any; // Current vehicle data to prefill the form
+  onSave: (updatedVehicle: any) => void;
+  loading: boolean;
+  error: string | null;
+  vehicle: any; // Pass the current vehicle object to edit
 }
 
 const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, onSave, vehicle }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: vehicle, // Prefill with the existing vehicle data
-  });
+  const { control, handleSubmit, formState: { errors }, setValue } = useForm<VehicleFormData>();
+  const [categories, setCategories] = useState<{ value: number, label: string }[]>([]);
+  const [stateOptions, setStateOptions] = useState<{ value: number, label: string }[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [brands, setBrands] = useState<{ value: number; label: string }[]>([]);
+  const [models, setModels] = useState<{ value: number; label: string }[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
+  const { user } = useUser();
 
-  const onSubmit = async (data: FieldValues) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesResponse = await Database.getAllVehicleCategories();
+        const categoriesOptions = categoriesResponse.map((category: any) => ({
+          value: category.category_id,
+          label: category.category_name,
+        }));
+        setCategories(categoriesOptions);
+      } catch (error) {
+        console.error("Error fetching vehicle categories:", error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchStateOptions = async () => {
+      try {
+        const countries: Database.Country[] = await Database.getAllCountries();
+        const options = countries.map(country => ({
+          value: country.country_id,
+          label: country.country_name,
+        }));
+        setStateOptions(options);
+      } catch (error) {
+        console.error("Error fetching state options:", error);
+      }
+    };
+
+    fetchStateOptions();
+  }, []);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const brandsResponse = await Database.getAllVehicleBrands();
+        const brandOptions = brandsResponse.map((brand: any) => ({
+          value: brand.brand_id,
+          label: brand.brand_name,
+        }));
+        setBrands(brandOptions);
+      } catch (error) {
+        console.error('Error fetching brands:', error);
+      }
+    };
+
+    fetchBrands();
+  }, []);
+
+  useEffect(() => {
+    if (vehicle) {
+      setValue('vehicleType', { value: vehicle.category_id, label: vehicle.category_name });
+      setValue('brand', { value: vehicle.brand_id, label: vehicle.brand_name });
+      setValue('model', { value: vehicle.model_id, label: vehicle.model_name });
+      setValue('registrationState', { value: vehicle.country_id, label: vehicle.country_name });
+      setValue('registrationNumber', vehicle.registration_number);
+      setValue('vin', vehicle.vin);
+      setValue('fuelType', { value: vehicle.fuel_type, label: vehicle.fuel_type });
+    }
+  }, [vehicle, setValue]);
+
+  const handleBrandChange = async (selectedBrand: { value: number; label: string } | null) => {
+    if (!selectedBrand) {
+      setModels([]);
+      return;
+    }
+
+    setLoadingModels(true);
     try {
-      const updatedVehicle = {
-        ...vehicle, // Retain existing data
-        ...data,    // Update with the new data
-      };
+      const modelsResponse = await Database.getModelsByBrandId(selectedBrand.value);
+      const modelOptions = modelsResponse.map((model: any) => ({
+        value: model.model_id,
+        label: model.model_name,
+      }));
+      setModels(modelOptions);
+    } catch (error) {
+      console.error('Error fetching models:', error);
+      setModels([]);
+    } finally {
+      setLoadingModels(false);
+    }
+  };
 
-      onSave(updatedVehicle);
-      onClose(); // Close the modal after saving
+  const onSubmit = async (data: VehicleFormData) => {
+    try {
+      const vehicleStatus: "Available" | "Reserved" | "In Maintenance" | "Defect State" | "Out of Order" | "Decommissioned" = 'Available';
+  
+      if (!user || !user.company_id) {
+        throw new Error('User or company_id not found');
+      }
+  
+      const updatedVehicle = {
+        model_id: data.model?.value || 0,
+        registration_number: data.registrationNumber,
+        vin: data.vin,
+        category_id: data.vehicleType?.value,
+        country_id: data.registrationState?.value,
+        fuel_type: data.fuelType?.value as FuelType,  // Ensure this is cast to FuelType
+        vehicle_status: vehicleStatus,
+        company_id: user.company_id,
+      };
+  
+      const vehicleId = vehicle.vehicle_id; // Assuming vehicle has an id
+      const updated = await Database.updateVehicle(vehicleId, updatedVehicle);
+      onSave(updated);
+      onClose();
     } catch (error) {
       console.error('Error updating vehicle:', error);
     }
@@ -68,20 +173,52 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
 
   if (!isOpen) return null;
 
+  const customSelectStyles = {
+    control: (styles: any) => ({
+      ...styles,
+      borderRadius: '0.375rem',
+      height: '2.5rem',
+      padding: '0 0.5rem',
+      border: '1px solid #e5e7eb',
+      boxShadow: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      '&:hover': {
+        borderColor: '#3b82f6',
+      },
+    }),
+    menu: (styles: any) => ({
+      ...styles,
+      borderRadius: '0.375rem',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      marginTop: 0,
+    }),
+    option: (styles: any, { isSelected }: { isSelected: boolean }) => ({
+      ...styles,
+      backgroundColor: isSelected ? '#3b82f6' : 'transparent',
+      color: isSelected ? '#ffffff' : '#000000',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0.5rem 1rem',
+      '&:hover': {
+        backgroundColor: '#d1d5db',
+      },
+    }),
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-2xl font-bold text-gray-700 hover:text-gray-500"
+          className="absolute top-3 right-5 text-2xl font-bold text-gray-700 hover:text-gray-500"
         >
-          &times; {/* This is the "X" symbol */}
+          &times;
         </button>
 
         <h2 className="text-2xl font-bold text-[#061f39] mb-4">Edit Vehicle</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Vehicle Type */}
           <div>
             <Label htmlFor="vehicleType" required>
               Vehicle Type
@@ -92,20 +229,19 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
               rules={{ required: 'Vehicle Type is required' }}
               render={({ field }) => (
                 <div className="dropdown-container relative">
-                  <Select {...field} id="vehicleType">
-                    {vehicleTypeOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </Select>
+                  {loadingCategories ? (
+                    <p>Loading categories...</p>
+                  ) : (
+                    <Select {...field} id="vehicleType" options={categories} placeholder="Select a vehicle type..." styles={customSelectStyles} />
+                  )}
                 </div>
               )}
             />
             {errors.vehicleType && (
-              <p className="text-red-500 text-xs">{(errors.vehicleType as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.vehicleType.message}</p>
             )}
           </div>
 
-          {/* Brand and Model in the same row */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="brand" required>
@@ -115,10 +251,21 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                 name="brand"
                 control={control}
                 rules={{ required: 'Brand is required' }}
-                render={({ field }) => <Input {...field} id="brand" placeholder="Enter brand (e.g., Ford)" />}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={brands}
+                    placeholder="Select a brand..."
+                    onChange={(value) => {
+                      field.onChange(value);
+                      handleBrandChange(value);
+                    }}
+                    styles={customSelectStyles}
+                  />
+                )}
               />
               {errors.brand && (
-                <p className="text-red-500 text-xs">{(errors.brand as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.brand.message}</p>
               )}
             </div>
             <div className="flex-1">
@@ -129,15 +276,22 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                 name="model"
                 control={control}
                 rules={{ required: 'Model is required' }}
-                render={({ field }) => <Input {...field} id="model" placeholder="Enter model (e.g., F-150)" />}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={models}
+                    placeholder={loadingModels ? 'Loading models...' : 'Select a model...'}
+                    isDisabled={models.length === 0 || loadingModels}
+                    styles={customSelectStyles}
+                  />
+                )}
               />
               {errors.model && (
-                <p className="text-red-500 text-xs">{(errors.model as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.model.message}</p>
               )}
             </div>
           </div>
 
-          {/* Registration Row (State and Registration Number in the same row) */}
           <div className="flex gap-4">
             <div className="flex-1">
               <Label htmlFor="registrationState" required>
@@ -148,15 +302,16 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                 control={control}
                 rules={{ required: 'Registration State is required' }}
                 render={({ field }) => (
-                  <Select {...field} id="registrationState">
-                    {stateOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </Select>
+                  <Select
+                    {...field}
+                    options={stateOptions}
+                    placeholder="Start typing to search..."
+                    styles={customSelectStyles}
+                  />
                 )}
               />
               {errors.registrationState && (
-                <p className="text-red-500 text-xs">{(errors.registrationState as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.registrationState.message}</p>
               )}
             </div>
 
@@ -168,15 +323,20 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                 name="registrationNumber"
                 control={control}
                 rules={{ required: 'Registration Number is required' }}
-                render={({ field }) => <Input {...field} id="registrationNumber" placeholder="ABC 1234" />}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="registrationNumber"
+                    placeholder="ABC 1234"
+                  />
+                )}
               />
               {errors.registrationNumber && (
-                <p className="text-red-500 text-xs">{(errors.registrationNumber as FieldError).message}</p>
+                <p className="text-red-500 text-xs">{errors.registrationNumber.message}</p>
               )}
             </div>
           </div>
 
-          {/* VIN */}
           <div>
             <Label htmlFor="vin" required>
               VIN
@@ -185,14 +345,19 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
               name="vin"
               control={control}
               rules={{ required: 'VIN is required' }}
-              render={({ field }) => <Input {...field} id="vin" placeholder="Enter VIN" />}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  id="vin"
+                  placeholder="Enter Vehicle Identification Number"
+                />
+              )}
             />
             {errors.vin && (
-              <p className="text-red-500 text-xs">{(errors.vin as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.vin.message}</p>
             )}
           </div>
 
-          {/* Fuel Type */}
           <div>
             <Label htmlFor="fuelType" required>
               Fuel Type
@@ -203,22 +368,17 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
               rules={{ required: 'Fuel Type is required' }}
               render={({ field }) => (
                 <div className="dropdown-container relative">
-                  <Select {...field} id="fuelType">
-                    {fuelTypeOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </Select>
+                  <Select {...field} id="fuelType" options={fuelTypeOptions} placeholder="Start typing to search..." styles={customSelectStyles} />
                 </div>
               )}
             />
             {errors.fuelType && (
-              <p className="text-red-500 text-xs">{(errors.fuelType as FieldError).message}</p>
+              <p className="text-red-500 text-xs">{errors.fuelType.message}</p>
             )}
           </div>
 
-          {/* Submit Button */}
-          <Button type="submit" className="bg-blue-500 text-white mt-4 w-full">
-            Update Vehicle
+          <Button type="submit" className="bg-green-500 text-white mt-4 w-full">
+            Edit Vehicle
           </Button>
         </form>
       </div>

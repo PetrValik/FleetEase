@@ -1,5 +1,5 @@
 const supabase = require('../../config/supabaseClient');
-const CompanyModel = require('../../validationSchemas/companies/companyValidationSchema');
+const CompanyModel = require('../../models/companies/companyModel');
 
 // Fetch all companies
 exports.getAllCompanies = async () => {

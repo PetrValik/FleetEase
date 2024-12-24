@@ -6,6 +6,7 @@ import { Button } from '../../components/dashboard/components/ui/Button';
 import AddVehicleModal from '../../components/dashboard/components/popovers/AddNewVehicle';
 import FilterPopover from '../../components/dashboard/components/popovers/FilterPopover';
 import './Dashboard.css';
+import AdminStats from './AdminStats';
 import * as Database from '../../database/database';
 
 type FuelType = 'gas' | 'diesel' | 'electric' | 'hybrid'; // Updated fuel types based on real data
@@ -58,7 +59,8 @@ const Dashboard: React.FC = () => {
   // Fetch vehicles on load
   useEffect(() => {
     setLoading(true);
-    if (currentUser?.company_id !== undefined) {
+    if (currentUser?.company_id != null) {
+      console.log("debug");
       Database.getVehiclesByCompanyId(currentUser.company_id)
         .then((data) => {
           setVehicles(data);
@@ -200,6 +202,11 @@ const Dashboard: React.FC = () => {
     setLoading(false);  // Reset loading state after search
   };
 
+  if (currentUser?.role.role_name == "Admin") {
+    return <AdminStats/>;
+
+  }
+
   if (!currentUser?.company_id) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -218,7 +225,7 @@ const Dashboard: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Vehicle List</h2>
 
         <div className="dashboard-btn-container">
-        {(currentUser?.role.role_name === 'Admin' || currentUser?.role.role_name === 'Manager') && (
+        {(currentUser?.role.role_name === 'Manager') && (
             <Button
               variant="outline"
               className="dashboard-btn-add"

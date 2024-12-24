@@ -66,7 +66,7 @@ router.get(
 router.get(
   '/:id',
   authenticateToken,
-  checkRole(['Admin', 'Manager']), 
+  checkRole(['Admin', 'Manager', 'Driver']), 
   logAudit,
   userController.getUserById
 );

@@ -45,17 +45,22 @@ exports.delete = async (id) => {
     if (error) throw new Error('Failed to delete vehicle');
 };
 
+// Get vehicles by company ID
 exports.getVehiclesByCompanyId = async (companyId) => {
-    try {
-      const query = `
-        SELECT * 
-        FROM Vehicles 
-        WHERE company_id = $1
-      `;
-      const { rows } = await db.query(query, [companyId]);
-      return rows;
-    } catch (error) {
+  try {
+    const { data, error } = await supabase
+      .from('Vehicles') // Replace with your actual table name
+      .select('*') // Adjust fields to fetch specific columns if needed
+      .eq('company_id', companyId); // Filter by company ID
+
+    if (error) {
       console.error('Error fetching vehicles by company ID:', error);
-      throw new Error('Database query failed');
+      throw new Error('Failed to fetch vehicles by company ID');
     }
-  };
+
+    return data;
+  } catch (error) {
+    console.error('Unexpected error fetching vehicles by company ID:', error);
+    throw new Error('Failed to fetch vehicles');
+  }
+};

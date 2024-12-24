@@ -4,7 +4,6 @@ import AuthHeader from '../../components/auth/AuthHeader';
 import AuthForm from '../../components/auth/AuthForm';
 import AuthInput from '../../components/auth/AuthInput';
 import * as Database from '../../database/database';
-import { supabase } from '../../utils/supabaseClient';
 import axios from 'axios';
 
 const SignUp: React.FC = () => {

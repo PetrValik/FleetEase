@@ -1,69 +1,105 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../contexts/UserContext';
-import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard'; // Import the vehicle details card component
-import ReservationCalendar from '../../components/vehicle/ReservationCalendar'; // Import the reservation calendar component
-import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations'; // Import the reservation API
-import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles'; // Import the vehicle API
+import VehicleDetailsCard from '../../components/vehicle/VehicleDetailCard';
+import ReservationCalendar from '../../components/vehicle/ReservationCalendar';
+import CurrentReservations from '../../components/vehicle/CurrentReservations';
+import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations';
+import { getVehicleById, Vehicle } from '../../database/vehicles/vehicles';
+import { useParams } from 'react-router-dom';
 
 const VehicleDetailPage: React.FC = () => {
-  const { isAuthenticated } = useUser(); // Get authentication status
-  const [vehicleId] = useState<number>(6); // Replace with dynamic ID or from URL
+  const { isAuthenticated, user } = useUser();
+  const { vehicleId } = useParams<{ vehicleId: string }>();
+
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Track if data is loading
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch data using useEffect hook
+  // Fetch vehicle data and reservations data
   useEffect(() => {
+    if (!isAuthenticated || !vehicleId) {
+      setIsLoading(false);
+      return;
+    }
+
     const fetchVehicleData = async () => {
-      const vehicleData = await getVehicleById(vehicleId);
-      setVehicle(vehicleData);
+      try {
+        const vehicleData = await getVehicleById(Number(vehicleId));
+        setVehicle(vehicleData);
+      } catch (err) {
+        setError('Failed to fetch vehicle details');
+      }
     };
 
     const fetchReservations = async () => {
-      const fetchedReservations = await getReservationsByVehicleId(vehicleId);
-      setReservations(fetchedReservations);
+      try {
+        const fetchedReservations = await getReservationsByVehicleId(Number(vehicleId));
+        console.log("Fetched Reservations:", fetchedReservations); // Log to check the response
+        setReservations(fetchedReservations);
+      } catch (err) {
+        setError('Failed to fetch reservations');
+      }
     };
 
-    // Only fetch data if the user is authenticated
-    if (isAuthenticated) {
-      fetchVehicleData();
-      fetchReservations();
-    }
+    const fetchData = async () => {
+      await Promise.all([fetchVehicleData(), fetchReservations()]); // Ensure both are done before finishing
+      setIsLoading(false);
+    };
 
-    setIsLoading(false);  // Set loading to false after data is fetched (or when the user is not authenticated)
-  }, [vehicleId, isAuthenticated]); // Runs when vehicleId or isAuthenticated changes
+    fetchData();
+  }, [vehicleId, isAuthenticated]);
 
-  // Check loading state
+  // Loading state
   if (isLoading) {
-    return <div>Loading...</div>;  // Show loading state while the data is being fetched
+    return (
+      <div className="flex justify-center items-center p-6">
+        <div className="spinner">Loading...</div>
+      </div>
+    );
   }
 
-  // If not authenticated, inform the user without redirecting
-  if (!isAuthenticated) { // nenastane
-    return <div>Please sign in to view this page.</div>; // Inform the user to sign in if not authenticated
+  // User not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="p-6">
+        <p>Please sign in to view this page.</p>
+      </div>
+    );
   }
 
-  // If vehicle data is not found
-  if (!vehicle) {
-    return <div>Loading vehicle data...</div>;  // Show loading message if vehicle data is not available
+  // Vehicle not found or error fetching data
+  if (!vehicle || error) {
+    return (
+      <div className="p-6">
+        <p>{error || 'Vehicle not found.'}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="lg:flex">
-      {/* Main Content Area */}
-      <div className="flex-1 p-6">
-        {/* Header */}
-        <header className="text-3xl font-bold mb-6">
-          Vehicle Details
-        </header>
+    <div className="p-6">
+      <div className="mb-8">
+        <header className="text-3xl font-bold mb-6">Vehicle Details</header>
+        <VehicleDetailsCard vehicleId={Number(vehicleId)} />
+      </div>
 
-        {/* Vehicle Details Card */}
-        <VehicleDetailsCard vehicleId={vehicleId} />
-
-        {/* Reservation Calendar */}
-        <div className="mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 w-full">
           <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
-          <ReservationCalendar reservations={reservations} />
+          {user ? (
+            <ReservationCalendar
+              user={user}
+              vehicleId={Number(vehicleId)}
+            />
+          ) : (
+            <div>Please log in to view the reservation calendar.</div>
+          )}
+        </div>
+
+        <div className="lg:col-span-2 w-full">
+          <h3 className="text-2xl font-semibold mb-4">Current Reservations</h3>
+          <CurrentReservations vehicleId={Number(vehicleId)} />
         </div>
       </div>
     </div>

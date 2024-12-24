@@ -15,6 +15,7 @@ import axios from "axios";
 import RoleBasedRoute from "./components/auth/RoleBasedRoute";
 import InsurancePage from "./components/insurance/InsurancePage";
 import TestPage from "./pages/testPage/TestPage";
+import Vehicles from "./pages/vehicles/Vehicles"
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -58,22 +59,22 @@ const App: React.FC = () => {
               </RoleBasedRoute>
             }
           />
-                    <Route
-            path="/insurances"
-            element={
-              <RoleBasedRoute allowedRoles={["Admin", "Manager"]}>
-                <Layout>
-                  <InsurancePage />
-                </Layout>
-              </RoleBasedRoute>
-            }
-          />
           <Route
             path="/"
             element={
               <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
                 <Layout>
                   <Dashboard />
+                </Layout>
+              </RoleBasedRoute>
+            }
+          />
+                    <Route
+            path="/vehicle/:vehicleId"
+            element={
+              <RoleBasedRoute allowedRoles={["Admin", "Manager", "Driver"]}>
+                <Layout>
+                  <Vehicles/>
                 </Layout>
               </RoleBasedRoute>
             }
@@ -119,7 +120,6 @@ const App: React.FC = () => {
             }
           />
           <Route
-          /*
             path="/insurances"
             element={
               <RoleBasedRoute allowedRoles={['Admin', 'Manager']}>
@@ -128,7 +128,6 @@ const App: React.FC = () => {
                 </Layout>
               </RoleBasedRoute>
             }
-          */
           />
           <Route
             path="*"

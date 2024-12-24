@@ -46,12 +46,13 @@ const Dashboard: React.FC = () => {
       syntheticFuels: false, 
     },
     stateFilters: { 
-      available: false, reserved: false, 
+      available: false,
+      reserved: false, 
     },
   });
   const [isFilterPopoverVisible, setIsFilterPopoverVisible] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Adjusted to use the Vehicle type
+  const [searchTerm, setSearchTerm] = useState<string>('');  // State to track the search term
+  const [searchResult, setSearchResult] = useState<Database.Vehicle | null>(null); // Store the search result
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +74,7 @@ const Dashboard: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    /*try {
+    try {
       const createdVehicle = await Database.createVehicle(newVehicle);
 
       if (createdVehicle) {
@@ -87,7 +88,7 @@ const Dashboard: React.FC = () => {
       setError('Failed to create vehicle. Please try again.');
     } finally {
       setLoading(false);
-    }*/
+    }
   };
 
   const handleApplyFilter = (newFilters: any) => {
@@ -97,35 +98,34 @@ const Dashboard: React.FC = () => {
     const filtered = vehicles.filter((vehicle) => {
       // Type filters
       const typeMatch =
-      (!newFilters.typeFilters.trailer && !newFilters.typeFilters.bus && !newFilters.typeFilters.motorcycle &&
-        !newFilters.typeFilters.cargo && !newFilters.typeFilters.personal && !newFilters.typeFilters.special) ||
-      (newFilters.typeFilters.trailer && vehicle.registration_number.toLowerCase().includes('trailer')) ||
-      (newFilters.typeFilters.bus && vehicle.registration_number.toLowerCase().includes('bus')) ||
-      (newFilters.typeFilters.motorcycle && vehicle.registration_number.toLowerCase().includes('motorcycle')) ||
-      (newFilters.typeFilters.cargo && vehicle.registration_number.toLowerCase().includes('cargo')) ||
-      (newFilters.typeFilters.personal && vehicle.registration_number.toLowerCase().includes('personal')) ||
-      (newFilters.typeFilters.special && vehicle.registration_number.toLowerCase().includes('special'));
-
-    
+        (!newFilters.typeFilters.trailer && !newFilters.typeFilters.bus && !newFilters.typeFilters.motorcycle &&
+          !newFilters.typeFilters.cargo && !newFilters.typeFilters.personal && !newFilters.typeFilters.special) ||
+        (newFilters.typeFilters.trailer && vehicle.category_id === 1) || // Use category_id instead of registration number
+        (newFilters.typeFilters.bus && vehicle.category_id === 2) ||       // Change category_id according to your data
+        (newFilters.typeFilters.motorcycle && vehicle.category_id === 3) ||
+        (newFilters.typeFilters.cargo && vehicle.category_id === 4) ||
+        (newFilters.typeFilters.personal && vehicle.category_id === 5) ||
+        (newFilters.typeFilters.special && vehicle.category_id === 6);
+  
       // Fuel filters
       const fuelMatch =
-      (!newFilters.fuelFilters.diesel && !newFilters.fuelFilters.natural95 && !newFilters.fuelFilters.natural98 &&
-        !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid && !newFilters.fuelFilters.plugInHybrid &&
-        !newFilters.fuelFilters.cng && !newFilters.fuelFilters.lpg && !newFilters.fuelFilters.hydrogen &&
-        !newFilters.fuelFilters.ethanol && !newFilters.fuelFilters.bioDiesel && !newFilters.fuelFilters.syntheticFuels) ||
-      (newFilters.fuelFilters.diesel && vehicle.fuel_type === 'Diesel') ||
-      (newFilters.fuelFilters.natural95 && vehicle.fuel_type === 'Natural 95') ||
-      (newFilters.fuelFilters.natural98 && vehicle.fuel_type === 'Natural 98') ||
-      (newFilters.fuelFilters.electric && vehicle.fuel_type === 'Electric') ||
-      (newFilters.fuelFilters.hybrid && vehicle.fuel_type === 'Hybrid') ||
-      (newFilters.fuelFilters.plugInHybrid && vehicle.fuel_type === 'Plug-in Hybrid') ||
-      (newFilters.fuelFilters.cng && vehicle.fuel_type === 'CNG') ||
-      (newFilters.fuelFilters.lpg && vehicle.fuel_type === 'LPG') ||
-      (newFilters.fuelFilters.hydrogen && vehicle.fuel_type === 'Hydrogen') ||
-      (newFilters.fuelFilters.ethanol && vehicle.fuel_type === 'Ethanol') ||
-      (newFilters.fuelFilters.bioDiesel && vehicle.fuel_type === 'Bio-Diesel') ||
-      (newFilters.fuelFilters.syntheticFuels && vehicle.fuel_type === 'Synthetic Fuels');
-
+        (!newFilters.fuelFilters.diesel && !newFilters.fuelFilters.natural95 && !newFilters.fuelFilters.natural98 &&
+          !newFilters.fuelFilters.electric && !newFilters.fuelFilters.hybrid && !newFilters.fuelFilters.plugInHybrid &&
+          !newFilters.fuelFilters.cng && !newFilters.fuelFilters.lpg && !newFilters.fuelFilters.hydrogen &&
+          !newFilters.fuelFilters.ethanol && !newFilters.fuelFilters.bioDiesel && !newFilters.fuelFilters.syntheticFuels) ||
+        (newFilters.fuelFilters.diesel && vehicle.fuel_type === 'Diesel') ||
+        (newFilters.fuelFilters.natural95 && vehicle.fuel_type === 'Natural 95') ||
+        (newFilters.fuelFilters.natural98 && vehicle.fuel_type === 'Natural 98') ||
+        (newFilters.fuelFilters.electric && vehicle.fuel_type === 'Electric') ||
+        (newFilters.fuelFilters.hybrid && vehicle.fuel_type === 'Hybrid') ||
+        (newFilters.fuelFilters.plugInHybrid && vehicle.fuel_type === 'Plug-in Hybrid') ||
+        (newFilters.fuelFilters.cng && vehicle.fuel_type === 'CNG') ||
+        (newFilters.fuelFilters.lpg && vehicle.fuel_type === 'LPG') ||
+        (newFilters.fuelFilters.hydrogen && vehicle.fuel_type === 'Hydrogen') ||
+        (newFilters.fuelFilters.ethanol && vehicle.fuel_type === 'Ethanol') ||
+        (newFilters.fuelFilters.bioDiesel && vehicle.fuel_type === 'Bio-Diesel') ||
+        (newFilters.fuelFilters.syntheticFuels && vehicle.fuel_type === 'Synthetic Fuels');
+  
       // State filters
       const stateMatch =
         (!newFilters.stateFilters.reserved && !newFilters.stateFilters.available && !newFilters.stateFilters.maintenance) ||
@@ -171,13 +171,35 @@ const Dashboard: React.FC = () => {
   };
   
 
-  const handleSearch = () => {
-    const result = vehicles.find(
-      (vehicle) => vehicle.registration_number.toLowerCase() === searchTerm.toLowerCase()
-    );
+  const handleSearch = async () => {
+    setLoading(true);  // Set loading when searching
+    console.log("Searching for:", searchTerm); // Log search term
+  
+    if (!searchTerm.trim()) {
+      // If search term is empty or just spaces, show all vehicles
+      setFilteredVehicles(vehicles);
+      setSearchResult(null);
+      setLoading(false);
+      return;
+    }
+  
+    // Normalize the search term by removing spaces and converting to lowercase for comparison
+    const normalizedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
+    console.log("Normalized search term:", normalizedSearchTerm); // Log normalized search term
+  
+    // Find the vehicle with a matching registration number (case insensitive, space insensitive)
+    const result = vehicles.find((vehicle) => {
+      const normalizedRegistrationNumber = vehicle.registration_number.replace(/\s+/g, '').toLowerCase();
+      return normalizedRegistrationNumber === normalizedSearchTerm;
+    });
+  
+    console.log("Search result:", result); // Log search result
+  
     setSearchResult(result || null);
     setFilteredVehicles(result ? [result] : vehicles); // Show the result if found, otherwise show all vehicles
+    setLoading(false);  // Reset loading state after search
   };
+  
 
   if (!isAuthenticated) {
     return <About />;
@@ -186,25 +208,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-header">Welcome to Your Dashboard</h1>
-      <p className="dashboard-subheader">Here's an overview of your fleet management activities.</p>
-
-      <div className="dashboard-stats">
-        {[{ icon: Truck, title: 'Total Vehicles', value: vehicles.length },
-          { icon: Shield, title: 'Vehicles Due for Inspection', value: '3' },
-          { icon: Clock, title: 'Scheduled Maintenances', value: '7' },
-          { icon: BarChart, title: 'Fleet Efficiency', value: '92%' },
-          { icon: Users, title: 'Active Drivers', value: '18' },
-        ].map((item, index) => (
-          <div key={index} className="dashboard-stat-card">
-            <item.icon className="w-8 h-8 text-indigo-600 mr-3" />
-            <div>
-              <h2>{item.title}</h2>
-              <p>{item.value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      {/* Removed "Here's an overview of your fleet management activities." and the statistics block */}
+      
       <section className="vehicle-list-section mt-12">
         <h2 className="text-2xl font-bold mb-4">Vehicle List</h2>
 

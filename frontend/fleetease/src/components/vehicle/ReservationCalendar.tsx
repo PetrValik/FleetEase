@@ -21,18 +21,23 @@ interface ReservationCalendarProps {
       role_id: number;
       role_name: 'Admin' | 'Manager' | 'Driver';
     };
-  }; // Add the user prop to the interface
-  vehicleId: number; // Pass vehicleId from parent component
+  };
+  vehicleId: number;
+  refreshReservations: () => Promise<void>; // Prop to refresh reservations after creating one
 }
 
-const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations, user, vehicleId }) => {
+const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
+  reservations,
+  user,
+  vehicleId,
+  refreshReservations,
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [pickupLocation, setPickupLocation] = useState('');
   const [returnLocation, setReturnLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Early return if user is not authenticated
   if (!user) {
     return <div>Please log in to make a reservation.</div>;
   }
@@ -60,10 +65,8 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations,
       return;
     }
 
-    // Reset error message if validation is successful
     setErrorMessage('');
 
-    // Ensure dates are selected
     if (selectedDates.length === 0) {
       setErrorMessage('Please select at least one date.');
       return;
@@ -73,25 +76,31 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({ reservations,
     const startDate = sortedDates[0];
     const endDate = sortedDates[sortedDates.length - 1];
 
-    // Prepare the reservation data to be sent to the API
     const reservationData = {
-      vehicle_id: vehicleId, // Use the vehicleId prop here
-      user_id: user.user_id, // Use the current user's ID
+      vehicle_id: vehicleId,
+      user_id: user.user_id,
       start_time: startDate.toISOString(),
       end_time: endDate.toISOString(),
       pickup_location: pickupLocation,
       return_location: returnLocation,
-      reservation_status: 'Completed' as const, // Ensure it is one of the valid statuses
-      notes: null, // Optionally add notes if needed
+      reservation_status: 'Completed' as const,
+      notes: null,
     };
 
-    // Call the API to create the reservation
-    const newReservation = await createReservation(reservationData);
+    try {
+      // Create reservation
+      const newReservation = await createReservation(reservationData);
 
-    if (newReservation) {
-      console.log('Reservation created:', newReservation);
-      // Optionally reset the form or show a success message
-    } else {
+      if (newReservation) {
+        console.log('Reservation created:', newReservation);
+        // After creating the reservation, refresh the list of reservations
+        console.log("Triggering refreshReservations...");
+        await refreshReservations();
+      } else {
+        setErrorMessage('Failed to create reservation.');
+      }
+    } catch (error) {
+      console.error('Error creating reservation:', error);
       setErrorMessage('Failed to create reservation.');
     }
   };

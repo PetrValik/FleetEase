@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // List of cities from Czech Republic (CZ) and Slovakia (SK)
 const cities = [
@@ -37,6 +37,14 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
   const [filteredReturnCities, setFilteredReturnCities] = useState(cities);
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
   const [showReturnDropdown, setShowReturnDropdown] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false); // Track if the form was submitted
+
+  // Reset the form on date change
+  useEffect(() => {
+    if (selectedDates.length > 0) {
+      setIsSubmitted(false); // Reset submission state when dates change
+    }
+  }, [selectedDates]);
 
   // Filter cities based on search query
   const handlePickupSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,88 +76,103 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
     setShowReturnDropdown(false); // Hide dropdown after selection
   };
 
+  // Handle the form submission
+  const onSubmit = () => {
+    handleReservationSubmit();
+    setIsSubmitted(true); // Set form as submitted
+  };
+
   return (
     <div className="mt-4">
-      <h3 className="text-xl font-bold mb-2">Reservation Details</h3>
-      <div className="space-y-4">
-        {/* Dates */}
-        {selectedDates.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium">Selected Dates</label>
-            <div className="mt-1">{`${selectedDates[0].toLocaleDateString()} - ${selectedDates[selectedDates.length - 1].toLocaleDateString()}`}</div>
+      {isSubmitted ? (
+        <div className="text-center">
+          <h3 className="text-xl font-bold mb-2 text-green-500">Reservation Successful!</h3>
+          <p>Your reservation has been successfully submitted. Thank you!</p>
+        </div>
+      ) : (
+        <div>
+          <h3 className="text-xl font-bold mb-2">Reservation Details</h3>
+          <div className="space-y-4">
+            {/* Dates */}
+            {selectedDates.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium">Selected Dates</label>
+                <div className="mt-1">{`${selectedDates[0].toLocaleDateString()} - ${selectedDates[selectedDates.length - 1].toLocaleDateString()}`}</div>
+              </div>
+            )}
+
+            {/* Pickup Location Input */}
+            <div>
+              <label htmlFor="pickupLocation" className="block text-sm font-medium">
+                Pickup Location <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="pickupLocation"
+                value={pickupSearch} // Controlled by search state to allow typing
+                onChange={handlePickupSearch}
+                onClick={() => setShowPickupDropdown(true)} // Show dropdown when clicked
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="Search Pickup Location"
+              />
+              {/* Show filtered suggestions only if there's a search input */}
+              {showPickupDropdown && pickupSearch && (
+                <ul className="mt-2 max-h-40 overflow-y-auto border border-gray-300 bg-white rounded-md shadow-md">
+                  {filteredPickupCities.map((city) => (
+                    <li
+                      key={city}
+                      onClick={() => handlePickupSelect(city)}
+                      className="cursor-pointer hover:bg-gray-100 p-2"
+                    >
+                      {city}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Return Location Input */}
+            <div>
+              <label htmlFor="returnLocation" className="block text-sm font-medium">
+                Return Location <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="returnLocation"
+                value={returnSearch} // Controlled by search state to allow typing
+                onChange={handleReturnSearch}
+                onClick={() => setShowReturnDropdown(true)} // Show dropdown when clicked
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="Search Return Location"
+              />
+              {/* Show filtered suggestions only if there's a search input */}
+              {showReturnDropdown && returnSearch && (
+                <ul className="mt-2 max-h-40 overflow-y-auto border border-gray-300 bg-white rounded-md shadow-md">
+                  {filteredReturnCities.map((city) => (
+                    <li
+                      key={city}
+                      onClick={() => handleReturnSelect(city)}
+                      className="cursor-pointer hover:bg-gray-100 p-2"
+                    >
+                      {city}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Display error message if there is one */}
+            {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
+
+            <button
+              onClick={onSubmit}
+              className="w-full mt-4 py-2 bg-blue-500 text-white rounded-md"
+            >
+              Submit Reservation
+            </button>
           </div>
-        )}
-
-        {/* Pickup Location Input */}
-        <div>
-          <label htmlFor="pickupLocation" className="block text-sm font-medium">
-            Pickup Location <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="pickupLocation"
-            value={pickupSearch} // Controlled by search state to allow typing
-            onChange={handlePickupSearch}
-            onClick={() => setShowPickupDropdown(true)} // Show dropdown when clicked
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="Search Pickup Location"
-          />
-          {/* Show filtered suggestions only if there's a search input */}
-          {showPickupDropdown && pickupSearch && (
-            <ul className="mt-2 max-h-40 overflow-y-auto border border-gray-300 bg-white rounded-md shadow-md">
-              {filteredPickupCities.map((city) => (
-                <li
-                  key={city}
-                  onClick={() => handlePickupSelect(city)}
-                  className="cursor-pointer hover:bg-gray-100 p-2"
-                >
-                  {city}
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
-
-        {/* Return Location Input */}
-        <div>
-          <label htmlFor="returnLocation" className="block text-sm font-medium">
-            Return Location <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="returnLocation"
-            value={returnSearch} // Controlled by search state to allow typing
-            onChange={handleReturnSearch}
-            onClick={() => setShowReturnDropdown(true)} // Show dropdown when clicked
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            placeholder="Search Return Location"
-          />
-          {/* Show filtered suggestions only if there's a search input */}
-          {showReturnDropdown && returnSearch && (
-            <ul className="mt-2 max-h-40 overflow-y-auto border border-gray-300 bg-white rounded-md shadow-md">
-              {filteredReturnCities.map((city) => (
-                <li
-                  key={city}
-                  onClick={() => handleReturnSelect(city)}
-                  className="cursor-pointer hover:bg-gray-100 p-2"
-                >
-                  {city}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Display error message if there is one */}
-        {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
-
-        <button
-          onClick={handleReservationSubmit}
-          className="w-full mt-4 py-2 bg-blue-500 text-white rounded-md"
-        >
-          Submit Reservation
-        </button>
-      </div>
+      )}
     </div>
   );
 };

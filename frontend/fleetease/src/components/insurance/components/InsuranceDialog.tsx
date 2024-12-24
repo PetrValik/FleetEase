@@ -1,6 +1,21 @@
+/** Dialogové okno pro vytváření a úpravu pojištění.
+ * Poskytuje formulář s validací pro zadání všech potřebných údajů o pojištění.
+ * Podporuje dva módy:
+ * - vytvoření nového pojištění
+ * - úprava existujícího pojištění
+ */
+
 import React from 'react';
 import type { Insurance, InsuranceCompany, InsuranceType, PaymentMethod, InsuranceStatus } from '../types';
 
+/**
+ * Props rozhraní pro InsuranceDialog komponentu
+ * @property {boolean} isOpen - Určuje, zda je dialog otevřený
+ * @property {function} onClose - Callback pro zavření dialogu
+ * @property {function} onSave - Callback pro uložení dat pojištění
+ * @property {Insurance} insurance - Data existujícího pojištění (pouze pro editaci)
+ * @property {InsuranceCompany[]} insuranceCompanies - Seznam dostupných pojišťoven
+ */
 interface InsuranceDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +31,8 @@ export default function InsuranceDialog({
   insurance,
   insuranceCompanies = []
 }: InsuranceDialogProps) {
+  // --- State Management ---
+  // Inicializace formulářových dat s výchozími hodnotami nebo daty existujícího pojištění
   const [formData, setFormData] = React.useState<Partial<Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
@@ -31,6 +48,11 @@ export default function InsuranceDialog({
     }
   );
 
+  // --- Event Handlers ---
+  /**
+   * Zpracovává změnu typu pojištění
+   * Aktualizuje typ pojištění ve formData
+   */
   const handleInsuranceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -38,6 +60,10 @@ export default function InsuranceDialog({
     });
   };
 
+  /**
+   * Zpracovává změnu způsobu platby
+   * Aktualizuje způsob platby ve formData
+   */
   const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -45,6 +71,10 @@ export default function InsuranceDialog({
     });
   };
 
+  /**
+   * Zpracovává změnu stavu pojištění
+   * Aktualizuje stav pojištění ve formData
+   */
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -52,6 +82,10 @@ export default function InsuranceDialog({
     });
   };
 
+  /**
+   * Zpracovává změnu pojišťovny
+   * Aktualizuje ID pojišťovny a společnosti ve formData
+   */
   const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const companyId = parseInt(e.target.value);
     setFormData({
@@ -61,9 +95,13 @@ export default function InsuranceDialog({
     });
   };
 
+  /**
+   * Zpracovává odeslání formuláře
+   * Validuje povinná pole před odesláním dat
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validace před odesláním
+    // Validace povinných polí
     if (!formData.insurance_types || !formData.start_date || !formData.end_date) {
       console.error('Required fields are missing');
       return;
@@ -76,6 +114,7 @@ export default function InsuranceDialog({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-xl">
+        {/* Hlavička dialogu */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">
             {insurance ? 'Edit Insurance' : 'Add New Insurance'}
@@ -88,7 +127,9 @@ export default function InsuranceDialog({
           </button>
         </div>
 
+        {/* Formulář pojištění */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Typ pojištění a registrační číslo */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -118,6 +159,7 @@ export default function InsuranceDialog({
             </div>
           </div>
 
+          {/* Datum začátku a konce pojištění */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -145,6 +187,7 @@ export default function InsuranceDialog({
             </div>
           </div>
 
+          {/* Název pojištění */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Insurance Name
@@ -157,6 +200,7 @@ export default function InsuranceDialog({
             />
           </div>
 
+          {/* Způsob platby a pojišťovna */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -198,6 +242,7 @@ export default function InsuranceDialog({
             </div>
           </div>
 
+          {/* Status pojištění */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Status
@@ -215,6 +260,7 @@ export default function InsuranceDialog({
             </select>
           </div>
 
+          {/* Popis pojištění */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -227,6 +273,7 @@ export default function InsuranceDialog({
             />
           </div>
 
+          {/* Akční tlačítka */}
           <div className="flex justify-end space-x-4 mt-6">
             <button
               type="button"

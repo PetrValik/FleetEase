@@ -1,5 +1,10 @@
+/**Hlavní komponenta pro správu pojištění.
+ * Zajišťuje zobrazení, vytváření, úpravu a mazání pojištění.
+ * Obsahuje filtrování podle typu pojištění a vyhledávání.
+ */
+
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';  // přidáme import axios
+import axios from 'axios';
 import apiClient from '../../utils/apiClient';
 import { config } from '../../config';
 import { Insurance, InsuranceCompany } from './types';
@@ -11,14 +16,19 @@ import InsuranceTable from './components/InsuranceTable';
 import InsuranceStats from './components/InsuranceStats';
 
 export default function InsurancePage() {
-  const [insurances, setInsurances] = useState<Insurance[]>([]);
-  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedInsurance, setSelectedInsurance] = useState<Insurance | null>(null);
+  // --- State Management ---
+  const [insurances, setInsurances] = useState<Insurance[]>([]); // Seznam všech pojištění
+  const [insuranceCompanies, setInsuranceCompanies] = useState<InsuranceCompany[]>([]); // Seznam pojišťoven
+  const [loading, setLoading] = useState(true); // Indikátor načítání
+  const [activeTab, setActiveTab] = useState('all'); // Aktivní záložka filtru
+  const [searchTerm, setSearchTerm] = useState(''); // Vyhledávací výraz
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Stav dialogového okna
+  const [selectedInsurance, setSelectedInsurance] = useState<Insurance | null>(null); // Vybrané pojištění pro editaci
 
+  /**
+   * Načte seznam všech pojištění z API
+   * V případě chyby nastaví prázdné pole a zapíše chybu do konzole
+   */
   const fetchInsurances = async () => {
     try {
       setLoading(true);
@@ -38,6 +48,10 @@ export default function InsurancePage() {
     }
   };
 
+  /**
+   * Načte seznam pojišťoven z API
+   * Tato data jsou potřebná pro výběr pojišťovny v dialogu
+   */
   const fetchCompanies = async () => {
     try {
       const response = await apiClient.get(config.INSURANCE_COMPANIES_ENDPOINT);
@@ -54,21 +68,35 @@ export default function InsurancePage() {
     }
   };
 
+  // Načte data při prvním renderu
   useEffect(() => {
     fetchInsurances();
     fetchCompanies();
   }, []);
 
+  // --- Event Handlers ---
+  /**
+   * Připraví dialog pro vytvoření nového pojištění
+   * Vyčistí vybrané pojištění a otevře dialog
+   */
   const handleAddNew = () => {
     setSelectedInsurance(null);
     setIsDialogOpen(true);
   };
 
+  /**
+   * Připraví dialog pro úpravu existujícího pojištění
+   * @param insurance Pojištění k úpravě
+   */
   const handleEdit = (insurance: Insurance) => {
     setSelectedInsurance(insurance);
     setIsDialogOpen(true);
   };
 
+  /**
+   * Smaže vybrané pojištění po potvrzení uživatelem
+   * @param insuranceId ID pojištění ke smazání
+   */
   const handleDelete = async (insuranceId: number) => {
     if (window.confirm('Are you sure you want to delete this insurance?')) {
       try {
@@ -82,15 +110,16 @@ export default function InsurancePage() {
     }
   };
 
+  /**
+   * Zpracuje uložení nebo úpravu pojištění
+   * Validuje data a odesílá je na server
+   * @param insuranceData Data pojištění k uložení
+   */
   const handleSaveInsurance = async (insuranceData: Partial<Insurance>) => {
     try {
-      // Log původních dat
-      console.log('Raw insurance data:', insuranceData);
-
-      // Použijeme ID vaší firmy s autoprovozem
-      const DEFAULT_COMPANY_ID = 1; // Nahraďte skutečným ID vaší firmy
+      const DEFAULT_COMPANY_ID = 1; // ID vaší firmy s autoprovozem
   
-      // Zajistíme, že máme všechna povinná pole
+      // Příprava dat pro uložení s výchozími hodnotami
       const formattedData = {
         insurance_types: insuranceData.insurance_types || 'Vehicle',
         registration_number: insuranceData.registration_number || null,
@@ -100,42 +129,40 @@ export default function InsurancePage() {
         payment_method: insuranceData.payment_method || 'Annual',
         insurance_status: insuranceData.insurance_status || 'Active',
         insurance_company_id: Number(insuranceData.insurance_company_id),
-        company_id: DEFAULT_COMPANY_ID, // Použijeme fixní ID
+        company_id: DEFAULT_COMPANY_ID,
         description: insuranceData.description || null
       };
 
-      console.log('Formatted data for save:', formattedData);
+      // Rozhodnutí mezi vytvořením nového nebo aktualizací existujícího pojištění
+      let response;
+      if (insuranceData.insurance_id) {
+        response = await apiClient.put(
+          `${config.INSURANCES_ENDPOINT}/${insuranceData.insurance_id}`,
+          formattedData
+        );
+      } else {
+        response = await apiClient.post(
+          config.INSURANCES_ENDPOINT,
+          formattedData
+        );
+      }
 
-    let response;
-    if (insuranceData.insurance_id) {
-      // Update
-      response = await apiClient.put(
-        `${config.INSURANCES_ENDPOINT}/${insuranceData.insurance_id}`,
-        formattedData
-      );
-    } else {
-      // Create
-      response = await apiClient.post(
-        config.INSURANCES_ENDPOINT,
-        formattedData
-      );
+      if (response.status === 200 || response.status === 201) {
+        setIsDialogOpen(false);
+        await fetchInsurances();
+      }
+    } catch (error: any) {
+      console.error('Error saving insurance:', error);
+      if (error.response?.data) {
+        console.error('Server error details:', error.response.data);
+      }
     }
-
-    if (response.status === 200 || response.status === 201) {
-      setIsDialogOpen(false);
-      await fetchInsurances();
-    }
-  } catch (error: any) {
-    console.error('Error saving insurance:', error);
-    if (error.response?.data) {
-      console.error('Server error details:', error.response.data);
-    }
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#edf2f7] p-6">
       <div className="space-y-6">
+        {/* Hlavička stránky */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Insurance overview</h1>
           <button
@@ -146,8 +173,10 @@ export default function InsurancePage() {
           </button>
         </div>
 
+        {/* Hlavní karta s filtry a tabulkou */}
         <Card>
           <div className="p-6">
+            {/* Filtrovací tlačítka a vyhledávání */}
             <div className="flex justify-between items-center mb-4">
               <div className="flex gap-2">
                 <button 
@@ -176,6 +205,7 @@ export default function InsurancePage() {
                 </button>
               </div>
               
+              {/* Vyhledávací pole */}
               <div className="flex items-center gap-2">
                 <Search className="w-5 h-5 text-gray-500" />
                 <Input
@@ -187,6 +217,7 @@ export default function InsurancePage() {
               </div>
             </div>
 
+            {/* Tabulka pojištění */}
             <InsuranceTable
               insurances={insurances}
               searchTerm={searchTerm}
@@ -199,8 +230,10 @@ export default function InsurancePage() {
           </div>
         </Card>
 
+        {/* Statistiky pojištění */}
         <InsuranceStats insurances={insurances} />
 
+        {/* Dialog pro vytvoření/úpravu pojištění */}
         {isDialogOpen && (
           <InsuranceDialog
             isOpen={isDialogOpen}

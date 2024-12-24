@@ -1,6 +1,24 @@
+/**Komponenta pro zobrazení seznamu pojištění ve formě tabulky.
+ * Poskytuje možnosti:
+ * - Filtrování podle typu pojištění
+ * - Vyhledávání podle registračního čísla nebo názvu
+ * - Správu pojištění (úprava, smazání)
+ * - Zobrazení stavu pomocí barevného označení
+ */
+
 import React from 'react';
 import { Insurance, InsuranceCompany } from '../types'; 
 
+/**
+ * Props rozhraní pro InsuranceTable komponentu
+ * @property {Insurance[]} insurances - Seznam pojištění k zobrazení
+ * @property {string} searchTerm - Vyhledávací výraz
+ * @property {string} activeTab - Aktivní záložka filtru
+ * @property {function} onEdit - Callback pro úpravu pojištění
+ * @property {function} onDelete - Callback pro smazání pojištění
+ * @property {boolean} loading - Indikátor načítání
+ * @property {InsuranceCompany[]} insuranceCompanies - Seznam pojišťoven pro mapování ID na názvy
+ */
 interface InsuranceTableProps {
   insurances: Insurance[];
   searchTerm: string;
@@ -21,21 +39,34 @@ export default function InsuranceTable({
   insuranceCompanies
 }: InsuranceTableProps) {
 
+  /**
+   * Formátuje datum do lokálního formátu
+   * @param dateString ISO string data
+   * @returns Formátované datum
+   */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('cs-CZ', {
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
   };
 
-   // Helper funkce pro získání názvu pojišťovny
-   const getInsuranceCompanyName = (id: number) => {
+  /**
+   * Najde a vrátí název pojišťovny podle ID
+   * @param id ID pojišťovny
+   * @returns Název pojišťovny nebo 'N/A' pokud není nalezena
+   */
+  const getInsuranceCompanyName = (id: number) => {
     const company = insuranceCompanies.find(c => c.insurance_company_id === id);
     return company?.company_name || 'N/A';
   };
 
+  /**
+   * Filtruje pojištění podle vyhledávacího výrazu a aktivní záložky
+   * Vyhledává v registračním čísle a názvu pojištění
+   */
   const filteredInsurances = insurances.filter(insurance => {
     const matchesSearch = 
       (insurance.registration_number?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -45,10 +76,12 @@ export default function InsuranceTable({
     return matchesSearch && insurance.insurance_types === activeTab;
   });
 
+  // Zobrazení stavu načítání
   if (loading) {
     return <div className="text-center py-4">Loading...</div>;
   }
 
+  // Zobrazení prázdného stavu
   if (filteredInsurances.length === 0) {
     return <div className="text-center py-4">No insurances found</div>;
   }

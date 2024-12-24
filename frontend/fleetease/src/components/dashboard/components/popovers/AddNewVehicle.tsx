@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, Controller, FieldValues } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -147,8 +147,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         company_id: user.company_id,
       };
 
-      const createdVehicle = await Database.createVehicle(newVehicle);
-      onSave(createdVehicle);
+      onSave(newVehicle);
       onClose();
     } catch (error) {
       console.error('Error creating vehicle:', error);
@@ -371,4 +370,3 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
 };
 
 export default AddVehicleModal;
-

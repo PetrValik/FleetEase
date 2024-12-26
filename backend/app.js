@@ -37,11 +37,6 @@ app.use(express.json());
 const buildPath = path.join(__dirname, 'build');
 app.use(express.static(buildPath));
 
-// Serve React frontend for all non-API routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-});
-
 // Add role routes
 app.use('/api/roles', roleRoutes);
 
@@ -95,5 +90,5 @@ app.use('/api/logs', auditLogsRoutes);
 
 // Server start
 app.listen(PORT, () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running on ${PORT}`);
 });

@@ -79,7 +79,7 @@ const Dashboard: React.FC = () => {
     setError(null);
 
     try {
-      if (currentUser?.company_id) {
+      if (currentUser?.company_id == undefined) {
         setError('No company.');
       }
       const createdVehicle = await Database.createVehicle(newVehicle);

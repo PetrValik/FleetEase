@@ -6,6 +6,7 @@ import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
 import { useUser } from '../../../../contexts/UserContext';
 import * as Database from '../../../../database/database';
+import * as Toast from "../../../../utils/toastUtils";
 
 // Define the fuel type options
 const fuelTypeOptions = [
@@ -63,6 +64,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         }));
         setCategories(categoriesOptions);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch vehicle categories");
         console.error("Error fetching vehicle categories:", error);
       } finally {
         setLoadingCategories(false);
@@ -82,6 +84,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         }));
         setStateOptions(options);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch state options");
         console.error("Error fetching state options:", error);
       }
     };
@@ -99,6 +102,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
         }));
         setBrands(brandOptions);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch brands");
         console.error('Error fetching brands:', error);
       }
     };
@@ -121,6 +125,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
       }));
       setModels(modelOptions);
     } catch (error) {
+      Toast.showErrorToast("Unable to fetch models");
       console.error('Error fetching models:', error);
       setModels([]);
     } finally {
@@ -148,8 +153,10 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
       };
 
       onSave(newVehicle);
+      Toast.showSuccessToast("Vehicle added succesfully");
       onClose();
     } catch (error) {
+      Toast.showErrorToast("Unable to create vehicle");
       console.error('Error creating vehicle:', error);
     }
   };

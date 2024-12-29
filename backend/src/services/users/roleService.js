@@ -1,15 +1,19 @@
 const supabase = require('../../config/supabaseClient');
 
-// Získání všech rolí
+// Retrieve all roles from the Roles table
 exports.getAllRoles = async () => {
-  const { data, error } = await supabase.from('Roles').select('*');
-  if (error) throw error;
-  return data;
+  const { data, error } = await supabase.from('Roles').select('*'); // Select all columns from the Roles table
+  if (error) throw error; // Throw an error if fetching fails
+  return data; // Return the list of roles
 };
 
-// Získání role podle ID
+// Retrieve a specific role by its ID from the Roles table
 exports.getRoleById = async (id) => {
-  const { data, error } = await supabase.from('Roles').select('*').eq('role_id', id).single();
-  if (error) throw error;
-  return data;
+  const { data, error } = await supabase
+    .from('Roles')
+    .select('*') // Select all columns
+    .eq('role_id', id) // Filter by the provided role ID
+    .single(); // Expect a single record
+  if (error) throw error; // Throw an error if fetching fails
+  return data; // Return the role data
 };

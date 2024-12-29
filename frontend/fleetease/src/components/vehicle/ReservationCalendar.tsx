@@ -5,6 +5,7 @@ import CalendarHeader from './calendar/CalendarHeader';
 import CalendarGrid from './calendar/CalendarGrid';
 import ReservationForm from './calendar/ReservationForm';
 import { createReservation } from '../../database/reservations/reservations';
+import * as Toast from "../../utils/toastUtils";
 
 interface ReservationCalendarProps {
   user: {
@@ -83,13 +84,12 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       const newReservation = await createReservation(reservationData);
 
       if (newReservation) {
-        console.log('Reservation created:', newReservation);
-        // Here, you could fetch the updated reservations list or update the UI state
-        // directly to reflect the new reservation.
+        Toast.showSuccessToast("Reservation succesfuly created");
       } else {
         setErrorMessage('Failed to create reservation.');
       }
     } catch (error) {
+      Toast.showErrorToast("Unable to create reservation");
       console.error('Error creating reservation:', error);
       setErrorMessage('Failed to create reservation.');
     }

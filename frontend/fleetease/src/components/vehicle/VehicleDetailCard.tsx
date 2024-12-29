@@ -9,6 +9,7 @@ import EditVehicleModal from './modals/EditVehicleModal';
 import DeleteButton from './ui/DeleteButton';
 import { useUser } from '../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import * as Toast from "../../utils/toastUtils";
 
 interface VehicleDetailsCardProps {
   vehicleId: number;
@@ -52,6 +53,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         }
       } catch (err) {
         console.error('Error fetching vehicle details:', err);
+        Toast.showSuccessToast("Failed to load vehicle details");
         setError('Failed to load vehicle details.'); // Set error state
       } finally {
         setLoading(false);
@@ -71,6 +73,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       setVehicle(savedVehicle);
     } catch (error) {
       console.error('Error updating vehicle:', error);
+      Toast.showErrorToast("Failed to save vehicle updates");
       setError('Failed to save vehicle updates.'); // Set error state on failure
     } finally {
       handleCloseModal();
@@ -82,10 +85,12 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
       const success = await deleteVehicle(vehicleId);
       if (success) {
         setVehicle(null); // Clear vehicle state after deletion
+        Toast.showSuccessToast("Vehicle succesfully deleted");
         navigate('/dashboard'); // Redirect to dashboard after successful deletion
       }
     } catch (error) {
       console.error('Error deleting vehicle:', error);
+      Toast.showErrorToast("Failed to delete vehicle");
       setError('Failed to delete vehicle.'); // Set error state on failure
     }
   };

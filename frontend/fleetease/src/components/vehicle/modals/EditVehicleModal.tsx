@@ -6,6 +6,7 @@ import { Input } from '../../dashboard/components/ui/Input';
 import { Label } from '../../dashboard/components/ui/Label';
 import { useUser } from '../../../contexts/UserContext';
 import * as Database from '../../../database/database';
+import * as Toast from "../../../utils/toastUtils";
 
 // Define the fuel type options
 const fuelTypeOptions = [
@@ -66,6 +67,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         }));
         setCategories(categoriesOptions);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch vehicle categories");
         console.error("Error fetching vehicle categories:", error);
       } finally {
         setLoadingCategories(false);
@@ -85,6 +87,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         }));
         setStateOptions(options);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch state options");
         console.error("Error fetching state options:", error);
       }
     };
@@ -102,6 +105,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         }));
         setBrands(brandOptions);
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch brands");
         console.error('Error fetching brands:', error);
       }
     };
@@ -136,6 +140,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
       }));
       setModels(modelOptions);
     } catch (error) {
+      Toast.showErrorToast("Unable to fetch models");
       console.error('Error fetching models:', error);
       setModels([]);
     } finally {
@@ -165,8 +170,10 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
       const vehicleId = vehicle.vehicle_id; // Assuming vehicle has an id
       const updated = await Database.updateVehicle(vehicleId, updatedVehicle);
       onSave(updated);
+      Toast.showSuccessToast("Vehicle succesfully updated");
       onClose();
     } catch (error) {
+      Toast.showErrorToast("Unable to update vehicle");
       console.error('Error updating vehicle:', error);
     }
   };

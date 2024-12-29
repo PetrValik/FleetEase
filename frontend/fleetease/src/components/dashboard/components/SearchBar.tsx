@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getAllVehicles } from '../../../database/vehicles/vehicles'; // Import the API method to fetch all vehicles
+import * as Toast from "../../../utils/toastUtils";
 
 interface SearchBarProps {
   onSearchResult: (vehicle: any | null) => void; // Using 'any' type for now based on the mock data structure
@@ -13,7 +14,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
   // Function to handle search
   const handleSearch = async (event: React.MouseEvent) => {
     event.preventDefault();
-    console.log("Search button clicked"); // Debugging to check if this is being called
     if (!searchTerm.trim()) {
       setError('Please enter a valid registration number.');
       return;
@@ -31,8 +31,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
         return;
       }
   
-      console.log(vehicles); // Log the fetched vehicles
-  
       // Normalize both registration number and search term by removing spaces and converting to lowercase
       const formattedSearchTerm = searchTerm.replace(/\s+/g, '').toLowerCase();
   
@@ -42,12 +40,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
           vehicle.registration_number.replace(/\s+/g, '').toLowerCase() === formattedSearchTerm
       );
   
-      console.log(result); // Log the result of the search
-  
       // Pass the result back to the parent component
       onSearchResult(result || null);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
+      Toast.showErrorToast("Unable to fetch vehicles");
       setError('Failed to fetch vehicles. Please try again later.');
     } finally {
       setLoading(false);

@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Database from '../../../database/database';
+import * as Toast from "../../../utils/toastUtils";
 
 interface InsuranceDialogProps {
   isOpen: boolean;
@@ -65,9 +66,11 @@ export default function InsuranceDialog({
     e.preventDefault();
     // Validace před odesláním
     if (!formData.insurance_types || !formData.start_date || !formData.end_date) {
+      Toast.showErrorToast('Required fields are missing');
       console.error('Required fields are missing');
       return;
     }
+    Toast.showSuccessToast('Insurance succesfully created');
     onSave(formData);
   };
 

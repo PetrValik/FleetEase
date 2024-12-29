@@ -60,7 +60,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     if (currentUser?.company_id != null) {
-      console.log("debug");
       Database.getVehiclesByCompanyId(currentUser.company_id)
         .then((data) => {
           setVehicles(data);

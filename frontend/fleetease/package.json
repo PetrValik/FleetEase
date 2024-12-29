@@ -1,7 +1,7 @@
 {
   "name": "fleetease",
   "version": "0.1.0",
-  "homepage": ".",
+  "homepage": "/",
   "private": true,
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -32,6 +32,7 @@
     "react-router-dom": "^7.0.2",
     "react-scripts": "^5.0.1",
     "react-select": "^5.9.0",
+    "react-toastify": "^11.0.2",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^2.1.4"

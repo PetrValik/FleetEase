@@ -24,18 +24,8 @@ export function CreateDefectModal({ isOpen, onClose, onSubmit, defectTypes, vehi
 
   useEffect(() => {
     if (currentUser?.company_id) {
-      // fetchVehicles(currentUser.company_id)
     }
   }, [currentUser?.company_id])
-
-  // const fetchVehicles = async (companyId: number) => {
-  //   try {
-  //     const fetchedVehicles = await Database.getVehiclesByCompanyId(companyId)
-  //     setVehicles(fetchedVehicles)
-  //   } catch (error) {
-  //     console.error('Failed to fetch vehicles:', error)
-  //   }
-  // }
 
   if (!isOpen) return null
 

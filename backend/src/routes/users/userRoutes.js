@@ -28,6 +28,13 @@ router.post(
   userController.login
 );
 
+// User verification
+router.get(
+  '/verify',
+  logAudit,
+  userController.verify
+);
+
 // Check if an email exists (public endpoint)
 router.get(
   '/email/:email',

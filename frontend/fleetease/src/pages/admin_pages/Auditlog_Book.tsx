@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as Database from "../../database/database";
 import { formatDate } from "../../utils/dateUtils";
+import * as Toast from "../../utils/toastUtils";
 
 export default function AuditlogBook() {
   const [logs, setLogs] = useState<Database.AuditLog[]>([]);
@@ -12,6 +13,7 @@ export default function AuditlogBook() {
         const auditLogs = await Database.getAllLogs();
         setLogs(auditLogs);
       } catch (error) {
+        Toast.showErrorToast('Failed to fetch audit logs');
         console.error("Failed to fetch audit logs:", error);
       } finally {
         setIsLoading(false);

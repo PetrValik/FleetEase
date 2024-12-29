@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useUser } from "../../contexts/UserContext"
 import { Building2, Users, Car, FileCheck, AlertTriangle } from 'lucide-react'
 import * as Database from "../../database/database"
+import * as Toast from "../../utils/toastUtils";
 
 interface StatsCardProps {
   title: string
@@ -68,6 +69,7 @@ export default function AdminStats() {
       } catch (err) {
         setError('Failed to fetch statistics')
         console.error('Error fetching stats:', err)
+        Toast.showErrorToast("Failed to fetch statistics");
       } finally {
         setLoading(false)
       }

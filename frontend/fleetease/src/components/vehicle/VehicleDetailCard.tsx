@@ -39,44 +39,38 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
     });
   };
 
-  useEffect(() => {
-    const fetchVehicleData = async () => {
-      try {
-        setLoading(true);
-        const fetchedVehicle = await getVehicleById(vehicleId);
-        setVehicle(fetchedVehicle);
+// Fetch vehicle details
+const fetchVehicle = async () => {
+  try {
+    setLoading(true);
+    const fetchedVehicle = await getVehicleById(vehicleId);
+    setVehicle(fetchedVehicle);
 
-        if (fetchedVehicle) {
-          const model = await getVehicleModelById(fetchedVehicle.model_id);
-          const [brand, category, country, fetchedReservations] = await Promise.all([
-            model ? getVehicleBrandById(model.brand_id) : null,
-            getVehicleCategoryById(fetchedVehicle.category_id),
-            getCountryById(fetchedVehicle.country_id),
-            getReservationsByVehicleId(vehicleId),
-          ]);
+    if (fetchedVehicle) {
+      const model = await getVehicleModelById(fetchedVehicle.model_id);
+      const [brand, category, country] = await Promise.all([
+        model ? getVehicleBrandById(model.brand_id) : null,
+        getVehicleCategoryById(fetchedVehicle.category_id),
+        getCountryById(fetchedVehicle.country_id),
+      ]);
 
-          setVehicleBrand(brand?.brand_name || 'Not available');
-          setVehicleModel(model?.model_name || 'Not available');
-          setVehicleCategory(category?.category_name || 'Not available');
-          setRegistrationCountry(country || null);
-          setReservations(fetchedReservations);
+      setVehicleBrand(brand?.brand_name || 'Not available');
+      setVehicleModel(model?.model_name || 'Not available');
+      setVehicleCategory(category?.category_name || 'Not available');
+      setRegistrationCountry(country || null);
+    }
+  } catch (err) {
+    console.error('Error fetching vehicle details:', err);
+    Toast.showErrorToast("Failed to load vehicle details");
+    setError('Failed to load vehicle details.');
+  } finally {
+    setLoading(false);
+  }
+};
 
-          // Update vehicle status if currently reserved
-          if (isCurrentlyReserved(fetchedReservations)) {
-            setVehicle(prev => prev ? { ...prev, vehicle_status: 'Reserved' } : null);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching vehicle details:', err);
-        Toast.showErrorToast("Failed to load vehicle details");
-        setError('Failed to load vehicle details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicleData();
-  }, [vehicleId]);
+useEffect(() => {
+  fetchVehicle();
+}, [vehicleId]);
 
   const handleOpenModal = () => setIsEditModalOpen(true);
   const handleCloseModal = () => setIsEditModalOpen(false);

@@ -40,6 +40,7 @@ const App: React.FC = () => {
         draggable // Allow dragging notifications
         pauseOnHover // Pause auto-close on hover
         theme="light" // Light theme
+        aria-label="Notification container"
       />
       <Router>
         <Routes>

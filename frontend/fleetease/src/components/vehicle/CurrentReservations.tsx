@@ -31,7 +31,7 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     try {
       const success = await deleteReservation(reservationId);
       if (success) {
-        Toast.showSuccessToast("Reservation succesfully deleted");
+        Toast.showSuccessToast("Reservation successfully deleted");
         setReservations((prevReservations) =>
           prevReservations.filter((reservation) => reservation.reservation_id !== reservationId)
         );
@@ -45,33 +45,33 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     }
   };
 
-  // Fetch reservations once when the component mounts or when vehicleId changes
   useEffect(() => {
     fetchReservations();
   }, [vehicleId]);
 
   if (isLoading) {
-    return <div>Loading reservations...</div>;
+    return <div className="p-4 text-center">Loading reservations...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="p-4 text-center text-red-500">{error}</div>;
   }
 
   if (reservations.length === 0) {
-    return <div>No current reservations found for this vehicle.</div>;
+    return <div className="p-4 text-center">No current reservations found for this vehicle.</div>;
   }
 
   return (
-    <div className="reservations-container" style={{ padding: '20px' }}>
-      <div className="reservations-list" style={{ maxHeight: '490px', overflowY: 'auto' }}>
-        <ul style={{ listStyle: 'none', padding: '0' }}>
+    <div className="reservations-container p-4">
+      <div className="reservations-list max-h-[490px] overflow-y-auto">
+        <ul className="space-y-4">
           {reservations.map((reservation) => (
-            <ReservationCard
-              key={reservation.reservation_id}
-              reservation={reservation}
-              onDelete={handleDelete}
-            />
+            <li key={reservation.reservation_id}>
+              <ReservationCard
+                reservation={reservation}
+                onDelete={handleDelete}
+              />
+            </li>
           ))}
         </ul>
       </div>
@@ -80,3 +80,4 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
 };
 
 export default CurrentReservations;
+

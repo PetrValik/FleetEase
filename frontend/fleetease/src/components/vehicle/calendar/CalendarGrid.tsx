@@ -84,4 +84,3 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
 };
 
 export default CalendarGrid;
-

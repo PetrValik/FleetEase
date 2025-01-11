@@ -198,4 +198,3 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 };
 
 export default ReservationCalendar;
-

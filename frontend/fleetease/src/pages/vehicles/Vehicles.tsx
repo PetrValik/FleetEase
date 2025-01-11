@@ -53,8 +53,8 @@ const VehicleDetailPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-6">
-        <div className="spinner">Loading...</div>
+      <div className="flex justify-center items-center p-4 min-h-screen">
+        <div className="spinner text-lg">Loading...</div>
       </div>
     );
   }
@@ -62,8 +62,8 @@ const VehicleDetailPage: React.FC = () => {
   // User not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="p-6">
-        <p>Please sign in to view this page.</p>
+      <div className="p-4 text-center">
+        <p className="text-lg">Please sign in to view this page.</p>
       </div>
     );
   }
@@ -71,34 +71,36 @@ const VehicleDetailPage: React.FC = () => {
   // Vehicle not found or error fetching data
   if (!vehicle || error) {
     return (
-      <div className="p-6">
-        <p>{error || 'Vehicle not found.'}</p>
+      <div className="p-4 text-center">
+        <p className="text-lg text-red-500">{error || 'Vehicle not found.'}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <header className="text-3xl font-bold mb-6">Vehicle Details</header>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="mb-6 md:mb-8">
+        <header className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">Vehicle Details</header>
         <VehicleDetailsCard vehicleId={Number(vehicleId)} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 w-full">
-          <h3 className="text-2xl font-semibold mb-4">Reservation Calendar</h3>
+      <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 lg:grid-cols-7 md:gap-6">
+        <div className="lg:col-span-3 w-full">
+          <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">Reservation Calendar</h3>
           {user ? (
-            <ReservationCalendar
-              user={user}
-              vehicleId={Number(vehicleId)}
-            />
+            <div className="overflow-x-auto max-w-xl mx-auto lg:max-w-none">
+              <ReservationCalendar
+                user={user}
+                vehicleId={Number(vehicleId)}
+              />
+            </div>
           ) : (
-            <div>Please log in to view the reservation calendar.</div>
+            <div className="text-sm md:text-base">Please log in to view the reservation calendar.</div>
           )}
         </div>
 
-        <div className="lg:col-span-2 w-full">
-          <h3 className="text-2xl font-semibold mb-4">Current Reservations</h3>
+        <div className="lg:col-span-4 w-full">
+          <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">Current Reservations</h3>
           <CurrentReservations vehicleId={Number(vehicleId)} />
         </div>
       </div>

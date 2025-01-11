@@ -33,7 +33,6 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [pickupLocation, setPickupLocation] = useState('');
   const [returnLocation, setReturnLocation] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [reservedDates, setReservedDates] = useState<Date[]>([]); // State for reserved dates
 
   useEffect(() => {
@@ -109,14 +108,12 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 
   const handleReservationSubmit = async () => {
     if (!pickupLocation || !returnLocation) {
-      setErrorMessage('Pickup Location and Return Location are required!');
+      Toast.showErrorToast('Pickup Location and Return Location are required!');
       return;
     }
 
-    setErrorMessage('');
-
     if (selectedDates.length === 0) {
-      setErrorMessage('Please select at least one date.');
+      Toast.showErrorToast('Please select at least one date.');
       return;
     }
 
@@ -140,13 +137,15 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 
       if (newReservation) {
         Toast.showSuccessToast("Reservation successfully created");
+        setSelectedDates([]); // Clear selected dates
+        setPickupLocation(''); // Reset pickup location
+        setReturnLocation(''); // Reset return location
       } else {
-        setErrorMessage('Failed to create reservation.');
+        Toast.showErrorToast('Failed to create reservation.');
       }
     } catch (error) {
       Toast.showErrorToast("Unable to create reservation");
       console.error('Error creating reservation:', error);
-      setErrorMessage('Failed to create reservation.');
     }
   };
 
@@ -167,7 +166,11 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
           setPickupLocation={setPickupLocation}
           setReturnLocation={setReturnLocation}
           handleReservationSubmit={handleReservationSubmit}
-          errorMessage={errorMessage}
+          isDisabled={
+            !pickupLocation || !returnLocation || selectedDates.length === 0 ||
+            selectedDates.some(date => reservedDates.some(reserved => reserved.getTime() === date.getTime()))
+          }
+          errorMessage="" // Pass an empty string as a placeholder
         />
       )}
     </div>

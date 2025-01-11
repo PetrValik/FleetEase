@@ -78,7 +78,7 @@ const VehicleDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
       <div className="mb-8">
         <header className="text-3xl font-bold mb-6">Vehicle Details</header>
         <VehicleDetailsCard vehicleId={Number(vehicleId)} />

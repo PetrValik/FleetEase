@@ -9,6 +9,7 @@ import FilterPopover from '../../components/dashboard/components/popovers/Filter
 import './Dashboard.css';
 import * as Database from '../../database/database';
 
+
 type FuelType = 'gas' | 'diesel' | 'electric' | 'hybrid'; // Updated fuel types based on real data
 type VehicleState = 'inUse' | 'available' | 'maintenance';
 
@@ -18,7 +19,7 @@ const getFuelFilterValue = (fuelType: string, fuelFilters: { [key: string]: bool
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated } = useUser();
+  const { user, isAuthenticated } = useUser();
   const [vehicles, setVehicles] = useState<Database.Vehicle[]>([]); // Correct type for state
   const [filteredVehicles, setFilteredVehicles] = useState<Database.Vehicle[]>([]); // To store filtered vehicles
   const [isAddVehicleModalOpen, setIsAddVehicleModalOpen] = useState<boolean>(false);
@@ -214,6 +215,7 @@ const Dashboard: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Vehicle List</h2>
 
         <div className="dashboard-btn-container">
+        {(user?.role?.role_name === 'Manager' || user?.role?.role_name === 'Admin') && (
           <Button
             variant="outline"
             className="dashboard-btn-add"
@@ -222,7 +224,7 @@ const Dashboard: React.FC = () => {
             <PlusCircle className="mr-2 h-4 w-4" />
             Add new vehicle
           </Button>
-
+)}
           <Button
             variant="outline"
             className="dashboard-btn-filter"

@@ -7,10 +7,6 @@ import { createReservation } from '../../database/reservations/reservations';
 import * as Toast from "../../utils/toastUtils";
 import { startOfMonth, eachDayOfInterval, endOfMonth } from 'date-fns';
 
-
-const firstDayOfMonth = startOfMonth(new Date());
-console.log(firstDayOfMonth);
-
 interface ReservationCalendarProps {
   user: {
     user_id: number;
@@ -40,10 +36,36 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Update current date every minute to keep it up-to-date
+    const interval = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval); // Clean up interval on component unmount
+  }, []);
+
+  // Get the first day and last day of the current month
+  const firstDayOfMonth = startOfMonth(currentDate);
+  const lastDayOfMonth = endOfMonth(currentDate);
+
+  // Get all days of the current month
   const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(currentDate),
-    end: endOfMonth(currentDate),
+    start: firstDayOfMonth,
+    end: lastDayOfMonth,
   });
+
+  // Calculate the start of the week for the current month dynamically
+  const firstDayOfWeek = firstDayOfMonth.getDay(); // Get the weekday of the first day (0-6, 0 = Sunday)
+  
+  // Fix to emptyCellsCount calculation to properly align the start of the month
+  const emptyCellsCount = firstDayOfWeek === 0 ? 6 : firstDayOfWeek; // Corrected calculation for empty cells
+
+  // Add empty cells to align the start day of the month correctly
+  const daysWithEmptyCells = [
+    ...Array.from({ length: emptyCellsCount }).map(() => null), // Add empty cells
+    ...daysInMonth,
+  ];
 
   const handleDateSelect = (date: Date) => {
     if (selectedDates.length === 0) {
@@ -88,7 +110,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       const newReservation = await createReservation(reservationData);
 
       if (newReservation) {
-        Toast.showSuccessToast("Reservation succesfuly created");
+        Toast.showSuccessToast("Reservation succesfully created");
       } else {
         setErrorMessage('Failed to create reservation.');
       }
@@ -103,7 +125,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">
       <CalendarHeader currentDate={currentDate} setCurrentDate={setCurrentDate} />
       <CalendarGrid
-        daysInMonth={daysInMonth}
+        daysInMonth={daysWithEmptyCells}
         selectedDates={selectedDates}
         handleDateClick={handleDateSelect}
       />

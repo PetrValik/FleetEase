@@ -3,7 +3,7 @@ import { isSameDay } from 'date-fns';
 import DayCell from './DayCell';
 
 interface CalendarGridProps {
-  daysInMonth: Date[];
+  daysInMonth: (Date | null)[]; // Allow null for empty cells
   selectedDates: Date[];
   handleDateClick: (date: Date) => void;
 }

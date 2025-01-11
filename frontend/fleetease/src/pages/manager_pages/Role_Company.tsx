@@ -105,7 +105,7 @@ const Role_Company: React.FC = () => {
     <div className="container mx-auto p-2 sm:p-4 md:p-6">
       {/* Users in the company */}
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
-        <div className="p-6">
+        <div className="p-2 sm:p-4 md:p-6">
           <h2 className="text-xl font-bold mb-4">Users from Your Company</h2>
           <div className="space-y-2">
             {companyUsers.map((user) => (

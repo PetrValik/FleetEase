@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
-import { Reservation } from '../../database/reservations/reservations';
+import { Reservation, getReservationsByVehicleId } from '../../database/reservations/reservations';
 import CalendarHeader from './calendar/CalendarHeader';
 import CalendarGrid from './calendar/CalendarGrid';
 import ReservationForm from './calendar/ReservationForm';
 import { createReservation } from '../../database/reservations/reservations';
+import * as Toast from "../../utils/toastUtils";
+import { startOfMonth, eachDayOfInterval, endOfMonth, isSameDay, isWithinInterval } from 'date-fns';
 
 interface ReservationCalendarProps {
   user: {
@@ -32,13 +33,58 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [pickupLocation, setPickupLocation] = useState('');
   const [returnLocation, setReturnLocation] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [reservedDates, setReservedDates] = useState<Date[]>([]);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        const reservations = await getReservationsByVehicleId(vehicleId);
+        const reservedDates: Date[] = [];
+        
+        reservations.forEach((reservation) => {
+          const startDate = new Date(reservation.start_time);
+          const endDate = new Date(reservation.end_time);
+          
+          let currentDate = startDate;
+          while (currentDate <= endDate) {
+            reservedDates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+        });
+
+        setReservedDates(reservedDates);
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+      }
+    };
+
+    fetchReservations();
+  }, [vehicleId]);
+
+  const firstDayOfMonth = startOfMonth(currentDate);
+  const lastDayOfMonth = endOfMonth(currentDate);
 
   const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(currentDate),
-    end: endOfMonth(currentDate),
+    start: firstDayOfMonth,
+    end: lastDayOfMonth,
   });
+
+  const firstDayOfWeek = firstDayOfMonth.getDay();
+  const emptyCellsCount = firstDayOfWeek === 0 ? 6 : firstDayOfWeek;
+
+  const daysWithEmptyCells = [
+    ...Array.from({ length: emptyCellsCount }).map(() => null),
+    ...daysInMonth,
+  ];
 
   const handleDateSelect = (date: Date) => {
     if (selectedDates.length === 0) {
@@ -49,18 +95,40 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     } else {
       setSelectedDates([date]);
     }
+    setIsFormVisible(true);
+  };
+
+  const isDateRangeOverlapping = (start: Date, end: Date) => {
+    return reservedDates.some(reservedDate => 
+      isWithinInterval(reservedDate, { start, end })
+    );
   };
 
   const handleReservationSubmit = async () => {
-    if (!pickupLocation || !returnLocation) {
-      setErrorMessage('Pickup Location and Return Location are required!');
-      return;
+    let errorMessage = '';
+
+    if (!pickupLocation) {
+      errorMessage += 'Pickup Location is required. ';
+    }
+    if (!returnLocation) {
+      errorMessage += 'Return Location is required. ';
+    }
+    if (selectedDates.length === 0) {
+      errorMessage += 'Please select at least one date. ';
     }
 
-    setErrorMessage('');
+    if (selectedDates.length > 0) {
+      const [startDate, endDate] = selectedDates.length === 1 
+        ? [selectedDates[0], selectedDates[0]] 
+        : [selectedDates[0], selectedDates[selectedDates.length - 1]];
 
-    if (selectedDates.length === 0) {
-      setErrorMessage('Please select at least one date.');
+      if (isDateRangeOverlapping(startDate, endDate)) {
+        errorMessage += 'Selected date range overlaps with existing reservations. ';
+      }
+    }
+
+    if (errorMessage) {
+      Toast.showErrorToast(errorMessage.trim());
       return;
     }
 
@@ -83,15 +151,25 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       const newReservation = await createReservation(reservationData);
 
       if (newReservation) {
-        console.log('Reservation created:', newReservation);
-        // Here, you could fetch the updated reservations list or update the UI state
-        // directly to reflect the new reservation.
+        Toast.showSuccessToast("Reservation successfully created");
+        setSelectedDates([]);
+        setPickupLocation('');
+        setReturnLocation('');
+        setIsFormVisible(false); // Hide the form
+        // Refresh reserved dates
+        const updatedReservations = await getReservationsByVehicleId(vehicleId);
+        const updatedReservedDates = updatedReservations.flatMap(reservation => {
+          const startDate = new Date(reservation.start_time);
+          const endDate = new Date(reservation.end_time);
+          return eachDayOfInterval({ start: startDate, end: endDate });
+        });
+        setReservedDates(updatedReservedDates);
       } else {
-        setErrorMessage('Failed to create reservation.');
+        Toast.showErrorToast('Failed to create reservation.');
       }
     } catch (error) {
+      Toast.showErrorToast("Unable to create reservation");
       console.error('Error creating reservation:', error);
-      setErrorMessage('Failed to create reservation.');
     }
   };
 
@@ -99,23 +177,25 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">
       <CalendarHeader currentDate={currentDate} setCurrentDate={setCurrentDate} />
       <CalendarGrid
-        daysInMonth={daysInMonth}
+        daysInMonth={daysWithEmptyCells}
         selectedDates={selectedDates}
+        reservedDates={reservedDates}
         handleDateClick={handleDateSelect}
       />
-      {selectedDates.length > 0 && (
-        <ReservationForm
-          selectedDates={selectedDates}
-          pickupLocation={pickupLocation}
-          returnLocation={returnLocation}
-          setPickupLocation={setPickupLocation}
-          setReturnLocation={setReturnLocation}
-          handleReservationSubmit={handleReservationSubmit}
-          errorMessage={errorMessage}
-        />
-      )}
+      <ReservationForm
+        selectedDates={selectedDates}
+        pickupLocation={pickupLocation}
+        returnLocation={returnLocation}
+        setPickupLocation={setPickupLocation}
+        setReturnLocation={setReturnLocation}
+        handleReservationSubmit={handleReservationSubmit}
+        reservedDates={reservedDates}
+        isDateRangeOverlapping={isDateRangeOverlapping}
+        isFormVisible={isFormVisible}
+      />
     </div>
   );
 };
 
 export default ReservationCalendar;
+

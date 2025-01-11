@@ -2,6 +2,7 @@ import apiClient from "../../utils/apiClient";
 import { config } from "../../config";
 import { User, Role } from "../../contexts/UserContext";
 import { handleApiError } from "../../utils/apiErrorHandler";
+import { getStoredToken } from "../../utils/authUtils";
 
 const BASE_URL = config.USERS_ENDPOINT;
 
@@ -185,5 +186,24 @@ export const getUserById = async (id: number): Promise<GetUser | null> => {
     return response.data;
   } catch (error) {
     return handleApiError<GetUser | null>(error, null);
+  }
+};
+
+export const restoreUser = async (): Promise<User | null> => {
+  try {
+    const token = getStoredToken();
+    if (!token) {
+      return null;
+    }
+
+    apiClient.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${token}`;
+
+    const response = await apiClient.get(`${BASE_URL}/verify`);
+    return response.data.user;
+  } catch (error) {
+    console.error("Error in restoreUser:" , error);
+    return null;
   }
 };

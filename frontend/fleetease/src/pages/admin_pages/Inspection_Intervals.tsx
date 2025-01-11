@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import * as Database from "../../database/database";
+import * as Toast from "../../utils/toastUtils";
 
 const CATEGORY_ORDER = [
   "Personal",
@@ -61,11 +62,11 @@ export default function InspectionIntervals() {
             : category
         )
       );
-
+      Toast.showSuccessToast("Interval successfully changed");
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Failed to update intervals:", error);
-      alert("Nepodařilo se uložit změny. Zkuste to prosím znovu.");
+      Toast.showErrorToast("Unable to change interval");
     }
   };
 
@@ -77,10 +78,10 @@ export default function InspectionIntervals() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
       <div className="rounded-lg border bg-white shadow-sm p-6 mb-6">
         <h1 className="text-2xl font-semibold">
-        Vehicle technical inspection and emissions testing intervals
+          Vehicle technical inspection and emissions testing intervals
         </h1>
       </div>
 
@@ -101,7 +102,7 @@ export default function InspectionIntervals() {
                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
                 >
                   <Pencil className="h-4 w-4 mr-1" />
-                  Upravit
+                  Modify
                 </button>
               </div>
             ))}
@@ -110,36 +111,40 @@ export default function InspectionIntervals() {
       </div>
 
       {isDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              Upravit intervaly kontrol - {selectedCategory?.category_name}
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-[90%] max-w-[400px]">
+            <h2 className="text-lg font-semibold mb-4">
+              Modify Inspection Intervals - {selectedCategory?.category_name}
             </h2>
 
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium">Aktuální intervaly kontrol</h3>
+                <h3 className="font-medium">Current Inspection Intervals</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">STK</div>
+                    <div className="text-sm text-gray-500 mb-1">
+                      Technical Inspection
+                    </div>
                     <div className="px-4 py-2 bg-gray-50 rounded-md">
-                      {selectedCategory?.inspection_period} měsíců
+                      {selectedCategory?.inspection_period} Months
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">Emise</div>
+                    <div className="text-sm text-gray-500 mb-1">Emissions</div>
                     <div className="px-4 py-2 bg-gray-50 rounded-md">
-                      {selectedCategory?.emissions_period} měsíců
+                      {selectedCategory?.emissions_period} Months
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-medium">Nové intervaly kontrol</h3>
+                <h3 className="font-medium">New Inspection Intervals</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">STK</div>
+                    <div className="text-sm text-gray-500 mb-1">
+                      Technical Inspection
+                    </div>
                     <input
                       type="number"
                       className="w-full px-3 py-2 border rounded-md"
@@ -153,7 +158,7 @@ export default function InspectionIntervals() {
                     />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">Emise</div>
+                    <div className="text-sm text-gray-500 mb-1">Emissions</div>
                     <input
                       type="number"
                       className="w-full px-3 py-2 border rounded-md"
@@ -175,13 +180,13 @@ export default function InspectionIntervals() {
                 onClick={() => setIsDialogOpen(false)}
                 className="px-4 py-2 border rounded-md hover:bg-gray-100"
               >
-                Zrušit
+                Cancel
               </button>
               <button
                 onClick={handleSave}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
               >
-                Uložit změny
+                Save changes
               </button>
             </div>
           </div>

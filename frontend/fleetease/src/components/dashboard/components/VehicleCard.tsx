@@ -5,6 +5,7 @@ import { Fuel, UserIcon, Calendar } from "lucide-react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import { VehicleModel, getVehicleModelById } from "../../../database/vehicles/vehicleModel";
 import { VehicleBrand, getVehicleBrandById } from "../../../database/vehicles/vehicleBrand";
+import * as Toast from "../../../utils/toastUtils";
 
 interface VehicleCardProps {
   id: string;
@@ -42,6 +43,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
           setVehicleBrand(brandData);
         }
       } catch (error) {
+        Toast.showErrorToast("Unable to fetch vehicle data");
         console.error("Error fetching vehicle data:", error);
       }
     };

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { setLogoutHandler } from "../utils/apiClient";
 import { removeStoredToken } from "../utils/authUtils";
+import { restoreUser } from "../database/users/users"; 
+import * as Toast from "../utils/toastUtils";
+
 export type Role = "Admin" | "Manager" | "Driver";
 
 export interface User {
@@ -9,7 +12,7 @@ export interface User {
   first_name: string;
   last_name: string;
   phone_number: string;
-  created_at: string; // time without time zone
+  created_at: string;
   is_active: boolean;
   company_id: number;
   role: {
@@ -31,6 +34,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const isAuthenticated = user !== null;
 
@@ -39,11 +43,34 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     removeStoredToken();
   };
 
+  // Restore user on app load
+  React.useEffect(() => {
+    const restore = async () => {
+      try {
+        const restoredUser = await restoreUser();
+        if (restoredUser != null) {
+          setUser(restoredUser);
+        }
+      } catch (error) {
+        console.error("Failed to restore user:", error);
+        Toast.showSuccessToast("Failed to restore user");
+        removeStoredToken();
+      } finally {
+        setLoading(false);
+      }
+    };
+    restore();
+  }, []);
+
   // Set the logout handler for API client
   React.useEffect(() => {
     setLogoutHandler(logout);
   }, []);
 
+  if (loading) {
+    // Display a loading spinner or placeholder while loading
+    return <div>Loading...</div>;
+  }
   return (
     <UserContext.Provider value={{ user, setUser, isAuthenticated, logout }}>
       {children}

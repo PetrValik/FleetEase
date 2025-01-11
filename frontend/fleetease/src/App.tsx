@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { UserProvider } from "./contexts/UserContext";
 import Layout from "./components/layout/Layout";
 import RedirectIfAuthenticated from "./components/auth/RedirectIfAuthenticated";
@@ -28,6 +29,19 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
+      {/* ToastContainer to display toast notifications */}
+      <ToastContainer
+        position="top-right" // Position of the notifications
+        autoClose={5000} // Auto close after 5 seconds
+        hideProgressBar={false} // Show progress bar
+        newestOnTop={false} // New notifications on top
+        closeOnClick // Close on click
+        pauseOnFocusLoss // Pause auto-close on focus loss
+        draggable // Allow dragging notifications
+        pauseOnHover // Pause auto-close on hover
+        theme="light" // Light theme
+        aria-label="Notification container"
+      />
       <Router>
         <Routes>
           <Route

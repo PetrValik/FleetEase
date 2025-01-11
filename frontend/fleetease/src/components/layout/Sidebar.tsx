@@ -1,20 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import {
-  Home,
-  AlertTriangle,
-  CalendarClock,
-  BookA,
-  UserCog,
-  IdCard,
-  FileSignature,
-  Wrench,
-  TestTube,
-} from "lucide-react";
+import { Home, AlertTriangle, CalendarClock, BookA, UserCog, IdCard, FileSignature, Wrench, TestTube } from 'lucide-react';
 import { useUser } from "../../contexts/UserContext";
 import type { Role } from "../../contexts/UserContext";
 import SidebarNavItem from "./SidebarNavItem";
 import SidebarToggle from "./SidebarToggle";
+
 interface NavItem {
   path: string;
   label: string;
@@ -54,16 +45,30 @@ const getNavItems = (role: Role | null): NavItem[] => {
 };
 
 const Sidebar: React.FC = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const { user } = useUser();
 
   const navItems = getNavItems(user?.role?.role_name || null);
 
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+    };
+  }, []);
+
   return (
     <div
       className={`bg-[#001529] text-white transition-all duration-300 ease-in-out ${
-        isCollapsed ? "w-16" : "w-60"
+        isMobile || isCollapsed ? "w-16" : "w-60"
       }`}
     >
       <div className="fixed h-[calc(100vh-80px)] flex flex-col w-[inherit]">
@@ -73,17 +78,20 @@ const Sidebar: React.FC = () => {
               key={item.path}
               item={item}
               isActive={location.pathname === item.path}
-              isCollapsed={isCollapsed}
+              isCollapsed={isMobile || isCollapsed}
             />
           ))}
         </nav>
-        <SidebarToggle
-          isCollapsed={isCollapsed}
-          setIsCollapsed={setIsCollapsed}
-        />
+        {!isMobile && (
+          <SidebarToggle
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+          />
+        )}
       </div>
     </div>
   );
 };
 
 export default Sidebar;
+

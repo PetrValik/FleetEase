@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react'
+import { AlertTriangle, RotateCcw, Edit2, Check, Trash2, Search } from 'lucide-react'
 import * as Database from '../../database/database'
 import { useUser } from "../../contexts/UserContext"
+import * as Toast from "../../utils/toastUtils"
+import { DefectCard } from './DefectCard'
 import { CreateDefectModal } from './CreateDefectModal'
 import { EditDefectModal } from './EditDefectModal'
 
+interface DefectWithDetails extends Database.Defect {
+  registrationNumber?: string
+  reportedByUser?: string
+}
+
 export default function DefectsDashboard() {
   const { user: currentUser } = useUser()
-  const [defects, setDefects] = useState<(Database.Defect & { registrationNumber?: string, reportedByUser?: string })[]>([])
+  const [defects, setDefects] = useState<DefectWithDetails[]>([])
   const [defectTypes, setDefectTypes] = useState<Database.DefectType[]>([])
   const [vehicles, setVehicles] = useState<Database.Vehicle[]>([])
   const [loading, setLoading] = useState(true)
@@ -15,6 +23,7 @@ export default function DefectsDashboard() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedDefect, setSelectedDefect] = useState<Database.Defect | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const isManager = currentUser?.role.role_name === 'Manager' || currentUser?.role.role_name === 'Admin'
 
@@ -44,6 +53,7 @@ export default function DefectsDashboard() {
       setDefects(defectsWithDetails)
     } catch (err) {
       setError('Failed to fetch defects and vehicles')
+      Toast.showErrorToast('Failed to fetch defects and vehicles')
     } finally {
       setLoading(false)
     }
@@ -55,6 +65,7 @@ export default function DefectsDashboard() {
       setDefectTypes(fetchedDefectTypes)
     } catch (err) {
       setError('Failed to fetch defect types')
+      Toast.showErrorToast('Failed to fetch defect types')
     }
   }
 
@@ -63,6 +74,7 @@ export default function DefectsDashboard() {
       const fetchedVehicles = await Database.getVehiclesByCompanyId(companyId)
       setVehicles(fetchedVehicles)
     } catch (error) {
+      Toast.showErrorToast("Failed to fetch vehicles")
       console.error('Failed to fetch vehicles:', error)
     }
   }
@@ -72,9 +84,11 @@ export default function DefectsDashboard() {
       const newDefect = await Database.createDefect(defectData)
       if (newDefect) {
         await fetchDefectsAndVehicles()
+        Toast.showSuccessToast("Defect created successfully")
         setIsCreateModalOpen(false)
       }
     } catch (err) {
+      Toast.showErrorToast('Failed to create defect')
       setError('Failed to create defect')
     }
   }
@@ -84,9 +98,11 @@ export default function DefectsDashboard() {
       const updatedDefect = await Database.updateDefect(id, updatedData)
       if (updatedDefect) {
         await fetchDefectsAndVehicles()
+        Toast.showSuccessToast("Defect updated successfully")
         setIsEditModalOpen(false)
       }
     } catch (err) {
+      Toast.showErrorToast('Failed to update defect')
       setError('Failed to update defect')
     }
   }
@@ -94,8 +110,10 @@ export default function DefectsDashboard() {
   const handleDeleteDefect = async (defectId: number) => {
     try {
       await Database.deleteDefect(defectId)
+      Toast.showSuccessToast("Defect deleted successfully")
       setDefects(defects.filter(defect => defect.defect_id !== defectId))
     } catch (err) {
+      Toast.showErrorToast('Failed to delete defect')
       setError('Failed to delete defect')
     }
   }
@@ -105,9 +123,9 @@ export default function DefectsDashboard() {
       'Reported': 'In Progress',
       'In Progress': 'Repaired',
       'Repaired': 'Closed'
-    } as const;
+    } as const
     
-    const nextStatus = statusFlow[defect.defect_status as keyof typeof statusFlow];
+    const nextStatus = statusFlow[defect.defect_status as keyof typeof statusFlow]
     
     if (nextStatus) {
       try {
@@ -120,9 +138,10 @@ export default function DefectsDashboard() {
           description: defect.description,
           date_reported: defect.date_reported,
         };
-        await handleEditDefect(defect.defect_id, updateData);
+        await handleEditDefect(defect.defect_id, updateData)
       } catch (err) {
         setError('Failed to update defect status')
+        Toast.showErrorToast("Failed to update defect status")
       }
     }
   }
@@ -132,7 +151,7 @@ export default function DefectsDashboard() {
     return defectType ? defectType.type_name : 'Unknown'
   }
 
-  const getSeverityColor = (severity: Database.DefectSeverity) => {
+  const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'critical':
         return 'bg-red-100 text-red-800'
@@ -160,6 +179,13 @@ export default function DefectsDashboard() {
     new Date(defect.date_reported).getMonth() === new Date().getMonth()
   ).length
 
+  const filteredDefects = (activeTab === 'active' ? activeDefects : archivedDefects)
+    .filter(defect => 
+      defect.registrationNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      defect.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getDefectTypeName(defect.type_id).toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
   if (loading) return <div className="text-center p-4">Loading...</div>
   if (error) return <div className="text-center p-4 text-red-500">{error}</div>
   if (!currentUser?.company_id) {
@@ -173,30 +199,21 @@ export default function DefectsDashboard() {
     )
   }
 
-  const filteredDefects = activeTab === 'active' ? activeDefects : archivedDefects
-
   return (
-    <div className="container mx-auto p-4 space-y-4">
+    <div className="container mx-auto md:p-4 p-2 space-y-4">
       {isManager && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between pb-2">
               <h3 className="text-sm font-medium">Active Defects</h3>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
+              <AlertTriangle className="h-4 w-4 text-gray-500" />
             </div>
             <div className="text-2xl font-bold">{activeDefects.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <div className="flex items-center justify-between pb-2">
               <h3 className="text-sm font-medium">Resolved This Month</h3>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 4v6h-6"/>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-              </svg>
+              <RotateCcw className="h-4 w-4 text-gray-500" />
             </div>
             <div className="text-2xl font-bold">{resolvedThisMonth}</div>
           </div>
@@ -204,36 +221,45 @@ export default function DefectsDashboard() {
       )}
 
       <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b flex items-center">
-          {isManager && (
-            <div className="flex items-center space-x-4">
-              <div className="flex">
-                <button 
-                  className={`px-4 py-2 text-sm font-medium ${activeTab === 'active' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('active')}
-                >
-                  Active Defects
-                </button>
-                <button 
-                  className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('history')}
-                >
-                  Archive
-                </button>
-              </div>
+        <div className="p-4 border-b flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center space-x-4 w-full sm:w-auto">
+            <div className="flex">
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${activeTab === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('active')}
+              >
+                Active Defects
+              </button>
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('history')}
+              >
+                Archive
+              </button>
             </div>
-          )}
-          <div className="ml-auto">
+          </div>
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search defects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md whitespace-nowrap"
             >
               Create New Defect
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop view */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b bg-gray-50">
@@ -267,36 +293,28 @@ export default function DefectsDashboard() {
                     <td className="px-4 py-3 text-sm">
                       <div className="flex justify-end gap-2">
                         <button 
-                          className="p-1 hover:bg-gray-100 rounded-full"
+                          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                           onClick={() => {
                             setSelectedDefect(defect)
                             setIsEditModalOpen(true)
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
+                          <Edit2 className="h-4 w-4" />
                         </button>
                         {defect.defect_status !== 'Closed' && (
                           <button 
-                            className="p-1 hover:bg-gray-100 rounded-full text-green-600"
+                            className="p-1 hover:bg-gray-100 rounded-full text-green-600 transition-colors"
                             onClick={() => handleStatusProgression(defect)}
                             title="Progress Status"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20 6L9 17l-5-5"/>
-                            </svg>
+                            <Check className="h-4 w-4" />
                           </button>
                         )}
                         <button 
-                          className="p-1 hover:bg-gray-100 rounded-full"
+                          className="p-1 hover:bg-gray-100 rounded-full text-red-600 transition-colors"
                           onClick={() => handleDeleteDefect(defect.defect_id)}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                          </svg>
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -305,6 +323,28 @@ export default function DefectsDashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile view */}
+        <div className="md:hidden">
+          <div className="divide-y">
+            {filteredDefects.map((defect) => (
+              <div key={defect.defect_id} className="px-4 py-2">
+                <DefectCard
+                  defect={defect}
+                  isManager={isManager}
+                  getDefectTypeName={getDefectTypeName}
+                  getSeverityColor={getSeverityColor}
+                  onEdit={() => {
+                    setSelectedDefect(defect)
+                    setIsEditModalOpen(true)
+                  }}
+                  onDelete={() => handleDeleteDefect(defect.defect_id)}
+                  onStatusProgress={() => handleStatusProgression(defect)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -321,10 +361,7 @@ export default function DefectsDashboard() {
       {isEditModalOpen && selectedDefect && (
         <EditDefectModal
           isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false)
-            setSelectedDefect(null)
-          }}
+          onClose={() => setIsEditModalOpen(false)}
           onSubmit={handleEditDefect}
           defect={selectedDefect}
           defectTypes={defectTypes}

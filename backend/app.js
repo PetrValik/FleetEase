@@ -33,14 +33,9 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 // Middleware for json 
 app.use(express.json());
 
+// Comment for classic backend to frontend functionality
 // Serve static files from the build folder
-const buildPath = path.join(__dirname, 'build');
-app.use(express.static(buildPath));
-
-// Serve React frontend for all non-API routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-});
+app.use(express.static(path.join(__dirname, 'build')));
 
 // Add role routes
 app.use('/api/roles', roleRoutes);
@@ -93,7 +88,13 @@ app.use('/api/vehicles', vehicleRoutes);
 // Add auditLogs routes
 app.use('/api/logs', auditLogsRoutes);
 
+// Comment for classic backend to frontend functionality
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+  
 // Server start
 app.listen(PORT, () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running on ${PORT}`);
+    //console.log(`Server running on http://localhost:${PORT}`); // uncomment it for easier url to your sollution
 });

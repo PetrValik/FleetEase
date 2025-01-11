@@ -1,26 +1,29 @@
 const supabase = require('../../config/supabaseClient');
 
-// Získání všech záznamů z userAuthProviders
+// Retrieve all records from the UserAuthProviders table
 exports.getAllUserAuthProviders = async () => {
   const { data, error } = await supabase.from('UserAuthProviders').select('*');
-  if (error) throw error;
-  return data;
+  if (error) throw error; // Throw an error if fetching fails
+  return data; // Return all records
 };
 
-// Získání jednoho záznamu podle ID
+// Retrieve a single record by ID from the UserAuthProviders table
 exports.getUserAuthProviderById = async (id) => {
   const { data, error } = await supabase
     .from('UserAuthProviders')
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error) throw error;
-  return data;
+    .select('*') // Select all columns
+    .eq('id', id) // Filter by the provided ID
+    .single(); // Expect a single record
+  if (error) throw error; // Throw an error if fetching fails
+  return data; // Return the record
 };
 
-// Vytvoření nového záznamu
+// Create a new record in the UserAuthProviders table
 exports.createUserAuthProvider = async (userAuthProvider) => {
-  const { data, error } = await supabase.from('UserAuthProviders').insert(userAuthProvider).single();
-  if (error) throw error;
-  return data;
+  const { data, error } = await supabase
+    .from('UserAuthProviders')
+    .insert(userAuthProvider) // Insert the provided data
+    .single(); // Expect a single record as the result
+  if (error) throw error; // Throw an error if the insertion fails
+  return data; // Return the created record
 };

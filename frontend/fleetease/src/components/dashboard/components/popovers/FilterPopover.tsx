@@ -3,6 +3,7 @@ import { Button } from '../ui/Button';
 import CustomCheckbox from '../ui/Checkbox';
 import { LucideX } from 'lucide-react';
 import Separator from '../ui/Separator'; // Updated import for Separator
+import * as Toast from "../../../../utils/toastUtils";
 
 // Define the filters interface for each category
 interface Filters {
@@ -88,6 +89,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
   const handleApply = () => {
     console.log('Filters applied', { localTypeFilters, localFuelFilters, localStateFilters });
+    Toast.showInfoToast("Filters applied");
     onApplyFilter({
       typeFilters: localTypeFilters,
       fuelFilters: localFuelFilters,

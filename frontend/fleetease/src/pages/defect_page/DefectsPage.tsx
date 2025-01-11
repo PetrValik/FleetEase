@@ -1,92 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { AlertTriangle, RotateCcw, Edit2, Check, Trash2 } from 'lucide-react'
+import { AlertTriangle, RotateCcw, Edit2, Check, Trash2, Search } from 'lucide-react'
 import * as Database from '../../database/database'
 import { useUser } from "../../contexts/UserContext"
 import * as Toast from "../../utils/toastUtils"
+import { DefectCard } from './DefectCard'
+import { CreateDefectModal } from './CreateDefectModal'
+import { EditDefectModal } from './EditDefectModal'
 
 interface DefectWithDetails extends Database.Defect {
   registrationNumber?: string
   reportedByUser?: string
-}
-
-interface DefectCardProps {
-  defect: DefectWithDetails
-  isManager: boolean
-  getDefectTypeName: (typeId: number) => string
-  getSeverityColor: (severity: string) => string
-  onEdit: () => void
-  onDelete: () => void
-  onStatusProgress: () => void
-}
-
-const DefectCard: React.FC<DefectCardProps> = ({
-  defect,
-  isManager,
-  getDefectTypeName,
-  getSeverityColor,
-  onEdit,
-  onDelete,
-  onStatusProgress,
-}) => {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border p-3 space-y-2">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-medium">{defect.registrationNumber || 'N/A'}</h3>
-          <p className="text-sm text-gray-500">{getDefectTypeName(defect.type_id)}</p>
-        </div>
-        <span className={`${getSeverityColor(defect.defect_severity)} px-2 py-1 text-xs font-semibold rounded-full`}>
-          {defect.defect_severity}
-        </span>
-      </div>
-      
-      <p className="text-sm">{defect.description}</p>
-      
-      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-        <div>
-          <p className="font-medium">Status</p>
-          <p>{defect.defect_status}</p>
-        </div>
-        <div>
-          <p className="font-medium">Report Date</p>
-          <p>{new Date(defect.date_reported).toLocaleDateString()}</p>
-        </div>
-      </div>
-      
-      <div className="text-sm">
-        <p className="font-medium">Reported By</p>
-        <p className="text-gray-600">{defect.reportedByUser}</p>
-      </div>
-
-      {isManager && (
-        <div className="flex justify-end gap-2 pt-2 border-t">
-          <button
-            onClick={onEdit}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Edit defect"
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
-          {defect.defect_status !== 'Closed' && (
-            <button
-              onClick={onStatusProgress}
-              className="p-2 hover:bg-gray-100 rounded-full text-green-600 transition-colors"
-              aria-label="Progress status"
-            >
-              <Check className="w-4 h-4" />
-            </button>
-          )}
-          <button
-            onClick={onDelete}
-            className="p-2 hover:bg-gray-100 rounded-full text-red-600 transition-colors"
-            aria-label="Delete defect"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  )
 }
 
 export default function DefectsDashboard() {
@@ -100,6 +23,7 @@ export default function DefectsDashboard() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedDefect, setSelectedDefect] = useState<Database.Defect | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const isManager = currentUser?.role.role_name === 'Manager' || currentUser?.role.role_name === 'Admin'
 
@@ -250,6 +174,13 @@ export default function DefectsDashboard() {
     new Date(defect.date_reported).getMonth() === new Date().getMonth()
   ).length
 
+  const filteredDefects = (activeTab === 'active' ? activeDefects : archivedDefects)
+    .filter(defect => 
+      defect.registrationNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      defect.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getDefectTypeName(defect.type_id).toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
   if (loading) return <div className="text-center p-4">Loading...</div>
   if (error) return <div className="text-center p-4 text-red-500">{error}</div>
   if (!currentUser?.company_id) {
@@ -262,8 +193,6 @@ export default function DefectsDashboard() {
       </div>
     )
   }
-
-  const filteredDefects = activeTab === 'active' ? activeDefects : archivedDefects
 
   return (
     <div className="container mx-auto md:p-4 p-2 space-y-4">
@@ -288,30 +217,40 @@ export default function DefectsDashboard() {
 
       <div className="bg-white rounded-lg shadow">
         <div className="p-4 border-b flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {isManager && (
-            <div className="flex items-center space-x-4">
-              <div className="flex">
-                <button 
-                  className={`px-4 py-2 text-sm font-medium ${activeTab === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('active')}
-                >
-                  Active Defects
-                </button>
-                <button 
-                  className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveTab('history')}
-                >
-                  Archive
-                </button>
-              </div>
+          <div className="flex items-center space-x-4 w-full sm:w-auto">
+            <div className="flex">
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${activeTab === 'active' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('active')}
+              >
+                Active Defects
+              </button>
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${activeTab === 'history' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('history')}
+              >
+                Archive
+              </button>
             </div>
-          )}
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-          >
-            Create New Defect
-          </button>
+          </div>
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search defects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md whitespace-nowrap"
+            >
+              Create New Defect
+            </button>
+          </div>
         </div>
 
         {/* Desktop view */}
@@ -385,7 +324,7 @@ export default function DefectsDashboard() {
         <div className="md:hidden">
           <div className="divide-y">
             {filteredDefects.map((defect) => (
-              <div key={defect.defect_id} className="px-0 py-2">
+              <div key={defect.defect_id} className="px-4 py-2">
                 <DefectCard
                   defect={defect}
                   isManager={isManager}
@@ -404,7 +343,26 @@ export default function DefectsDashboard() {
         </div>
       </div>
 
-      {/* Create and Edit modals would go here, but they're not included as per your request */}
+      {isCreateModalOpen && (
+        <CreateDefectModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={handleCreateDefect}
+          defectTypes={defectTypes}
+          vehicles={vehicles}
+        />
+      )}
+
+      {isEditModalOpen && selectedDefect && (
+        <EditDefectModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleEditDefect}
+          defect={selectedDefect}
+          defectTypes={defectTypes}
+          vehicles={vehicles}
+        />
+      )}
     </div>
   )
 }

@@ -12,7 +12,7 @@ interface InsuranceTableProps {
 }
 
 export default function InsuranceTable({ 
-  insurances = [], // Add default empty array
+  insurances = [],
   searchTerm, 
   activeTab,
   onEdit,
@@ -20,7 +20,6 @@ export default function InsuranceTable({
   loading,
   insuranceCompanies
 }: InsuranceTableProps) {
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('cs-CZ', {
@@ -35,7 +34,6 @@ export default function InsuranceTable({
     return company?.company_name || 'N/A';
   };
 
-  // Ensure insurances is an array before filtering
   const safeInsurances = Array.isArray(insurances) ? insurances : [];
   
   const filteredInsurances = safeInsurances.filter(insurance => {
@@ -55,8 +53,64 @@ export default function InsuranceTable({
     return <div className="text-center py-4">No insurances found</div>;
   }
 
-  return (
-    <div className="overflow-x-auto">
+  // Mobile card view
+  const MobileView = () => (
+    <div className="space-y-4 md:hidden">
+      {filteredInsurances.map((insurance) => (
+        <div key={insurance.insurance_id} className="bg-white rounded-lg shadow p-4 space-y-3">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="font-medium">{insurance.name || 'N/A'}</div>
+              <div className="text-sm text-gray-500">{insurance.registration_number || 'N/A'}</div>
+            </div>
+            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+              insurance.insurance_status === 'Active' 
+                ? 'bg-green-100 text-green-800'
+                : insurance.insurance_status === 'Pending'
+                ? 'bg-yellow-100 text-yellow-800'
+                : insurance.insurance_status === 'Archived'
+                ? 'bg-red-100 text-red-800'
+                : insurance.insurance_status === 'Ending'
+                ? 'bg-orange-100 text-orange-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {insurance.insurance_status}
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <div className="text-gray-500">Insurance Company</div>
+              <div>{getInsuranceCompanyName(insurance.insurance_company_id)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Valid Until</div>
+              <div>{formatDate(insurance.end_date)}</div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2 border-t">
+            <button
+              onClick={() => onEdit(insurance)}
+              className="text-blue-600 text-sm font-medium"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => insurance.insurance_id && onDelete(insurance.insurance_id)}
+              className="text-red-600 text-sm font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Desktop table view
+  const DesktopView = () => (
+    <div className="hidden md:block overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -135,6 +189,13 @@ export default function InsuranceTable({
         </tbody>
       </table>
     </div>
+  );
+
+  return (
+    <>
+      <MobileView />
+      <DesktopView />
+    </>
   );
 }
 

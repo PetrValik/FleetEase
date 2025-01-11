@@ -64,35 +64,34 @@ export default function InsuranceDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Validace před odesláním
     if (!formData.insurance_types || !formData.start_date || !formData.end_date) {
       Toast.showErrorToast('Required fields are missing');
       console.error('Required fields are missing');
       return;
     }
-    Toast.showSuccessToast('Insurance succesfully created');
+    Toast.showSuccessToast('Insurance successfully created');
     onSave(formData);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-xl">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+          <h2 className="text-xl font-bold">
             {insurance ? 'Edit Insurance' : 'Add New Insurance'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 text-2xl"
           >
-            ×
+            &times;
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Insurance Type
@@ -121,7 +120,7 @@ export default function InsuranceDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
@@ -160,7 +159,7 @@ export default function InsuranceDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Payment Method
@@ -250,3 +249,4 @@ export default function InsuranceDialog({
     </div>
   );
 }
+

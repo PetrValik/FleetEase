@@ -4,6 +4,10 @@ import { handleApiError } from '../../utils/apiErrorHandler';
 
 const BASE_URL = config.VEHICLES_ENDPOINT;
 
+export type FuelType = 'Diesel' | 'Natural 95' | 'Natural 98' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid' | 'CNG' | 'LPG' | 'Hydrogen' | 'Ethanol' | 'Bio-Diesel' | 'Synthetic Fuels';
+
+export type VehicleStatus =  'Available' | 'Reserved' | 'In Maintenance' | 'Defect State' | 'Out of Order' | 'Decommissioned';
+
 // Interface for vehicle response
 export interface Vehicle {
   vehicle_id: number;
@@ -12,8 +16,8 @@ export interface Vehicle {
   vin: string;
   category_id: number;
   country_id: number;
-  fuel_type: 'Diesel' | 'Natural 95' | 'Natural 98' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid' | 'CNG' | 'LPG' | 'Hydrogen' | 'Ethanol' | 'Bio-Diesel' | 'Synthetic Fuels';
-  vehicle_status: 'Available' | 'Reserved' | 'In Maintenance' | 'Defect State' | 'Out of Order' | 'Decommissioned';
+  fuel_type: FuelType;
+  vehicle_status: VehicleStatus;
   created_at: string;
   company_id: number;
 }

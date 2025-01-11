@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, Controller, FieldValues } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import Select from 'react-select';
 import { Button } from '../../dashboard/components/ui/Button';
 import { Input } from '../../dashboard/components/ui/Input';
@@ -8,8 +8,27 @@ import { useUser } from '../../../contexts/UserContext';
 import * as Database from '../../../database/database';
 import * as Toast from "../../../utils/toastUtils";
 
-// Define the fuel type options
-const fuelTypeOptions = [
+interface VehicleFormData {
+  vehicleType: { value: number; label: string };
+  brand: { value: number; label: string };
+  model: { value: number; label: string };
+  registrationState: { value: number; label: string };
+  registrationNumber: string;
+  vin: string;
+  fuelType: { value: Database.FuelType; label: string };
+  vehicleStatus: { value:  Database.VehicleStatus; label: string };
+}
+
+interface EditVehicleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (updatedVehicle: any) => void;
+  loading?: boolean;
+  error?: string | null;
+  vehicle: any;
+}
+
+const fuelTypeOptions: { value: Database.FuelType; label: string }[] = [
   { value: 'Diesel', label: 'Diesel' },
   { value: 'Natural 95', label: 'Natural 95' },
   { value: 'Natural 98', label: 'Natural 98' },
@@ -21,36 +40,22 @@ const fuelTypeOptions = [
   { value: 'Hydrogen', label: 'Hydrogen' },
   { value: 'Ethanol', label: 'Ethanol' },
   { value: 'Bio-Diesel', label: 'Bio-Diesel' },
-  { value: 'Synthetic Fuels', label: 'Synthetic Fuels' }
+  { value: 'Synthetic Fuels', label: 'Synthetic Fuels' },
 ];
 
-
-type FuelType = 'Diesel' | 'Natural 95' | 'Natural 98' | 'Electric' | 'Hybrid' | 'Plug-in Hybrid' | 'CNG' | 'LPG' | 'Hydrogen' | 'Ethanol' | 'Bio-Diesel' | 'Synthetic Fuels';
-
-
-interface VehicleFormData {
-  vehicleType: { value: number; label: string };
-  brand: { value: number; label: string };
-  model: { value: number; label: string };
-  registrationState: { value: number; label: string };
-  registrationNumber: string;
-  vin: string;
-  fuelType: { value: string; label: string };
-}
-
-interface EditVehicleModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (updatedVehicle: any) => void;
-  loading: boolean;
-  error: string | null;
-  vehicle: any; // Pass the current vehicle object to edit
-}
+const vehicleStatusOptions: { value: Database.VehicleStatus; label: string }[] = [
+  { value: 'Available', label: 'Available' },
+  { value: 'Reserved', label: 'Reserved' },
+  { value: 'In Maintenance', label: 'In Maintenance' },
+  { value: 'Defect State', label: 'Defect State' },
+  { value: 'Out of Order', label: 'Out of Order' },
+  { value: 'Decommissioned', label: 'Decommissioned' },
+];
 
 const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, onSave, vehicle }) => {
-  const { control, handleSubmit, formState: { errors }, setValue } = useForm<VehicleFormData>();
-  const [categories, setCategories] = useState<{ value: number, label: string }[]>([]);
-  const [stateOptions, setStateOptions] = useState<{ value: number, label: string }[]>([]);
+  const { control, handleSubmit, formState: { errors }, setValue, reset } = useForm<VehicleFormData>();
+  const [categories, setCategories] = useState<{ value: number; label: string }[]>([]);
+  const [stateOptions, setStateOptions] = useState<{ value: number; label: string }[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [brands, setBrands] = useState<{ value: number; label: string }[]>([]);
   const [models, setModels] = useState<{ value: number; label: string }[]>([]);
@@ -58,72 +63,63 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
   const { user } = useUser();
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchInitialData = async () => {
       try {
-        const categoriesResponse = await Database.getAllVehicleCategories();
-        const categoriesOptions = categoriesResponse.map((category: any) => ({
+        const [categoriesResponse, countries, brandsResponse] = await Promise.all([
+          Database.getAllVehicleCategories(),
+          Database.getAllCountries(),
+          Database.getAllVehicleBrands()
+        ]);
+
+        setCategories(categoriesResponse.map((category: any) => ({
           value: category.category_id,
           label: category.category_name,
-        }));
-        setCategories(categoriesOptions);
+        })));
+
+        setStateOptions(countries.map(country => ({
+          value: country.country_id,
+          label: country.country_name,
+        })));
+
+        setBrands(brandsResponse.map((brand: any) => ({
+          value: brand.brand_id,
+          label: brand.brand_name,
+        })));
+
+        if (vehicle?.brand_id) {
+          const modelsResponse = await Database.getModelsByBrandId(vehicle.brand_id);
+          setModels(modelsResponse.map((model: any) => ({
+            value: model.model_id,
+            label: model.model_name,
+          })));
+        }
       } catch (error) {
-        Toast.showErrorToast("Unable to fetch vehicle categories");
-        console.error("Error fetching vehicle categories:", error);
+        Toast.showErrorToast("Unable to fetch initial data");
+        console.error("Error fetching initial data:", error);
       } finally {
         setLoadingCategories(false);
       }
     };
 
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const fetchStateOptions = async () => {
-      try {
-        const countries: Database.Country[] = await Database.getAllCountries();
-        const options = countries.map(country => ({
-          value: country.country_id,
-          label: country.country_name,
-        }));
-        setStateOptions(options);
-      } catch (error) {
-        Toast.showErrorToast("Unable to fetch state options");
-        console.error("Error fetching state options:", error);
-      }
-    };
-
-    fetchStateOptions();
-  }, []);
-
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const brandsResponse = await Database.getAllVehicleBrands();
-        const brandOptions = brandsResponse.map((brand: any) => ({
-          value: brand.brand_id,
-          label: brand.brand_name,
-        }));
-        setBrands(brandOptions);
-      } catch (error) {
-        Toast.showErrorToast("Unable to fetch brands");
-        console.error('Error fetching brands:', error);
-      }
-    };
-
-    fetchBrands();
-  }, []);
-
-  useEffect(() => {
-    if (vehicle) {
-      setValue('vehicleType', { value: vehicle.category_id, label: vehicle.category_name });
-      setValue('brand', { value: vehicle.brand_id, label: vehicle.brand_name });
-      setValue('model', { value: vehicle.model_id, label: vehicle.model_name });
-      setValue('registrationState', { value: vehicle.country_id, label: vehicle.country_name });
-      setValue('registrationNumber', vehicle.registration_number);
-      setValue('vin', vehicle.vin);
-      setValue('fuelType', { value: vehicle.fuel_type, label: vehicle.fuel_type });
+    if (isOpen) {
+      fetchInitialData();
     }
-  }, [vehicle, setValue]);
+  }, [isOpen, vehicle?.brand_id]);
+
+  useEffect(() => {
+    if (vehicle && !loadingCategories) {
+      reset({
+        vehicleType: { value: vehicle.category_id, label: vehicle.category_name },
+        brand: { value: vehicle.brand_id, label: vehicle.brand_name },
+        model: { value: vehicle.model_id, label: vehicle.model_name },
+        registrationState: { value: vehicle.country_id, label: vehicle.country_name },
+        registrationNumber: vehicle.registration_number,
+        vin: vehicle.vin,
+        fuelType: fuelTypeOptions.find(option => option.value === vehicle.fuel_type) || { value: 'Diesel', label: 'Diesel' },
+        vehicleStatus: vehicleStatusOptions.find(option => option.value === vehicle.vehicle_status) || { value: 'Available', label: 'Available' },
+      });
+    }
+  }, [vehicle, loadingCategories, reset]);
 
   const handleBrandChange = async (selectedBrand: { value: number; label: string } | null) => {
     if (!selectedBrand) {
@@ -139,6 +135,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         label: model.model_name,
       }));
       setModels(modelOptions);
+      setValue('model', { value: 0, label: '' });
     } catch (error) {
       Toast.showErrorToast("Unable to fetch models");
       console.error('Error fetching models:', error);
@@ -150,27 +147,24 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
 
   const onSubmit = async (data: VehicleFormData) => {
     try {
-      const vehicleStatus: "Available" | "Reserved" | "In Maintenance" | "Defect State" | "Out of Order" | "Decommissioned" = 'Available';
-  
-      if (!user || !user.company_id) {
+      if (!user?.company_id) {
         throw new Error('User or company_id not found');
       }
-  
+
       const updatedVehicle = {
-        model_id: data.model?.value || 0,
+        model_id: data.model.value,
         registration_number: data.registrationNumber,
         vin: data.vin,
-        category_id: data.vehicleType?.value,
-        country_id: data.registrationState?.value,
-        fuel_type: data.fuelType?.value as FuelType,  // Ensure this is cast to FuelType
-        vehicle_status: vehicleStatus,
+        category_id: data.vehicleType.value,
+        country_id: data.registrationState.value,
+        fuel_type: data.fuelType.value,
+        vehicle_status: data.vehicleStatus.value,
         company_id: user.company_id,
       };
-  
-      const vehicleId = vehicle.vehicle_id; // Assuming vehicle has an id
-      const updated = await Database.updateVehicle(vehicleId, updatedVehicle);
+
+      const updated = await Database.updateVehicle(vehicle.vehicle_id, updatedVehicle);
       onSave(updated);
-      Toast.showSuccessToast("Vehicle succesfully updated");
+      Toast.showSuccessToast("Vehicle successfully updated");
       onClose();
     } catch (error) {
       Toast.showErrorToast("Unable to update vehicle");
@@ -239,7 +233,14 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                   {loadingCategories ? (
                     <p>Loading categories...</p>
                   ) : (
-                    <Select {...field} id="vehicleType" options={categories} placeholder="Select a vehicle type..." styles={customSelectStyles} />
+                    <Select 
+                      {...field} 
+                      id="vehicleType" 
+                      options={categories} 
+                      placeholder="Select a vehicle type..." 
+                      styles={customSelectStyles}
+                      value={categories.find(option => option.value === field.value?.value) || null}
+                    />
                   )}
                 </div>
               )}
@@ -268,6 +269,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                       handleBrandChange(value);
                     }}
                     styles={customSelectStyles}
+                    value={brands.find(option => option.value === field.value?.value) || null}
                   />
                 )}
               />
@@ -290,6 +292,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                     placeholder={loadingModels ? 'Loading models...' : 'Select a model...'}
                     isDisabled={models.length === 0 || loadingModels}
                     styles={customSelectStyles}
+                    value={models.find(option => option.value === field.value?.value) || null}
                   />
                 )}
               />
@@ -314,6 +317,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                     options={stateOptions}
                     placeholder="Start typing to search..."
                     styles={customSelectStyles}
+                    value={stateOptions.find(option => option.value === field.value?.value) || null}
                   />
                 )}
               />
@@ -375,12 +379,43 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
               rules={{ required: 'Fuel Type is required' }}
               render={({ field }) => (
                 <div className="dropdown-container relative">
-                  <Select {...field} id="fuelType" options={fuelTypeOptions} placeholder="Start typing to search..." styles={customSelectStyles} />
+                  <Select
+                    {...field}
+                    id="fuelType"
+                    options={fuelTypeOptions}
+                    placeholder="Start typing to search..."
+                    styles={customSelectStyles}
+                  />
                 </div>
               )}
             />
             {errors.fuelType && (
               <p className="text-red-500 text-xs">{errors.fuelType.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="vehicleStatus" required>
+              Vehicle Status
+            </Label>
+            <Controller
+              name="vehicleStatus"
+              control={control}
+              rules={{ required: 'Vehicle Status is required' }}
+              render={({ field }) => (
+                <div className="dropdown-container relative">
+                  <Select
+                    {...field}
+                    id="vehicleStatus"
+                    options={vehicleStatusOptions}
+                    placeholder="Start typing to search..."
+                    styles={customSelectStyles}
+                  />
+                </div>
+              )}
+            />
+            {errors.vehicleStatus && (
+              <p className="text-red-500 text-xs">{errors.vehicleStatus.message}</p>
             )}
           </div>
 

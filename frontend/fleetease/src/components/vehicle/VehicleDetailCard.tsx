@@ -8,7 +8,7 @@ import { Edit, Trash2, Car } from 'lucide-react';
 import EditVehicleModal from './modals/EditVehicleModal';
 import DeleteButton from './ui/DeleteButton';
 import { useUser } from '../../contexts/UserContext';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import * as Toast from "../../utils/toastUtils";
 
 interface VehicleDetailsCardProps {
@@ -16,50 +16,48 @@ interface VehicleDetailsCardProps {
 }
 
 const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) => {
-  const { user } = useUser();  // Get the current user from context
+  const { user } = useUser();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [vehicleBrand, setVehicleBrand] = useState<string | null>(null);
   const [vehicleModel, setVehicleModel] = useState<string | null>(null);
   const [vehicleCategory, setVehicleCategory] = useState<string | null>(null);
   const [registrationCountry, setRegistrationCountry] = useState<Country | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // State for error
+  const [error, setError] = useState<string | null>(null);
 
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate();
+
+  // Fetch vehicle details
+  const fetchVehicle = async () => {
+    try {
+      setLoading(true);
+      const fetchedVehicle = await getVehicleById(vehicleId);
+      setVehicle(fetchedVehicle);
+
+      if (fetchedVehicle) {
+        const model = await getVehicleModelById(fetchedVehicle.model_id);
+        const [brand, category, country] = await Promise.all([
+          model ? getVehicleBrandById(model.brand_id) : null,
+          getVehicleCategoryById(fetchedVehicle.category_id),
+          getCountryById(fetchedVehicle.country_id),
+        ]);
+
+        setVehicleBrand(brand?.brand_name || 'Not available');
+        setVehicleModel(model?.model_name || 'Not available');
+        setVehicleCategory(category?.category_name || 'Not available');
+        setRegistrationCountry(country || null);
+      }
+    } catch (err) {
+      console.error('Error fetching vehicle details:', err);
+      Toast.showErrorToast("Failed to load vehicle details");
+      setError('Failed to load vehicle details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchVehicle = async () => {
-      try {
-        setLoading(true);
-        const fetchedVehicle = await getVehicleById(vehicleId);
-        setVehicle(fetchedVehicle);
-
-        if (fetchedVehicle) {
-          // Fetch all required data in parallel for better performance
-          const model = await getVehicleModelById(fetchedVehicle.model_id);
-          const [brand, category, country] = await Promise.all([
-            model ? getVehicleBrandById(model.brand_id) : null, // Fetch brand only if model exists
-            getVehicleCategoryById(fetchedVehicle.category_id),
-            getCountryById(fetchedVehicle.country_id),
-          ]);
-
-          // Update state with fetched data or fallback values
-          setVehicleBrand(brand?.brand_name || 'Not available');
-          setVehicleModel(model?.model_name || 'Not available');
-          setVehicleCategory(category?.category_name || 'Not available');
-          setRegistrationCountry(country || null);
-        }
-      } catch (err) {
-        console.error('Error fetching vehicle details:', err);
-        Toast.showSuccessToast("Failed to load vehicle details");
-        setError('Failed to load vehicle details.'); // Set error state
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVehicle();
   }, [vehicleId]);
 
@@ -68,13 +66,11 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 
   const handleSave = async (updatedVehicle: Vehicle) => {
     try {
-      const { vehicle_id, ...updateData } = updatedVehicle;
-      const savedVehicle = await updateVehicle(vehicleId, updateData);
-      setVehicle(savedVehicle);
+      fetchVehicle(); // Reload vehicle details after save
     } catch (error) {
       console.error('Error updating vehicle:', error);
       Toast.showErrorToast("Failed to save vehicle updates");
-      setError('Failed to save vehicle updates.'); // Set error state on failure
+      setError('Failed to save vehicle updates.');
     } finally {
       handleCloseModal();
     }
@@ -84,14 +80,14 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
     try {
       const success = await deleteVehicle(vehicleId);
       if (success) {
-        setVehicle(null); // Clear vehicle state after deletion
-        Toast.showSuccessToast("Vehicle succesfully deleted");
-        navigate('/dashboard'); // Redirect to dashboard after successful deletion
+        setVehicle(null);
+        Toast.showSuccessToast("Vehicle successfully deleted");
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       Toast.showErrorToast("Failed to delete vehicle");
-      setError('Failed to delete vehicle.'); // Set error state on failure
+      setError('Failed to delete vehicle.');
     }
   };
 
@@ -105,8 +101,6 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 
   const createdAtDate = new Date(vehicle.created_at).toLocaleString();
   const formattedVIN = vehicle.vin.toUpperCase();
-
-  // Check if the user is admin or manager
   const isAdminOrManager = user?.role?.role_name === 'Admin' || user?.role?.role_name === 'Manager';
 
   return (
@@ -160,8 +154,8 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         isOpen={isEditModalOpen}
         onClose={handleCloseModal}
         onSave={handleSave}
-        loading={loading} // Pass loading state
-        error={error} // Pass error state
+        loading={loading}
+        error={error}
       />
     </div>
   );

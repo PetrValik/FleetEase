@@ -41,7 +41,7 @@ export default function InsurancePage() {
   const fetchCompanies = async () => {
     try {
       const response = await apiClient.get(config.INSURANCE_COMPANIES_ENDPOINT);
-      
+
       if (Array.isArray(response.data)) {
         setInsuranceCompanies(response.data);
       } else {
@@ -105,115 +105,127 @@ export default function InsurancePage() {
         description: insuranceData.description || null
       };
 
-    let response;
-    if (insuranceData.insurance_id) {
-      // Update
-      response = await apiClient.put(
-        `${config.INSURANCES_ENDPOINT}/${insuranceData.insurance_id}`,
-        formattedData
-      );
-    } else {
-      // Create
-      response = await apiClient.post(
-        config.INSURANCES_ENDPOINT,
-        formattedData
-      );
-    }
+      let response;
+      if (insuranceData.insurance_id) {
+        // Update
+        response = await apiClient.put(
+          `${config.INSURANCES_ENDPOINT}/${insuranceData.insurance_id}`,
+          formattedData
+        );
+      } else {
+        // Create
+        response = await apiClient.post(
+          config.INSURANCES_ENDPOINT,
+          formattedData
+        );
+      }
 
-    if (response.status === 200 || response.status === 201) {
-      setIsDialogOpen(false);
-      await fetchInsurances();
-    }
-  } catch (error: any) {
-    console.error('Error saving insurance:', error);
-    Toast.showErrorToast('Error saving insurance');
-    if (error.response?.data) {
-      console.error('Server error details:', error.response.data);
+      if (response.status === 200 || response.status === 201) {
+        setIsDialogOpen(false);
+        await fetchInsurances();
+      }
+    } catch (error: any) {
+      console.error('Error saving insurance:', error);
       Toast.showErrorToast('Error saving insurance');
+      if (error.response?.data) {
+        console.error('Server error details:', error.response.data);
+        Toast.showErrorToast('Error saving insurance');
+      }
     }
-  }
-};
+  };
 
-return (
-  <div className="min-h-screen bg-[#edf2f7] p-4 md:p-6">
-    <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-xl md:text-2xl font-bold">Insurance overview</h1>
-        <button
-          onClick={handleAddNew}
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm md:text-base"
-        >
-          Add New Insurance
-        </button>
-      </div>
+  return (
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-xl md:text-2xl font-bold">Insurance overview</h1>
+          <button
+            onClick={handleAddNew}
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm md:text-base"
+          >
+            Add New Insurance
+          </button>
+        </div>
 
-      <Card>
-        <div className="p-4 md:p-6">
+        <Card>
+          <div className="p-1 md:p-6">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div className="flex flex-nowrap overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0">
-              <button 
-                className={`px-3 py-1.5 rounded whitespace-nowrap text-sm ${activeTab === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('all')}
-              >
-                All
-              </button>
-              <button 
-                className={`px-3 py-1.5 rounded ml-2 whitespace-nowrap text-sm ${activeTab === 'Vehicle' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('Vehicle')}
-              >
-                Vehicle
-              </button>
-              <button 
-                className={`px-3 py-1.5 rounded ml-2 whitespace-nowrap text-sm ${activeTab === 'Driver' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('Driver')}
-              >
-                Driver
-              </button>
-              <button 
-                className={`px-3 py-1.5 rounded ml-2 whitespace-nowrap text-sm ${activeTab === 'Liability' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-                onClick={() => setActiveTab('Liability')}
-              >
-                Liability
-              </button>
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
+                <button
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'all'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('all')}
+                >
+                  All
+                </button>
+                <button
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'Vehicle'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('Vehicle')}
+                >
+                  Vehicle
+                </button>
+                <button
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'Driver'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('Driver')}
+                >
+                  Driver
+                </button>
+                <button
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'Liability'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
+                  onClick={() => setActiveTab('Liability')}
+                >
+                  Liability
+                </button>
+              </div>
+
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Input
+                  placeholder="Search insurance..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 w-full"
+                />
+              </div>
             </div>
-            
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <Input
-                placeholder="Search insurance..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 w-full"
+
+            <div className="mt-4">
+              <InsuranceTable
+                insurances={insurances}
+                searchTerm={searchTerm}
+                activeTab={activeTab}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                loading={loading}
+                insuranceCompanies={insuranceCompanies}
               />
             </div>
           </div>
+        </Card>
 
-          <div className="mt-4">
-            <InsuranceTable
-              insurances={insurances}
-              searchTerm={searchTerm}
-              activeTab={activeTab}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              loading={loading}
-              insuranceCompanies={insuranceCompanies}
-            />
-          </div>
-        </div>
-      </Card>
+        <InsuranceStats insurances={insurances} />
 
-      <InsuranceStats insurances={insurances} />
-
-      {isDialogOpen && (
-        <InsuranceDialog
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={handleSaveInsurance}
-          insurance={selectedInsurance || undefined}
-          insuranceCompanies={insuranceCompanies}
-        />
-      )}
+        {isDialogOpen && (
+          <InsuranceDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            onSave={handleSaveInsurance}
+            insurance={selectedInsurance || undefined}
+            insuranceCompanies={insuranceCompanies}
+          />
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }

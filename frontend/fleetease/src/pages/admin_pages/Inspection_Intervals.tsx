@@ -78,7 +78,7 @@ export default function InspectionIntervals() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
       <div className="rounded-lg border bg-white shadow-sm p-6 mb-6">
         <h1 className="text-2xl font-semibold">
           Vehicle technical inspection and emissions testing intervals

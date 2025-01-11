@@ -1,5 +1,5 @@
-/* // uncomment this and comment other config fot classic frontend to backend architecture, number can be changed but it need to be same asi you backend
-const API_BASE_URL = 'http://localhost:8080/api';
+/* // uncomment this and comment other config fot classic frontend to backend architecture, number can be changed but it need to be same asi you backend*/
+const API_BASE_URL = 'http://localhost:8080/api'; 
 
 export const config = {
   API_BASE_URL,
@@ -19,7 +19,7 @@ export const config = {
   DEFECT_TYPES_ENDPOINT: `${API_BASE_URL}/defect-types`,
   ROLES_ENDPOINT: `${API_BASE_URL}/roles`,
 };
-*/
+/*
 
 export const config = {
   API_BASE_URL: `/api/`,
@@ -39,3 +39,4 @@ export const config = {
   DEFECT_TYPES_ENDPOINT: `/api/defect-types`,
   ROLES_ENDPOINT: `/api/roles`,
 };
+*/

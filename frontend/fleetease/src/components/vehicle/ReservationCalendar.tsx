@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Reservation } from '../../database/reservations/reservations';
 import CalendarHeader from './calendar/CalendarHeader';
 import CalendarGrid from './calendar/CalendarGrid';
 import ReservationForm from './calendar/ReservationForm';
 import { createReservation } from '../../database/reservations/reservations';
 import * as Toast from "../../utils/toastUtils";
+import { startOfMonth, eachDayOfInterval, endOfMonth } from 'date-fns';
+
+
+const firstDayOfMonth = startOfMonth(new Date());
+console.log(firstDayOfMonth);
 
 interface ReservationCalendarProps {
   user: {

@@ -3,6 +3,7 @@ import * as Database from '../../database/database'
 import { useUser } from "../../contexts/UserContext"
 import { CreateDefectModal } from './CreateDefectModal'
 import { EditDefectModal } from './EditDefectModal'
+import * as Toast from "../../utils/toastUtils";
 
 export default function DefectsDashboard() {
   const { user: currentUser } = useUser()
@@ -63,6 +64,7 @@ export default function DefectsDashboard() {
       const fetchedVehicles = await Database.getVehiclesByCompanyId(companyId)
       setVehicles(fetchedVehicles)
     } catch (error) {
+      Toast.showErrorToast("Failed to fetch vehicles");
       console.error('Failed to fetch vehicles:', error)
     }
   }
@@ -72,10 +74,12 @@ export default function DefectsDashboard() {
       const newDefect = await Database.createDefect(defectData)
       if (newDefect) {
         await fetchDefectsAndVehicles()
+        Toast.showSuccessToast("Defect created succesfully");
         setIsCreateModalOpen(false)
       }
     } catch (err) {
       setError('Failed to create defect')
+      Toast.showSuccessToast('Failed to create defect');
     }
   }
 
@@ -84,9 +88,11 @@ export default function DefectsDashboard() {
       const updatedDefect = await Database.updateDefect(id, updatedData)
       if (updatedDefect) {
         await fetchDefectsAndVehicles()
+        Toast.showSuccessToast("Defect edited succesfully");
         setIsEditModalOpen(false)
       }
     } catch (err) {
+      Toast.showErrorToast('Failed to update defect');
       setError('Failed to update defect')
     }
   }
@@ -94,8 +100,10 @@ export default function DefectsDashboard() {
   const handleDeleteDefect = async (defectId: number) => {
     try {
       await Database.deleteDefect(defectId)
+      Toast.showSuccessToast("Defect deleted succesfully");
       setDefects(defects.filter(defect => defect.defect_id !== defectId))
     } catch (err) {
+      Toast.showErrorToast('Failed to delete defect');
       setError('Failed to delete defect')
     }
   }
@@ -123,6 +131,7 @@ export default function DefectsDashboard() {
         await handleEditDefect(defect.defect_id, updateData);
       } catch (err) {
         setError('Failed to update defect status')
+        Toast.showErrorToast("Failed to update defect status");
       }
     }
   }

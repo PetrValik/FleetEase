@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Reservation, getReservationsByVehicleId, deleteReservation } from '../../database/reservations/reservations';
 import ReservationCard from './reservations/ReservationCard';
+import * as Toast from "../../utils/toastUtils";
 
 interface CurrentReservationsProps {
   vehicleId: number;
@@ -19,6 +20,7 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
       setError(null);
     } catch (error) {
       setError('Error fetching reservations. Please try again later.');
+      Toast.showErrorToast("Unable to fetch reservations");
       console.error('Error fetching reservations:', error);
     } finally {
       setIsLoading(false);
@@ -29,6 +31,7 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     try {
       const success = await deleteReservation(reservationId);
       if (success) {
+        Toast.showSuccessToast("Reservation succesfully deleted");
         setReservations((prevReservations) =>
           prevReservations.filter((reservation) => reservation.reservation_id !== reservationId)
         );
@@ -36,6 +39,7 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
         setError('Failed to delete the reservation. Please try again.');
       }
     } catch (error) {
+      Toast.showErrorToast("Error deleting reservation");
       console.error('Error deleting reservation:', error);
       setError('An unexpected error occurred while deleting the reservation.');
     }

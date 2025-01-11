@@ -37,18 +37,10 @@ export function EditDefectModal({ isOpen, onClose, onSubmit, defect, defectTypes
       description: defect.description,
       date_reported: defect.date_reported.split('T')[0],
       defect_status: defect.defect_status,
-      user_id: currentUser?.user_id || 1, // Add user_id
+      user_id: currentUser?.user_id || 1,
     })
-  }, [defect, currentUser?.user_id]) // Add currentUser?.user_id to dependencies
+  }, [defect, currentUser?.user_id]) 
 
-  //const fetchVehicles = async (companyId: number) => { //Removed as vehicles are now passed as props
-  //  try {
-  //    const fetchedVehicles = await Database.getVehiclesByCompanyId(companyId)
-  //    setVehicles(fetchedVehicles)
-  //  } catch (error) {
-  //    console.error('Failed to fetch vehicles:', error)
-  //  }
-  //}
 
   if (!isOpen) return null
 

@@ -1,12 +1,6 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import * as Database from "../../database/database";
-
-type FeedbackMessage = {
-  type: "success" | "error";
-  message: string;
-};
+import * as Toast from "../../utils/toastUtils";
 
 const roleMap: { [key: number]: string } = {
   1: "Admin",
@@ -19,7 +13,6 @@ const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [feedback, setFeedback] = useState<FeedbackMessage | null>(null);
 
   const fetchData = async () => {
     try {
@@ -27,10 +20,7 @@ const UserManagement: React.FC = () => {
       setUsers(usersData);
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to load users. Please try again.",
-      });
+      Toast.showErrorToast('Cant fetch Users');
     }
   };
 
@@ -39,9 +29,8 @@ const UserManagement: React.FC = () => {
   }, []);
 
   const handleEditUser = async (updatedUser: Database.GetUser) => {
-    console.log("Saving user changes:", updatedUser);
     setIsLoading(true);
-    setFeedback(null);
+
     try {
       const updatedUserData = await Database.updateUser(updatedUser.user_id, {
         first_name: updatedUser.first_name,
@@ -52,8 +41,6 @@ const UserManagement: React.FC = () => {
         roles_id: updatedUser.roles_id,
       });
 
-      console.log("User updated successfully", updatedUserData);
-
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user_id === updatedUser.user_id
@@ -62,15 +49,12 @@ const UserManagement: React.FC = () => {
         )
       );
 
-      setFeedback({ type: "success", message: "User updated successfully" });
       await fetchData(); // Refresh the user list
+      Toast.showSuccessToast('User succesfully updated!');
       setIsModalOpen(false);
     } catch (error) {
+      Toast.showErrorToast('Failed to update user');
       console.error("Failed to update user:", error);
-      setFeedback({
-        type: "error",
-        message: "Failed to update user. Please try again.",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +68,6 @@ const UserManagement: React.FC = () => {
   const closeModal = () => {
     setSelectedUser(null);
     setIsModalOpen(false);
-    setFeedback(null);
   };
 
   return (
@@ -92,18 +75,6 @@ const UserManagement: React.FC = () => {
       <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6 mb-6">
         <h1 className="text-2xl font-bold">User Management</h1>
       </div>
-
-      {feedback && (
-        <div
-          className={`p-4 rounded-md ${
-            feedback.type === "success"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {feedback.message}
-        </div>
-      )}
 
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
@@ -250,11 +221,6 @@ const UserManagement: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-end mt-6">
-              {feedback && feedback.type === "error" && (
-                <p className="text-red-500 text-sm mb-2 self-start">
-                  {feedback.message}
-                </p>
-              )}
               <button
                 onClick={() => selectedUser && handleEditUser(selectedUser)}
                 className="bg-[#001529] text-white px-4 py-2 rounded-md hover:bg-[#002140] disabled:opacity-50"

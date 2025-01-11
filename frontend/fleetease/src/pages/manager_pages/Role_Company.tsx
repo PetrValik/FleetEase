@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as Database from "../../database/database";
 import { useUser } from "../../contexts/UserContext";
+import * as Toast from "../../utils/toastUtils";
 
 type Role = {
   role_id: number;
@@ -48,7 +49,9 @@ const Role_Company: React.FC = () => {
       setCompanyUsers(companyUsersData);
       setUnassignedUsers(unassignedUsersData);
     } catch (error) {
+      Toast.showErrorToast("Failed to fetch user data");
       console.error("Failed to fetch user data:", error);
+      
     }
   };
 
@@ -69,8 +72,10 @@ const Role_Company: React.FC = () => {
         });
       }
       await fetchUserData();
+      Toast.showSuccessToast("User succesfully updated");
       closeModal();
     } catch (error) {
+      Toast.showErrorToast("Failed to update user");
       console.error("Failed to update user:", error);
     }
   };

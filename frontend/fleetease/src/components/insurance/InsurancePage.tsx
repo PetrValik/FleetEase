@@ -9,6 +9,7 @@ import InsuranceTable from './components/InsuranceTable';
 import InsuranceStats from './components/InsuranceStats';
 import * as Database from '../../database/database';
 import { useUser } from '../../contexts/UserContext';
+import * as Toast from "../../utils/toastUtils";
 
 export default function InsurancePage() {
   const [insurances, setInsurances] = useState<Database.Insurance[]>([]);
@@ -30,6 +31,7 @@ export default function InsurancePage() {
       setInsurances(data);
     } catch (error) {
       console.error('Error fetching insurances:', error);
+      Toast.showErrorToast('Unable to fetch insurances');
       setInsurances([]);
     } finally {
       setLoading(false);
@@ -44,10 +46,12 @@ export default function InsurancePage() {
         setInsuranceCompanies(response.data);
       } else {
         console.error('Received non-array company data:', response.data);
+        Toast.showErrorToast('Unable to fetch insurance companies');
         setInsuranceCompanies([]);
       }
     } catch (error) {
       console.error('Error fetching insurance companies:', error);
+      Toast.showErrorToast('Unable to fetch insurance companies');
       setInsuranceCompanies([]);
     }
   };
@@ -73,9 +77,11 @@ export default function InsurancePage() {
         const response = await apiClient.delete(`${config.INSURANCES_ENDPOINT}/${insuranceId}`);
         if (response.status === 200) {
           await fetchInsurances();
+          Toast.showInfoToast('Insurance succesfully deleted');
         }
       } catch (error) {
         console.error('Error deleting insurance:', error);
+        Toast.showErrorToast('Error deleting insurance');
       }
     }
   };
@@ -120,8 +126,10 @@ export default function InsurancePage() {
     }
   } catch (error: any) {
     console.error('Error saving insurance:', error);
+    Toast.showErrorToast('Error saving insurance');
     if (error.response?.data) {
       console.error('Server error details:', error.response.data);
+      Toast.showErrorToast('Error saving insurance');
     }
   }
 };

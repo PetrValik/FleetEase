@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { useUser } from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
+import * as Toast from "../../utils/toastUtils";
 
 const TopbarUserMenu: React.FC = () => {
   const { user, logout } = useUser();
@@ -25,6 +26,7 @@ const TopbarUserMenu: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    Toast.showInfoToast("User has been succesfully logged out");
     navigate("/signin");
   };
 

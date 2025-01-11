@@ -83,6 +83,46 @@ exports.loginUser = async (email, password) => {
   };
 };
 
+// Verify a user using JWT token
+exports.verifyUser = async (token) => {
+  try {
+    // Decode and verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded);
+    // Fetch the user from the database by `user_id`
+    const { data: user, error } = await supabase
+      .from("Users")
+      .select(
+        "user_id, email, first_name, last_name, phone_number, company_id, roles_id"
+      )
+      .eq("user_id", decoded.user_id)
+      .single();
+
+    if (!user || error) {
+      throw new Error("User not found or invalid token");
+    }
+
+    // Retrieve role based on `roles_id`
+    const role = await getRoleById(user.roles_id);
+
+    // Create the user object for response
+    const userResponse = {
+      user_id: user.user_id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      phone_number: user.phone_number,
+      company_id: user.company_id,
+      role,
+    };
+
+    return { user: userResponse };
+  } catch (error) {
+    console.error("Error verifying user:", error);
+    throw new Error("Invalid token or user verification failed");
+  }
+};
+
 // Get all users sorted by user_id
 exports.getAllUsers = async () => {
   // Fetch all users with selected fields and sort by user_id
@@ -94,7 +134,6 @@ exports.getAllUsers = async () => {
   if (error) throw error; // Throw error if fetching fails
   return data; // Return sorted list of users
 };
-
 
 // Get a single user by ID
 exports.getUserById = async (id) => {
@@ -153,6 +192,7 @@ exports.checkEmailExists = async (email) => {
   return !!data; // Return true if email exists, otherwise false
 };
 
+// Get all users from a specific company, excluding a given user
 exports.getAllUsersFromCompany = async (companyId, excludeUserId) => {
   const { data, error } = await supabase
     .from('Users')
@@ -167,7 +207,7 @@ exports.getAllUsersFromCompany = async (companyId, excludeUserId) => {
   return data;
 };
 
-
+// Get all users without a company
 exports.getAllUsersWithoutCompany = async () => {
   const { data, error } = await supabase
     .from('Users')
@@ -182,33 +222,32 @@ exports.getAllUsersWithoutCompany = async () => {
   return data;
 };
 
+// Handle Google Sign-In
 exports.googleSign = async (firstName, lastName, email, localId, providerId) => {
   try {
-    // 1. Zkontrolujte, zda uživatel již existuje na základě provider_user_id a auth_provider
+    // Check if the user already exists in the UserAuthProviders table
     const { data: existingAuth, error: fetchError } = await supabase
-      .from('UserAuthProviders') // Tabulka s údaji o poskytovateli autentizace
+      .from('UserAuthProviders')
       .select('id, user_id')
       .eq('provider_user_id', localId)
-      .eq('auth_provider_name', providerId) // Např. poskytovatel Google
-      .single(); // Vrátí jediný záznam (pokud existuje)
+      .eq('auth_provider_name', providerId)
+      .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      // Pokud došlo k chybě jinak než "záznam neexistuje"
       throw new Error('Failed to fetch existing user from UserAuthProviders');
     }
 
     let userId;
     let user;
 
-    // 2. Pokud uživatel existuje
     if (existingAuth) {
+      // If the user exists, fetch their details
       userId = existingAuth.user_id;
 
       if (!userId) {
         throw new Error('User ID is missing in the existingAuth record');
       }
 
-      // Získejte data uživatele z tabulky Users
       const { data: existingUser, error: userFetchError } = await supabase
         .from('Users')
         .select('user_id, email, first_name, last_name, phone_number, company_id, roles_id')
@@ -221,15 +260,15 @@ exports.googleSign = async (firstName, lastName, email, localId, providerId) => 
 
       user = existingUser;
     } else {
-      // 3. Pokud uživatel neexistuje, vytvoříme nový záznam v tabulce Users
+      // If the user does not exist, create a new record in Users
       const { data: newUser, error: createUserError } = await supabase
         .from('Users')
         .insert({
           email,
           first_name: firstName,
           last_name: lastName,
-          roles_id: 3, // Výchozí role
-          is_active: true, // Aktivní uživatel
+          roles_id: 3, // Default role
+          is_active: true, // Active user
         })
         .select('user_id, email, first_name, last_name, phone_number, company_id, roles_id')
         .single();
@@ -240,7 +279,7 @@ exports.googleSign = async (firstName, lastName, email, localId, providerId) => 
 
       user = newUser;
 
-      // 4. Záznam připojení uživatele a poskytovatele (UserAuthProviders tabulka)
+      // Link the user to the authentication provider
       const { error: authInsertError } = await supabase
         .from('UserAuthProviders')
         .insert({
@@ -254,27 +293,26 @@ exports.googleSign = async (firstName, lastName, email, localId, providerId) => 
       }
     }
 
-    // 5. Získání role uživatele
+    // Fetch the user's role
     const role = await getRoleById(user.roles_id);
 
-    // 6. Vygenerování JWT tokenu
+    // Generate a JWT token
     const token = jwt.sign(
-      { user_id: user.user_id, email: user.email, role }, // Payload tokenu
-      process.env.JWT_SECRET, // Tajný klíč z prostředí
-      { expiresIn: '24h' } // Token platí 24 hodin
+      { user_id: user.user_id, email: user.email, role },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' } // Token expires in 24 hours
     );
 
-    // 7. Vrácení dat a tokenu
     return {
       token,
       user: {
         user_id: user.user_id,
         email: user.email,
-        first_name: user.first_name, // Správné názvy
-        last_name: user.last_name,   // Správné názvy
+        first_name: user.first_name,
+        last_name: user.last_name,
         phone_number: user.phone_number,
         company_id: user.company_id,
-        role, // Role uživatele
+        role,
       },
     };
   } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Reservation } from '../../database/reservations/reservations';
+import { Reservation, getReservationsByVehicleId } from '../../database/reservations/reservations';
 import CalendarHeader from './calendar/CalendarHeader';
 import CalendarGrid from './calendar/CalendarGrid';
 import ReservationForm from './calendar/ReservationForm';
@@ -34,7 +34,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   const [pickupLocation, setPickupLocation] = useState('');
   const [returnLocation, setReturnLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [reservedDates, setReservedDates] = useState<Date[]>([]); // State for reserved dates
 
   useEffect(() => {
     // Update current date every minute to keep it up-to-date
@@ -44,6 +44,35 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 
     return () => clearInterval(interval); // Clean up interval on component unmount
   }, []);
+
+  useEffect(() => {
+    // Fetch reservations for the vehicle and store reserved dates
+    const fetchReservations = async () => {
+      try {
+        const reservations = await getReservationsByVehicleId(vehicleId);
+        const reservedDates: Date[] = [];
+        
+        // Loop through each reservation and create a list of all the reserved dates
+        reservations.forEach((reservation) => {
+          const startDate = new Date(reservation.start_time);
+          const endDate = new Date(reservation.end_time);
+          
+          // Get all days between start and end date
+          let currentDate = startDate;
+          while (currentDate <= endDate) {
+            reservedDates.push(new Date(currentDate)); // Add the current date to the reserved dates
+            currentDate.setDate(currentDate.getDate() + 1); // Move to next day
+          }
+        });
+
+        setReservedDates(reservedDates); // Store reserved dates in state
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+      }
+    };
+
+    fetchReservations();
+  }, [vehicleId]);
 
   // Get the first day and last day of the current month
   const firstDayOfMonth = startOfMonth(currentDate);
@@ -110,7 +139,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       const newReservation = await createReservation(reservationData);
 
       if (newReservation) {
-        Toast.showSuccessToast("Reservation succesfully created");
+        Toast.showSuccessToast("Reservation successfully created");
       } else {
         setErrorMessage('Failed to create reservation.');
       }
@@ -127,6 +156,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       <CalendarGrid
         daysInMonth={daysWithEmptyCells}
         selectedDates={selectedDates}
+        reservedDates={reservedDates} // Pass reservedDates to CalendarGrid
         handleDateClick={handleDateSelect}
       />
       {selectedDates.length > 0 && (

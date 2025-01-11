@@ -70,7 +70,7 @@ export default function InsuranceTable({
                 ? 'bg-yellow-100 text-yellow-800'
                 : insurance.insurance_status === 'Archived'
                 ? 'bg-red-100 text-red-800'
-                : insurance.insurance_status === 'Ending'
+                : insurance.insurance_status === 'Ending soon'
                 ? 'bg-orange-100 text-orange-800'
                 : 'bg-gray-100 text-gray-800'
             }`}>
@@ -163,7 +163,7 @@ export default function InsuranceTable({
                     ? 'bg-yellow-100 text-yellow-800'
                     : insurance.insurance_status === 'Archived'
                     ? 'bg-red-100 text-red-800'
-                    : insurance.insurance_status === 'Ending'
+                    : insurance.insurance_status === 'Ending soon'
                     ? 'bg-orange-100 text-orange-800'
                     : 'bg-gray-100 text-gray-800'
                 }`}>

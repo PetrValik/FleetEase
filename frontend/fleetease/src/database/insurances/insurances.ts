@@ -6,7 +6,7 @@ const BASE_URL = config.INSURANCES_ENDPOINT;
 
 export type InsuranceType = 'Driver' | 'Vehicle' | 'Liability';
 export type PaymentMethod = 'Monthly' | 'Quarterly' | 'Semi-Annual' | 'Annual' | 'One-Time';
-export type InsuranceStatus = 'Active' | 'Pending' | 'Archived' | 'Ending';
+export type InsuranceStatus = 'Active' | 'Pending' | 'Archived' | 'Ending soon';
 
 export interface Insurance {
   insurance_id?: number;

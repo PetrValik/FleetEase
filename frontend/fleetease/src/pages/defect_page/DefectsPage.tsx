@@ -130,9 +130,14 @@ export default function DefectsDashboard() {
     if (nextStatus) {
       try {
         const updateData = {
-          ...defect,
           defect_status: nextStatus,
-        }
+          user_id: defect.user_id,
+          vehicle_id: defect.vehicle_id,
+          type_id: defect.type_id,
+          defect_severity: defect.defect_severity,
+          description: defect.description,
+          date_reported: defect.date_reported,
+        };
         await handleEditDefect(defect.defect_id, updateData)
       } catch (err) {
         setError('Failed to update defect status')

@@ -19,8 +19,8 @@ export const config = {
   DEFECT_TYPES_ENDPOINT: `${API_BASE_URL}/defect-types`,
   ROLES_ENDPOINT: `${API_BASE_URL}/roles`,
 };
-/*
 
+/*
 export const config = {
   API_BASE_URL: `/api/`,
   USERS_ENDPOINT: `api/users`,

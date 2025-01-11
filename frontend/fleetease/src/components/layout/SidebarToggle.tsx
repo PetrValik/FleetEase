@@ -8,7 +8,7 @@ interface SidebarToggleProps {
 
 const SidebarToggle: React.FC<SidebarToggleProps> = ({ isCollapsed, setIsCollapsed }) => {
   return (
-    <div className="px-4 pb-4 w-full">
+    <div>
       <button
         className={`
           w-full h-10

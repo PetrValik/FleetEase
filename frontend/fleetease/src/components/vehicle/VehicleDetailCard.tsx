@@ -83,9 +83,7 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 
   const handleSave = async (updatedVehicle: Vehicle) => {
     try {
-      const { vehicle_id, ...updateData } = updatedVehicle;
-      const savedVehicle = await updateVehicle(vehicleId, updateData);
-      setVehicle(savedVehicle);
+      fetchVehicle(); // Reload vehicle details after save
     } catch (error) {
       console.error('Error updating vehicle:', error);
       Toast.showErrorToast("Failed to save vehicle updates");
@@ -120,7 +118,6 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 
   const createdAtDate = new Date(vehicle.created_at).toLocaleString();
   const formattedVIN = vehicle.vin.toUpperCase();
-
   const isAdminOrManager = user?.role?.role_name === 'Admin' || user?.role?.role_name === 'Manager';
 
   const statusColors = {

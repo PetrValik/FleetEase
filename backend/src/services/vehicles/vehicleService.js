@@ -34,7 +34,6 @@ exports.update = async (id, updates) => {
         .from(tableName)
         .update(updates)
         .eq(fields.id, id);
-
     if (error) throw new Error('Failed to update vehicle');
     return data;
 };

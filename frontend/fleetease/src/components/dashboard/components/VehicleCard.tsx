@@ -88,14 +88,27 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
   return (
     <Link to={`/vehicle/${id}`}>
-      <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105 p-6 bg-white rounded-lg border">
+      <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105 p-6 bg-white rounded-lg border relative">
         <CardContent className="space-y-4">
           <h3 className="text-lg font-semibold">
             {vehicleBrand && vehicleModel
               ? `${vehicleBrand.brand_name} ${vehicleModel.model_name}`
               : "Loading Vehicle Info..."}
           </h3>
-
+          <div className="absolute top-4 right-4">
+            <Badge
+              variant={
+                status === "Available"
+                  ? "success"
+                  : status === "Reserved"
+                  ? "default"
+                  : "destructive"
+              }
+              className={`${statusColors[status]} text-white`}
+            >
+              {status}
+            </Badge>
+          </div>
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Registration:</span>
@@ -129,21 +142,6 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
                   ? `${new Date(closestReservation.start_time).toLocaleDateString()} - ${new Date(closestReservation.end_time).toLocaleDateString()}`
                   : "-"}
               </span>
-            </div>
-
-            <div className="flex justify-end mt-2">
-              <Badge
-                variant={
-                  status === "Available"
-                    ? "success"
-                    : status === "Reserved"
-                    ? "default"
-                    : "destructive"
-                }
-                className={`${statusColors[status]} text-white`}
-              >
-                {status}
-              </Badge>
             </div>
           </div>
         </CardContent>

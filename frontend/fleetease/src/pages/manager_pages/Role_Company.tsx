@@ -22,9 +22,13 @@ const mapRoleToLocal = (role: any): Role => {
 const Role_Company: React.FC = () => {
   const { user: currentUser } = useUser();
   const [companyUsers, setCompanyUsers] = useState<Database.GetUser[]>([]);
-  const [unassignedUsers, setUnassignedUsers] = useState<Database.GetUser[]>([]);
+  const [unassignedUsers, setUnassignedUsers] = useState<Database.GetUser[]>(
+    []
+  );
   const [roles, setRoles] = useState<Role[]>([]);
-  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(
+    null
+  );
   const [originalRole, setOriginalRole] = useState<number | null>(null);
   const [modalMode, setModalMode] = useState<"edit" | "assign">("assign");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +55,6 @@ const Role_Company: React.FC = () => {
     } catch (error) {
       Toast.showErrorToast("Failed to fetch user data");
       console.error("Failed to fetch user data:", error);
-      
     }
   };
 
@@ -103,27 +106,25 @@ const Role_Company: React.FC = () => {
       {/* Users in the company */}
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">
-            Users from Your Company
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Users from Your Company</h2>
           <div className="space-y-2">
             {companyUsers.map((user) => (
               <div
                 key={user.user_id}
-                className="flex items-center justify-between p-4 border rounded-lg bg-gray-100"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg bg-gray-100"
               >
-                <div className="flex flex-col">
-                  <span>
+                <div className="flex flex-col w-full sm:w-auto">
+                  <span className="truncate">
                     {user.first_name} {user.last_name}
                   </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-600 font-semibold">
+                  <span className="text-sm text-gray-500 truncate">
                     {roleMap[user.roles_id]}
                   </span>
+                </div>
+                <div className="mt-2 sm:mt-0 w-full sm:w-auto text-right">
                   <button
                     onClick={() => openModal(user, "edit")}
-                    className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
+                    className="w-full sm:w-auto px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
                     Edit
                   </button>
@@ -137,27 +138,25 @@ const Role_Company: React.FC = () => {
       {/* Users without a company */}
       <div className="bg-white rounded-lg shadow-xl border border-gray-300">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">
-            Users without company
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Users without company</h2>
           <div className="space-y-2">
             {unassignedUsers.map((user) => (
               <div
                 key={user.user_id}
-                className="flex items-center justify-between p-4 border rounded-lg bg-gray-100"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg bg-gray-100"
               >
-                <div className="flex flex-col">
-                  <span>
+                <div className="flex flex-col w-full sm:w-auto">
+                  <span className="truncate">
                     {user.first_name} {user.last_name}
                   </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-600 font-semibold">
+                  <span className="text-sm text-gray-500 truncate">
                     {roleMap[user.roles_id]}
                   </span>
+                </div>
+                <div className="mt-2 sm:mt-0 w-full sm:w-auto text-right">
                   <button
                     onClick={() => openModal(user, "assign")}
-                    className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
+                    className="w-full sm:w-auto px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
                     Assign
                   </button>
@@ -171,7 +170,7 @@ const Role_Company: React.FC = () => {
       {/* Confirmation Modal */}
       {showConfirmation && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
+          <div className="bg-white rounded-lg w-[90%] max-w-[400px] p-4 sm:p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Add User</h2>
               <button
@@ -208,7 +207,7 @@ const Role_Company: React.FC = () => {
       {/* Edit Modal */}
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
+          <div className="bg-white rounded-lg w-[90%] max-w-[400px] p-4 sm:p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Edit User Role</h2>
               <button
@@ -222,13 +221,9 @@ const Role_Company: React.FC = () => {
               <p className="mb-2">
                 Name: {selectedUser.first_name} {selectedUser.last_name}
               </p>
-              <p className="mb-4">
-                Current role: {roleMap[originalRole!]}
-              </p>
+              <p className="mb-4">Current role: {roleMap[originalRole!]}</p>
               <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  New role:
-                </label>
+                <label className="block text-sm font-medium">New role:</label>
                 <select
                   className="w-full border rounded-md p-2"
                   onChange={(e) => {
@@ -269,4 +264,3 @@ const Role_Company: React.FC = () => {
 };
 
 export default Role_Company;
-

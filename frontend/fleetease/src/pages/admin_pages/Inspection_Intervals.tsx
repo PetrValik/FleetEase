@@ -62,11 +62,11 @@ export default function InspectionIntervals() {
             : category
         )
       );
-      Toast.showSuccessToast('Interval succesfuly changed');
+      Toast.showSuccessToast("Interval successfully changed");
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Failed to update intervals:", error);
-      Toast.showErrorToast('Unable to change interval');
+      Toast.showErrorToast("Unable to change interval");
     }
   };
 
@@ -111,10 +111,10 @@ export default function InspectionIntervals() {
       </div>
 
       {isDialogOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">
-              Modify Inspection Intervals- {selectedCategory?.category_name}
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-[90%] max-w-[400px]">
+            <h2 className="text-lg font-semibold mb-4">
+              Modify Inspection Intervals - {selectedCategory?.category_name}
             </h2>
 
             <div className="space-y-6">
@@ -122,7 +122,9 @@ export default function InspectionIntervals() {
                 <h3 className="font-medium">Current Inspection Intervals</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">Technical Inspection</div>
+                    <div className="text-sm text-gray-500 mb-1">
+                      Technical Inspection
+                    </div>
                     <div className="px-4 py-2 bg-gray-50 rounded-md">
                       {selectedCategory?.inspection_period} Months
                     </div>
@@ -140,7 +142,9 @@ export default function InspectionIntervals() {
                 <h3 className="font-medium">New Inspection Intervals</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-500 mb-1">Technical Inspection</div>
+                    <div className="text-sm text-gray-500 mb-1">
+                      Technical Inspection
+                    </div>
                     <input
                       type="number"
                       className="w-full px-3 py-2 border rounded-md"

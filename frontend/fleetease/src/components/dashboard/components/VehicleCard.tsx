@@ -79,7 +79,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
   const statusColors = {
     Available: "bg-[#10b91d]",
-    Reserved: "bg-[#eab308]",
+    Reserved: "bg-[#3b82f6]",
     Maintenance: "bg-[#ef4444]",
     Disabled: "bg-[#6b7280]",
   };

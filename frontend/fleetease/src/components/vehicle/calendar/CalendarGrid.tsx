@@ -55,8 +55,10 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                   `}
                   onClick={() => day && handleDateClick(day)}
                 >
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
-                    {day ? day.getDate() : ''}
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+                      {day ? day.getDate() : ''}
+                    </div>
                   </div>
                 </td>
               ))}

@@ -142,7 +142,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                   formSubmitted && pickupError ? 'border-red-500' : 'border-gray-300'
                 } rounded-md`}
                 placeholder="Search Pickup Location"
-                disabled={isDisabled}
               />
               {formSubmitted && pickupError && <p className="text-red-500 text-xs mt-1">{pickupError}</p>}
               {showPickupDropdown && pickupSearch && (
@@ -175,7 +174,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
                   formSubmitted && returnError ? 'border-red-500' : 'border-gray-300'
                 } rounded-md`}
                 placeholder="Search Return Location"
-                disabled={isDisabled}
               />
               {formSubmitted && returnError && <p className="text-red-500 text-xs mt-1">{returnError}</p>}
               {showReturnDropdown && returnSearch && (

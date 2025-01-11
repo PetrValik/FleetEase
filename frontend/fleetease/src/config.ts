@@ -1,5 +1,5 @@
 // uncomment this and comment other config fot classic frontend to backend architecture, number can be changed but it need to be same asi you backend
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = "http://localhost:8080/api";
 
 export const config = {
   API_BASE_URL,
@@ -10,17 +10,17 @@ export const config = {
   VEHICLES_ENDPOINT: `${API_BASE_URL}/vehicles`,
   RESERVATIONS_ENDPOINT: `${API_BASE_URL}/reservations`,
   VEHICLE_CATEGORIES_ENDPOINT: `${API_BASE_URL}/vehicle-categories`,
-  VEHICLE_MODELS_ENDPOINT: `${API_BASE_URL}/vehicle-models`, 
+  VEHICLE_MODELS_ENDPOINT: `${API_BASE_URL}/vehicle-models`,
   VEHICLE_BRANDS_ENDPOINT: `${API_BASE_URL}/vehicle-brands`,
-  COUNTRIES_ENDPOINT: `${API_BASE_URL}/countries`, 
-  COMPANIES_ENDPOINT: `${API_BASE_URL}/companies`, 
+  COUNTRIES_ENDPOINT: `${API_BASE_URL}/countries`,
+  COMPANIES_ENDPOINT: `${API_BASE_URL}/companies`,
   VEHICLE_INSPECTIONS_ENDPOINT: `${API_BASE_URL}/vehicle-inspections`,
   DEFECTS_ENDPOINT: `${API_BASE_URL}/defects`,
   DEFECT_TYPES_ENDPOINT: `${API_BASE_URL}/defect-types`,
   ROLES_ENDPOINT: `${API_BASE_URL}/roles`,
 };
 
-/*
+/* 
 export const config = {
   API_BASE_URL: `/api/`,
   USERS_ENDPOINT: `api/users`,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as Database from '../../../database/database';
 import * as Toast from "../../../utils/toastUtils";
 
@@ -17,60 +17,60 @@ export default function InsuranceDialog({
   insurance,
   insuranceCompanies = []
 }: InsuranceDialogProps) {
-  const [formData, setFormData] = React.useState<Partial<Database.Insurance>>(
+  const [formData, setFormData] = useState<Partial<Database.Insurance>>(
     insurance || {
       insurance_types: 'Vehicle',
-      registration_number: null,
-      name: null,
+      registration_number: '',
+      name: '',
       start_date: '',
       end_date: '',
       payment_method: 'Monthly',
       insurance_status: 'Active',
       insurance_company_id: insuranceCompanies[0]?.insurance_company_id || 0,
       company_id: 0,
-      description: null
+      description: ''
     }
   );
 
-  const handleInsuranceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      insurance_types: e.target.value as Database.InsuranceType
-    });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.insurance_types) newErrors.insurance_types = "Insurance type is required";
+    if (!formData.registration_number) newErrors.registration_number = "Registration number is required";
+    if (!formData.name) newErrors.name = "Insurance name is required";
+    if (!formData.start_date) newErrors.start_date = "Start date is required";
+    if (!formData.end_date) newErrors.end_date = "End date is required";
+    if (!formData.payment_method) newErrors.payment_method = "Payment method is required";
+    if (!formData.insurance_status) newErrors.insurance_status = "Insurance status is required";
+    if (!formData.insurance_company_id) newErrors.insurance_company_id = "Insurance company is required";
+    if (!formData.description) newErrors.description = "Description is required";
+
+    if (formData.start_date && formData.end_date && new Date(formData.start_date) >= new Date(formData.end_date)) {
+      newErrors.end_date = "End date must be after start date";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      payment_method: e.target.value as Database.PaymentMethod
-    });
-  };
-
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      insurance_status: e.target.value as Database.InsuranceStatus
-    });
-  };
-
-  const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const companyId = parseInt(e.target.value);
-    setFormData({
-      ...formData,
-      insurance_company_id: companyId,
-      company_id: companyId
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.insurance_types || !formData.start_date || !formData.end_date) {
-      Toast.showErrorToast('Required fields are missing');
-      console.error('Required fields are missing');
-      return;
+    if (validateForm()) {
+      onSave(formData);
+      Toast.showSuccessToast('Insurance successfully saved');
+    } else {
+      Toast.showErrorToast('Please fill in all required fields correctly');
     }
-    Toast.showSuccessToast('Insurance successfully created');
-    onSave(formData);
   };
 
   if (!isOpen) return null;
@@ -91,60 +91,37 @@ export default function InsuranceDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Type
-              </label>
-              <select
-                value={formData.insurance_types}
-                onChange={handleInsuranceTypeChange}
-                className="w-full p-2 border rounded-md"
-                required
-              >
-                <option value="Vehicle">Vehicle</option>
-                <option value="Driver">Driver</option>
-                <option value="Liability">Liability</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Registration Number
-              </label>
-              <input
-                type="text"
-                value={formData.registration_number || ''}
-                onChange={(e) => setFormData({ ...formData, registration_number: e.target.value })}
-                className="w-full p-2 border rounded-md"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Insurance Type
+            </label>
+            <select
+              name="insurance_types"
+              value={formData.insurance_types}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.insurance_types ? 'border-red-500' : ''}`}
+              required
+            >
+              <option value="Vehicle">Vehicle</option>
+              <option value="Driver">Driver</option>
+              <option value="Liability">Liability</option>
+            </select>
+            {errors.insurance_types && <p className="text-red-500 text-xs mt-1">{errors.insurance_types}</p>}
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
-              </label>
-              <input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date
-              </label>
-              <input
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Registration Number
+            </label>
+            <input
+              type="text"
+              name="registration_number"
+              value={formData.registration_number || ''}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.registration_number ? 'border-red-500' : ''}`}
+              required
+            />
+            {errors.registration_number && <p className="text-red-500 text-xs mt-1">{errors.registration_number}</p>}
           </div>
 
           <div>
@@ -153,51 +130,88 @@ export default function InsuranceDialog({
             </label>
             <input
               type="text"
+              name="name"
               value={formData.name || ''}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full p-2 border rounded-md"
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.name ? 'border-red-500' : ''}`}
+              required
             />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
           </div>
 
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment Method
+                Start Date
               </label>
-              <select
-                value={formData.payment_method}
-                onChange={handlePaymentMethodChange}
-                className="w-full p-2 border rounded-md"
+              <input
+                type="date"
+                name="start_date"
+                value={formData.start_date}
+                onChange={handleChange}
+                className={`w-full p-2 border rounded-md ${errors.start_date ? 'border-red-500' : ''}`}
                 required
-              >
-                <option value="Monthly">Monthly</option>
-                <option value="Quarterly">Quarterly</option>
-                <option value="Semi-Annual">Semi-Annual</option>
-                <option value="Annual">Annual</option>
-                <option value="One-Time">One-Time</option>
-              </select>
+              />
+              {errors.start_date && <p className="text-red-500 text-xs mt-1">{errors.start_date}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Company
+                End Date
               </label>
-              <select
-                value={formData.insurance_company_id || 0}
-                onChange={handleCompanyChange}
-                className="w-full p-2 border rounded-md"
+              <input
+                type="date"
+                name="end_date"
+                value={formData.end_date}
+                onChange={handleChange}
+                className={`w-full p-2 border rounded-md ${errors.end_date ? 'border-red-500' : ''}`}
                 required
-              >
-                <option value={0}>Select Insurance Company</option>
-                {Array.isArray(insuranceCompanies) && insuranceCompanies.map((company) => (
-                  <option 
-                    key={company.insurance_company_id} 
-                    value={company.insurance_company_id}
-                  >
-                    {company.company_name}
-                  </option>
-                ))}
-              </select>
+              />
+              {errors.end_date && <p className="text-red-500 text-xs mt-1">{errors.end_date}</p>}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Payment Method
+            </label>
+            <select
+              name="payment_method"
+              value={formData.payment_method}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.payment_method ? 'border-red-500' : ''}`}
+              required
+            >
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Semi-Annual">Semi-Annual</option>
+              <option value="Annual">Annual</option>
+              <option value="One-Time">One-Time</option>
+            </select>
+            {errors.payment_method && <p className="text-red-500 text-xs mt-1">{errors.payment_method}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Insurance Company
+            </label>
+            <select
+              name="insurance_company_id"
+              value={formData.insurance_company_id || 0}
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.insurance_company_id ? 'border-red-500' : ''}`}
+              required
+            >
+              <option value={0}>Select Insurance Company</option>
+              {Array.isArray(insuranceCompanies) && insuranceCompanies.map((company) => (
+                <option 
+                  key={company.insurance_company_id} 
+                  value={company.insurance_company_id}
+                >
+                  {company.company_name}
+                </option>
+              ))}
+            </select>
+            {errors.insurance_company_id && <p className="text-red-500 text-xs mt-1">{errors.insurance_company_id}</p>}
           </div>
 
           <div>
@@ -205,16 +219,18 @@ export default function InsuranceDialog({
               Status
             </label>
             <select
+              name="insurance_status"
               value={formData.insurance_status}
-              onChange={handleStatusChange}
-              className="w-full p-2 border rounded-md"
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.insurance_status ? 'border-red-500' : ''}`}
               required
             >
               <option value="Active">Active</option>
               <option value="Pending">Pending</option>
               <option value="Archived">Archived</option>
-              <option value="Ending">Ending</option>
+              <option value="Ending soon">Ending soon</option>
             </select>
+            {errors.insurance_status && <p className="text-red-500 text-xs mt-1">{errors.insurance_status}</p>}
           </div>
 
           <div>
@@ -222,11 +238,14 @@ export default function InsuranceDialog({
               Description
             </label>
             <textarea
+              name="description"
               value={formData.description || ''}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full p-2 border rounded-md"
+              onChange={handleChange}
+              className={`w-full p-2 border rounded-md ${errors.description ? 'border-red-500' : ''}`}
               rows={3}
+              required
             />
+            {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
           </div>
 
           <div className="flex justify-end space-x-4 mt-6">

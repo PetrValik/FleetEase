@@ -201,7 +201,6 @@ export const restoreUser = async (): Promise<User | null> => {
     ] = `Bearer ${token}`;
 
     const response = await apiClient.get(`${BASE_URL}/verify`);
-    console.log(response.data.user);
     return response.data.user;
   } catch (error) {
     console.error("Error in restoreUser:" , error);

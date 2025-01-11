@@ -22,7 +22,6 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    console.log('Form submitted'); // Debug log
 
     if (password !== confirmPassword) {
       setError("Passwords don't match");

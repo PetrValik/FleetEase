@@ -126,32 +126,30 @@ exports.checkVehicleActiveReservation = async (vehicleId) => {
   return data || null;
 };
 
-// Check if a specific vehicle is reserved
-exports.isVehicleReserved = async (vehicleId) => {
+// Check if a specific vehicle is reserved during a time range
+exports.isVehicleReserved = async (vehicleId, startTime, endTime) => {
   try {
-    const currentTime = new Date().toISOString();
-
     const { data, error } = await supabase
       .from('Reservations') // Replace with your actual table name
       .select('*')
       .eq('vehicle_id', vehicleId)
-      .gte('end_time', currentTime) // Ensure the reservation has not ended
-      .lte('start_time', currentTime) // Ensure the reservation has started
-      .single(); // Expect a single reservation to be active at any given time
+      .or(`and(start_time.lte.${endTime},end_time.gte.${startTime})`); // Overlapping reservation check
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        // No active reservation
-        return { isReserved: false, reservation: null };
-      }
       console.error('Error in isVehicleReserved service:', error);
       throw new Error('Failed to check if vehicle is reserved');
     }
 
-    // Active reservation found
-    return { isReserved: true, reservation: data };
+    if (data && data.length > 0) {
+      // Overlapping reservation exists
+      return { isReserved: true, reservation: data[0] };
+    }
+
+    // No overlapping reservation found
+    return { isReserved: false, reservation: null };
   } catch (error) {
     console.error('Unexpected error in isVehicleReserved service:', error);
     throw new Error('Failed to check if vehicle is reserved');
   }
 };
+

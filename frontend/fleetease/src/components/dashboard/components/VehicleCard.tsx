@@ -86,61 +86,72 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({
 
   const closestReservation = getClosestFutureReservation(reservations);
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  };
+
   return (
     <Link to={`/vehicle/${id}`}>
-      <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105 p-6 bg-white rounded-lg border relative">
-        <CardContent className="space-y-4">
-          <h3 className="text-lg font-semibold">
-            {vehicleBrand && vehicleModel
-              ? `${vehicleBrand.brand_name} ${vehicleModel.model_name}`
-              : "Loading Vehicle Info..."}
-          </h3>
-          <div className="absolute top-4 right-4">
-            <Badge
-              variant={
-                status === "Available"
-                  ? "success"
-                  : status === "Reserved"
-                  ? "default"
-                  : "destructive"
-              }
-              className={`${statusColors[status]} text-white`}
-            >
-              {status}
-            </Badge>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105 p-4 sm:p-6 bg-white rounded-lg border relative">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <h3 className="text-base sm:text-lg font-semibold pr-16 sm:pr-0">
+              {vehicleBrand && vehicleModel
+                ? `${vehicleBrand.brand_name} ${vehicleModel.model_name}`
+                : "Loading Vehicle Info..."}
+            </h3>
+            <div className="absolute top-3 right-3 sm:static sm:mt-0">
+              <Badge
+                variant={
+                  status === "Available"
+                    ? "success"
+                    : status === "Reserved"
+                    ? "default"
+                    : "destructive"
+                }
+                className={`${statusColors[status]} text-white text-xs sm:text-sm`}
+              >
+                {status}
+              </Badge>
+            </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Registration:</span>
-              <span className="text-sm text-gray-500">{formattedRegistrationNumber}</span>
+              <span className="font-medium">Registration:</span>
+              <span className="text-gray-500">{formattedRegistrationNumber}</span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium flex items-center">
+              <span className="font-medium flex items-center">
                 <Fuel className="mr-2 h-4 w-4" />
                 Fuel Type:
               </span>
-              <span className="text-sm text-gray-500">{fuelType || "N/A"}</span>
+              <span className="text-gray-500">{fuelType || "N/A"}</span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium flex items-center">
+              <span className="font-medium flex items-center">
                 <UserIcon className="mr-2 h-4 w-4" />
                 Assigned Driver:
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-gray-500">
                 {closestReservation?.user_id || "-"}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium flex items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+              <span className="font-medium flex items-center mb-1 sm:mb-0">
                 <Calendar className="mr-2 h-4 w-4" />
                 Assignment Period:
               </span>
-              <span className="text-sm text-gray-500">
-                {closestReservation
-                  ? `${new Date(closestReservation.start_time).toLocaleDateString()} - ${new Date(closestReservation.end_time).toLocaleDateString()}`
-                  : "-"}
+              <span className="text-gray-500 text-right">
+                {closestReservation ? (
+                  <>
+                    <div>{formatDate(new Date(closestReservation.start_time))}</div>
+                    <div>{formatDate(new Date(closestReservation.end_time))}</div>
+                  </>
+                ) : (
+                  "-"
+                )}
               </span>
             </div>
           </div>

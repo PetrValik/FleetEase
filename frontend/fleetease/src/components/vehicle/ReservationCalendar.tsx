@@ -155,8 +155,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         setSelectedDates([]);
         setPickupLocation('');
         setReturnLocation('');
-        setIsFormVisible(false); // Hide the form
-        // Refresh reserved dates
+        setIsFormVisible(false);
         const updatedReservations = await getReservationsByVehicleId(vehicleId);
         const updatedReservedDates = updatedReservations.flatMap(reservation => {
           const startDate = new Date(reservation.start_time);
@@ -174,14 +173,16 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">
+    <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-2 sm:p-6 mx-auto">
       <CalendarHeader currentDate={currentDate} setCurrentDate={setCurrentDate} />
-      <CalendarGrid
-        daysInMonth={daysWithEmptyCells}
-        selectedDates={selectedDates}
-        reservedDates={reservedDates}
-        handleDateClick={handleDateSelect}
-      />
+      <div className="mt-4 overflow-x-auto">
+        <CalendarGrid
+          daysInMonth={daysWithEmptyCells}
+          selectedDates={selectedDates}
+          reservedDates={reservedDates}
+          handleDateClick={handleDateSelect}
+        />
+      </div>
       <ReservationForm
         selectedDates={selectedDates}
         pickupLocation={pickupLocation}
@@ -198,3 +199,4 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 };
 
 export default ReservationCalendar;
+

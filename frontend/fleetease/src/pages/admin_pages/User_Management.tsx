@@ -10,7 +10,9 @@ const roleMap: { [key: number]: string } = {
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<Database.GetUser[]>([]);
-  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<Database.GetUser | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,7 +22,7 @@ const UserManagement: React.FC = () => {
       setUsers(usersData);
     } catch (error) {
       console.error("Failed to fetch data:", error);
-      Toast.showErrorToast('Cant fetch Users');
+      Toast.showErrorToast("Cant fetch Users");
     }
   };
 
@@ -50,10 +52,10 @@ const UserManagement: React.FC = () => {
       );
 
       await fetchData(); // Refresh the user list
-      Toast.showSuccessToast('User succesfully updated!');
+      Toast.showSuccessToast("User succesfully updated!");
       setIsModalOpen(false);
     } catch (error) {
-      Toast.showErrorToast('Failed to update user');
+      Toast.showErrorToast("Failed to update user");
       console.error("Failed to update user:", error);
     } finally {
       setIsLoading(false);
@@ -71,7 +73,7 @@ const UserManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="container mx-auto p-2 sm:p-4 md:p-6">
       <div className="bg-white rounded-lg shadow-xl border border-gray-300 p-6 mb-6">
         <h1 className="text-2xl font-bold">User Management</h1>
       </div>
@@ -83,21 +85,23 @@ const UserManagement: React.FC = () => {
             {users.map((user) => (
               <div
                 key={user.user_id}
-                className="flex items-center justify-between p-4 border rounded-lg bg-gray-100"
+                className="flex flex-wrap items-start justify-between p-4 border rounded-lg bg-gray-100"
               >
-                <div className="flex flex-col">
-                  <span>
+                <div className="flex flex-col max-w-full">
+                  <span className="truncate">
                     {user.first_name} {user.last_name}
                   </span>
-                  <span className="text-sm text-gray-500">{user.email}</span>
+                  <span className="text-sm text-gray-500 truncate">
+                    {user.email}
+                  </span>
                   <span className="text-sm text-gray-500">
                     Role: {roleMap[user.roles_id]}
                   </span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="mt-2 sm:mt-0 flex-shrink-0 w-full sm:w-auto">
                   <button
                     onClick={() => openModal(user)}
-                    className="px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
+                    className="w-full sm:w-auto px-4 py-2 border rounded-md bg-white hover:bg-gray-200"
                   >
                     Edit
                   </button>
@@ -110,7 +114,7 @@ const UserManagement: React.FC = () => {
 
       {isModalOpen && selectedUser && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-[425px] p-6 shadow-2xl">
+          <div className="bg-white rounded-lg w-[90%] max-w-[400px] p-4 sm:p-6 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Edit User</h2>
               <button
@@ -192,7 +196,9 @@ const UserManagement: React.FC = () => {
                   onChange={(e) =>
                     setSelectedUser({
                       ...selectedUser,
-                      company_id: e.target.value ? parseInt(e.target.value, 10) : null,
+                      company_id: e.target.value
+                        ? parseInt(e.target.value, 10)
+                        : null,
                     })
                   }
                   className="w-full border rounded-md p-2"
@@ -237,4 +243,3 @@ const UserManagement: React.FC = () => {
 };
 
 export default UserManagement;
-

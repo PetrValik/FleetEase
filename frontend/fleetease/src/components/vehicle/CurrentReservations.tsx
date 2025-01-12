@@ -16,7 +16,11 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     try {
       setIsLoading(true);
       const fetchedReservations = await getReservationsByVehicleId(vehicleId);
-      setReservations(fetchedReservations);
+      // Sort reservations by start time, closest first
+      const sortedReservations = fetchedReservations.sort((a, b) => 
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+      );
+      setReservations(sortedReservations);
       setError(null);
     } catch (error) {
       setError('Error fetching reservations. Please try again later.');

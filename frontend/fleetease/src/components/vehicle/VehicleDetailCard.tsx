@@ -4,6 +4,7 @@ import { getVehicleBrandById } from '../../database/vehicles/vehicleBrand';
 import { getVehicleModelById } from '../../database/vehicles/vehicleModel';
 import { getCountryById, Country } from '../../database/vehicles/countries';
 import { getVehicleCategoryById } from '../../database/vehicles/vehicleCategory';
+import { getReservationsByVehicleId, Reservation } from '../../database/reservations/reservations';
 import { Edit, Trash2, Car } from 'lucide-react';
 import EditVehicleModal from './modals/EditVehicleModal';
 import DeleteButton from './ui/DeleteButton';
@@ -25,41 +26,51 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
 
   const navigate = useNavigate();
 
-  // Fetch vehicle details
-  const fetchVehicle = async () => {
-    try {
-      setLoading(true);
-      const fetchedVehicle = await getVehicleById(vehicleId);
-      setVehicle(fetchedVehicle);
-
-      if (fetchedVehicle) {
-        const model = await getVehicleModelById(fetchedVehicle.model_id);
-        const [brand, category, country] = await Promise.all([
-          model ? getVehicleBrandById(model.brand_id) : null,
-          getVehicleCategoryById(fetchedVehicle.category_id),
-          getCountryById(fetchedVehicle.country_id),
-        ]);
-
-        setVehicleBrand(brand?.brand_name || 'Not available');
-        setVehicleModel(model?.model_name || 'Not available');
-        setVehicleCategory(category?.category_name || 'Not available');
-        setRegistrationCountry(country || null);
-      }
-    } catch (err) {
-      console.error('Error fetching vehicle details:', err);
-      Toast.showErrorToast("Failed to load vehicle details");
-      setError('Failed to load vehicle details.');
-    } finally {
-      setLoading(false);
-    }
+  const isCurrentlyReserved = (reservations: Reservation[]): boolean => {
+    const now = new Date();
+    return reservations.some(res => {
+      const startTime = new Date(res.start_time);
+      const endTime = new Date(res.end_time);
+      return now >= startTime && now <= endTime;
+    });
   };
 
-  useEffect(() => {
-    fetchVehicle();
-  }, [vehicleId]);
+// Fetch vehicle details
+const fetchVehicle = async () => {
+  try {
+    setLoading(true);
+    const fetchedVehicle = await getVehicleById(vehicleId);
+    setVehicle(fetchedVehicle);
+
+    if (fetchedVehicle) {
+      const model = await getVehicleModelById(fetchedVehicle.model_id);
+      const [brand, category, country] = await Promise.all([
+        model ? getVehicleBrandById(model.brand_id) : null,
+        getVehicleCategoryById(fetchedVehicle.category_id),
+        getCountryById(fetchedVehicle.country_id),
+      ]);
+
+      setVehicleBrand(brand?.brand_name || 'Not available');
+      setVehicleModel(model?.model_name || 'Not available');
+      setVehicleCategory(category?.category_name || 'Not available');
+      setRegistrationCountry(country || null);
+    }
+  } catch (err) {
+    console.error('Error fetching vehicle details:', err);
+    Toast.showErrorToast("Failed to load vehicle details");
+    setError('Failed to load vehicle details.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchVehicle();
+}, [vehicleId]);
 
   const handleOpenModal = () => setIsEditModalOpen(true);
   const handleCloseModal = () => setIsEditModalOpen(false);
@@ -103,6 +114,17 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
   const formattedVIN = vehicle.vin.toUpperCase();
   const isAdminOrManager = user?.role?.role_name === 'Admin' || user?.role?.role_name === 'Manager';
 
+  const statusColors = {
+    Available: "bg-[#10b91d]",
+    Reserved: "bg-[#3b82f6]",
+    Maintenance: "bg-[#ef4444]",
+    "In Maintenance": "bg-[#ef4444]",
+    "Defect State": "bg-[#ef4444]",
+    "Out of Order": "bg-[#ef4444]",
+    Decommissioned: "bg-[#6b7280]",
+    Disabled: "bg-[#6b7280]",
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center">
@@ -113,7 +135,11 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
           <h2 className="text-xl font-semibold">{vehicleModel} ({vehicleBrand})</h2>
           <p className="text-gray-600 text-sm">{vehicle.registration_number}</p>
         </div>
-        <span className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${vehicle.vehicle_status === 'Available' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
+        <span 
+          className={`ml-auto px-4 py-2 text-sm font-semibold rounded-full ${
+            statusColors[vehicle.vehicle_status as keyof typeof statusColors] || 'bg-gray-500'
+          } text-white`}
+        >
           {vehicle.vehicle_status}
         </span>
       </div>
@@ -148,7 +174,6 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
         )}
       </div>
 
-      {/* Edit Vehicle Modal */}
       <EditVehicleModal
         vehicle={vehicle}
         isOpen={isEditModalOpen}
@@ -162,3 +187,4 @@ const VehicleDetailsCard: React.FC<VehicleDetailsCardProps> = ({ vehicleId }) =>
 };
 
 export default VehicleDetailsCard;
+

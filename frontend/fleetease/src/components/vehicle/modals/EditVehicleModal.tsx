@@ -225,7 +225,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
   };
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay p-4">
       <div className="modal-content relative">
         <button
           onClick={onClose}

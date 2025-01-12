@@ -106,7 +106,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       hasError = true;
     } else {
       // Add 1 hour to selected dates
-      const adjustedDates = selectedDates.map((date) => new Date(date.getTime() + 120 * 60 * 1000));
+      const adjustedDates = selectedDates.map((date) => new Date(date.getTime() + 240 * 60 * 1000));
       const [startDate, endDate] =
         adjustedDates.length === 1
           ? [adjustedDates[0], adjustedDates[0]]

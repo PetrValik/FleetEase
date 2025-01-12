@@ -50,25 +50,22 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         const reservedDates: Date[] = [];
         
         reservations.forEach((reservation) => {
-          const startDate = new Date(selectedDates[0]); // Use the first selected date
-startDate.setHours(3, 0, 0, 0); // Set start time to 3:00 AM
-
+          const startDate = startOfDay(new Date(reservation.start_time));
           const endDate = new Date(reservation.end_time); // Exact end time from reservation
-
-          
+  
           let currentDate = startDate;
           while (currentDate <= endDate) {
             reservedDates.push(new Date(currentDate));
             currentDate.setDate(currentDate.getDate() + 1);
           }
         });
-
-        setReservedDates(reservedDates);
+  
+        setReservedDates(reservedDates); // Update state to include all reserved dates
       } catch (error) {
         console.error('Error fetching reservations:', error);
       }
     };
-
+  
     fetchReservations();
   }, [vehicleId]);
 

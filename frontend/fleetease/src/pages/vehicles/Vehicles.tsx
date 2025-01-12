@@ -100,7 +100,7 @@ const VehicleDetailPage: React.FC = () => {
         </div>
 
         <div className="lg:col-span-4 w-full">
-          <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">Current Reservations</h3>
+          <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4"></h3>
           <CurrentReservations vehicleId={Number(vehicleId)} />
         </div>
       </div>

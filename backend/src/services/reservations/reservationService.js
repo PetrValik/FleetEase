@@ -130,11 +130,12 @@ exports.checkVehicleActiveReservation = async (vehicleId) => {
 exports.isVehicleReserved = async (vehicleId, startTime, endTime) => {
   try {
     const { data, error } = await supabase
-      .from('Reservations') // Replace with your actual table name
-      .select('*')
-      .eq('vehicle_id', vehicleId)
-      .or(`and(start_time.lte.${endTime},end_time.gte.${startTime})`); // Overlapping reservation check
-
+    .from(tableName)
+    .select('*')
+    .eq('vehicle_id', vehicleId)
+    .filter('start_time', 'lte', endTime) // start_time <= endTime
+    .filter('end_time', 'gte', startTime); // end_time >= startTime
+    
     if (error) {
       console.error('Error in isVehicleReserved service:', error);
       throw new Error('Failed to check if vehicle is reserved');

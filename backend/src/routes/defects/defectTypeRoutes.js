@@ -7,7 +7,7 @@ const authenticateToken = require('../../middlewares/authenticateToken');
 const checkRole = require('../../middlewares/checkRole');
 const logAudit = require('../../middlewares/auditLogger');
 
-// Get all defect types (restricted to admin and manager roles)
+// Get all defect types 
 router.get(
     '/',
     authenticateToken,
@@ -16,7 +16,7 @@ router.get(
     defectTypeController.getAllDefectTypes
 );
 
-// Get a defect type by ID (restricted to admin and manager roles)
+// Get a defect type by ID 
 router.get(
     '/:id',
     authenticateToken,

@@ -50,8 +50,11 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         const reservedDates: Date[] = [];
         
         reservations.forEach((reservation) => {
-          const startDate = startOfDay(new Date(reservation.start_time));
-          const endDate = endOfDay(new Date(reservation.end_time));
+          const startDate = new Date(selectedDates[0]); // Use the first selected date
+startDate.setHours(3, 0, 0, 0); // Set start time to 3:00 AM
+
+          const endDate = new Date(reservation.end_time); // Exact end time from reservation
+
           
           let currentDate = startDate;
           while (currentDate <= endDate) {
@@ -104,7 +107,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 
   const handleReservationSubmit = async () => {
     let errorMessage = '';
-  
+    
     if (!pickupLocation) {
       errorMessage += 'Pickup Location is required. ';
     }
@@ -114,51 +117,56 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     if (selectedDates.length === 0) {
       errorMessage += 'Please select at least one date. ';
     }
-  
+    
     if (selectedDates.length > 0) {
-      const startDate = startOfDay(selectedDates[0]);
-      const endDate = endOfDay(selectedDates[selectedDates.length - 1]);
-  
+      const startDate = new Date(selectedDates[0]);
+      startDate.setHours(3, 0, 0, 0); // Adjust start to 3:00 AM
+      
+      const endDate = new Date(selectedDates[selectedDates.length - 1]);
+      endDate.setHours(3, 0, 0, 0); // Adjust end to 3:00 AM
+      
       if (isDateRangeOverlapping(startDate, endDate)) {
         errorMessage += 'Selected date range overlaps with existing reservations. ';
       }
     }
-  
+    
     if (errorMessage) {
       Toast.showErrorToast(errorMessage.trim());
       return;
     }
+    
+    const startDate = new Date(selectedDates[0]);
+    startDate.setHours(3, 0, 0, 0); // Adjust start to 3:00 AM
   
-    // Ensure endDate is calculated properly for inclusive range
-    const startDate = startOfDay(selectedDates[0]);
-    const endDate = startOfDay(selectedDates[selectedDates.length - 1]);
-  
+    const endDate = new Date(selectedDates[selectedDates.length - 1]);
+    endDate.setHours(3, 0, 0, 0); // Adjust end to 3:00 AM
+    
     const reservationData = {
       vehicle_id: vehicleId,
       user_id: user.user_id,
-      start_time: startDate.toISOString(), // Inclusive start
-      end_time: endDate.toISOString(),     // Inclusive end
+      start_time: startDate.toISOString(),
+      end_time: endDate.toISOString(),
       pickup_location: pickupLocation,
       return_location: returnLocation,
       reservation_status: 'Completed' as const,
       notes: null,
     };
-  
+    
     try {
       const newReservation = await createReservation(reservationData);
-  
+      
       if (newReservation) {
-        Toast.showSuccessToast("Reservation successfully created");
+        Toast.showSuccessToast('Reservation successfully created');
         setSelectedDates([]);
         setPickupLocation('');
         setReturnLocation('');
         setIsFormVisible(false);
-  
+        
         // Refresh reserved dates
         const updatedReservations = await getReservationsByVehicleId(vehicleId);
         const updatedReservedDates = updatedReservations.flatMap(reservation => {
-          const reservationStart = startOfDay(new Date(reservation.start_time));
-          const reservationEnd = startOfDay(new Date(reservation.end_time)); // Fix to avoid extra day
+          const reservationStart = new Date(reservation.start_time);
+          const reservationEnd = new Date(reservation.end_time);
           return eachDayOfInterval({ start: reservationStart, end: reservationEnd });
         });
         setReservedDates(updatedReservedDates);
@@ -166,10 +174,11 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         Toast.showErrorToast('Failed to create reservation.');
       }
     } catch (error) {
-      Toast.showErrorToast("Unable to create reservation");
+      Toast.showErrorToast('Unable to create reservation');
       console.error('Error creating reservation:', error);
     }
   };
+  
 
   return (
     <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">

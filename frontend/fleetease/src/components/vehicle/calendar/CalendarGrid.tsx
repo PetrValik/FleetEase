@@ -40,9 +40,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   };
 
   const handleDateSelection = (date: Date) => {
-    const adjustedDate = new Date(date.getTime() + 60 * 60 * 1000); // Add 1 hour to the date
-    handleDateClick(adjustedDate);
-  };
+  handleDateClick(date); // Remove "+1 hour" adjustment if not required globally
+};
 
   return (
     <div className="overflow-x-auto">

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Reservation, getReservationsByVehicleId } from '../../database/reservations/reservations';
+import { Reservation, getReservationsByVehicleId, createReservation } from '../../database/reservations/reservations';
 import CalendarHeader from './calendar/CalendarHeader';
 import CalendarGrid from './calendar/CalendarGrid';
 import ReservationForm from './calendar/ReservationForm';
-import { createReservation } from '../../database/reservations/reservations';
 import * as Toast from "../../utils/toastUtils";
-import { startOfMonth, eachDayOfInterval, endOfMonth, isSameDay, isWithinInterval } from 'date-fns';
+import { startOfMonth, eachDayOfInterval, endOfMonth, isSameDay, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 interface ReservationCalendarProps {
   user: {
@@ -51,8 +50,8 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         const reservedDates: Date[] = [];
         
         reservations.forEach((reservation) => {
-          const startDate = new Date(reservation.start_time);
-          const endDate = new Date(reservation.end_time);
+          const startDate = startOfDay(new Date(reservation.start_time));
+          const endDate = endOfDay(new Date(reservation.end_time));
           
           let currentDate = startDate;
           while (currentDate <= endDate) {
@@ -87,13 +86,12 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   ];
 
   const handleDateSelect = (date: Date) => {
-    if (selectedDates.length === 0) {
+    if (selectedDates.length === 0 || selectedDates.length === 2) {
       setSelectedDates([date]);
     } else if (selectedDates.length === 1) {
-      const sortedDates = [...selectedDates, date].sort((a, b) => a.getTime() - b.getTime());
-      setSelectedDates(sortedDates);
-    } else {
-      setSelectedDates([date]);
+      const [existingDate] = selectedDates;
+      const newDates = [existingDate, date].sort((a, b) => a.getTime() - b.getTime());
+      setSelectedDates(newDates);
     }
     setIsFormVisible(true);
   };
@@ -118,9 +116,8 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     }
 
     if (selectedDates.length > 0) {
-      const [startDate, endDate] = selectedDates.length === 1 
-        ? [selectedDates[0], selectedDates[0]] 
-        : [selectedDates[0], selectedDates[selectedDates.length - 1]];
+      const startDate = startOfDay(selectedDates[0]);
+      const endDate = endOfDay(selectedDates[selectedDates.length - 1]);
 
       if (isDateRangeOverlapping(startDate, endDate)) {
         errorMessage += 'Selected date range overlaps with existing reservations. ';
@@ -132,9 +129,8 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
       return;
     }
 
-    const sortedDates = selectedDates.sort((a, b) => a.getTime() - b.getTime());
-    const startDate = sortedDates[0];
-    const endDate = sortedDates[sortedDates.length - 1];
+    const startDate = startOfDay(selectedDates[0]);
+    const endDate = endOfDay(selectedDates[selectedDates.length - 1]);
 
     const reservationData = {
       vehicle_id: vehicleId,
@@ -156,11 +152,13 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
         setPickupLocation('');
         setReturnLocation('');
         setIsFormVisible(false);
+        
+        // Refresh reserved dates
         const updatedReservations = await getReservationsByVehicleId(vehicleId);
         const updatedReservedDates = updatedReservations.flatMap(reservation => {
-          const startDate = new Date(reservation.start_time);
-          const endDate = new Date(reservation.end_time);
-          return eachDayOfInterval({ start: startDate, end: endDate });
+          const reservationStart = startOfDay(new Date(reservation.start_time));
+          const reservationEnd = endOfDay(new Date(reservation.end_time));
+          return eachDayOfInterval({ start: reservationStart, end: reservationEnd });
         });
         setReservedDates(updatedReservedDates);
       } else {
@@ -173,16 +171,14 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
   };
 
   return (
-    <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-2 sm:p-6 mx-auto">
+    <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6 mx-auto">
       <CalendarHeader currentDate={currentDate} setCurrentDate={setCurrentDate} />
-      <div className="mt-4 overflow-x-auto">
-        <CalendarGrid
-          daysInMonth={daysWithEmptyCells}
-          selectedDates={selectedDates}
-          reservedDates={reservedDates}
-          handleDateClick={handleDateSelect}
-        />
-      </div>
+      <CalendarGrid
+        daysInMonth={daysWithEmptyCells}
+        selectedDates={selectedDates}
+        reservedDates={reservedDates}
+        handleDateClick={handleDateSelect}
+      />
       <ReservationForm
         selectedDates={selectedDates}
         pickupLocation={pickupLocation}
@@ -199,4 +195,3 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 };
 
 export default ReservationCalendar;
-

@@ -104,7 +104,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 
   const handleReservationSubmit = async () => {
     let errorMessage = '';
-
+  
     if (!pickupLocation) {
       errorMessage += 'Pickup Location is required. ';
     }
@@ -114,50 +114,51 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
     if (selectedDates.length === 0) {
       errorMessage += 'Please select at least one date. ';
     }
-
+  
     if (selectedDates.length > 0) {
       const startDate = startOfDay(selectedDates[0]);
       const endDate = endOfDay(selectedDates[selectedDates.length - 1]);
-
+  
       if (isDateRangeOverlapping(startDate, endDate)) {
         errorMessage += 'Selected date range overlaps with existing reservations. ';
       }
     }
-
+  
     if (errorMessage) {
       Toast.showErrorToast(errorMessage.trim());
       return;
     }
-
+  
+    // Ensure endDate is calculated properly for inclusive range
     const startDate = startOfDay(selectedDates[0]);
-    const endDate = endOfDay(selectedDates[selectedDates.length - 1]);
-
+    const endDate = startOfDay(selectedDates[selectedDates.length - 1]);
+  
     const reservationData = {
       vehicle_id: vehicleId,
       user_id: user.user_id,
-      start_time: startDate.toISOString(),
-      end_time: endDate.toISOString(),
+      start_time: startDate.toISOString(), // Inclusive start
+      end_time: endDate.toISOString(),     // Inclusive end
       pickup_location: pickupLocation,
       return_location: returnLocation,
       reservation_status: 'Completed' as const,
       notes: null,
     };
-
+  
     try {
       const newReservation = await createReservation(reservationData);
-
+  
       if (newReservation) {
         Toast.showSuccessToast("Reservation successfully created");
         setSelectedDates([]);
         setPickupLocation('');
         setReturnLocation('');
         setIsFormVisible(false);
-        
+  
         // Refresh reserved dates
         const updatedReservations = await getReservationsByVehicleId(vehicleId);
         const updatedReservedDates = updatedReservations.flatMap(reservation => {
           const reservationStart = startOfDay(new Date(reservation.start_time));
-          const reservationEnd = endOfDay(new Date(reservation.end_time));
+          const reservationEnd = startOfDay(new Date(reservation.end_time)); // Fix to avoid extra day
           return eachDayOfInterval({ start: reservationStart, end: reservationEnd });
         });
         setReservedDates(updatedReservedDates);

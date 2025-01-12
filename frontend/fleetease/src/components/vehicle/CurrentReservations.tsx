@@ -11,6 +11,7 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPastReservations, setShowPastReservations] = useState(false);
 
   const fetchReservations = async () => {
     try {
@@ -53,6 +54,17 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     fetchReservations();
   }, [vehicleId]);
 
+  const currentDate = new Date();
+
+  const filteredReservations = reservations.filter((reservation) => {
+    const reservationEndDate = new Date(reservation.end_time);
+    if (showPastReservations) {
+      return reservationEndDate < currentDate;
+    } else {
+      return reservationEndDate >= currentDate;
+    }
+  });
+
   if (isLoading) {
     return <div className="p-4 text-center">Loading reservations...</div>;
   }
@@ -61,24 +73,39 @@ const CurrentReservations: React.FC<CurrentReservationsProps> = ({ vehicleId }) 
     return <div className="p-4 text-center text-red-500">{error}</div>;
   }
 
-  if (reservations.length === 0) {
-    return <div className="p-4 text-center">No current reservations found for this vehicle.</div>;
-  }
-
   return (
     <div className="reservations-container p-4">
-      <div className="reservations-list max-h-[490px] overflow-y-auto">
-        <ul className="space-y-4">
-          {reservations.map((reservation) => (
-            <li key={reservation.reservation_id}>
-              <ReservationCard
-                reservation={reservation}
-                onDelete={handleDelete}
-              />
-            </li>
-          ))}
-        </ul>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">
+          {showPastReservations ? 'Past Reservations' : 'Current & Future Reservations'}
+        </h2>
+        <button
+          onClick={() => setShowPastReservations(!showPastReservations)}
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center"
+        >
+          {showPastReservations ? 'Show Current & Future' : 'Show Past'}
+        </button>
       </div>
+      {filteredReservations.length === 0 ? (
+        <div className="p-4 text-center">
+          {showPastReservations
+            ? 'No past reservations found for this vehicle.'
+            : 'No current or future reservations found for this vehicle.'}
+        </div>
+      ) : (
+        <div className="reservations-list max-h-[490px] overflow-y-auto">
+          <ul className="space-y-4">
+            {filteredReservations.map((reservation) => (
+              <li key={reservation.reservation_id}>
+                <ReservationCard
+                  reservation={reservation}
+                  onDelete={handleDelete}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

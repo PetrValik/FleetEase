@@ -105,9 +105,12 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       setFormErrorMessage('Please select at least one date.');
       hasError = true;
     } else {
-      const [startDate, endDate] = selectedDates.length === 1 
-        ? [selectedDates[0], selectedDates[0]] 
-        : [selectedDates[0], selectedDates[selectedDates.length - 1]];
+      // Add 1 hour to selected dates
+      const adjustedDates = selectedDates.map((date) => new Date(date.getTime() + 240 * 60 * 1000));
+      const [startDate, endDate] =
+        adjustedDates.length === 1
+          ? [adjustedDates[0], adjustedDates[0]]
+          : [adjustedDates[0], adjustedDates[adjustedDates.length - 1]];
 
       if (isDateRangeOverlapping(startDate, endDate)) {
         setFormErrorMessage('Selected date range overlaps with existing reservations.');

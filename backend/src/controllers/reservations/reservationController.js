@@ -26,10 +26,6 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
 
-    if (isReservedResult.isReserved) {
-      return res.status(400).json({ error: 'The vehicle is already reserved for the selected time period' });
-    }
-
     // Create the reservation
     const reservation = await reservationService.create(req.body);
     res.status(201).json({ message: 'Reservation created successfully', reservation });

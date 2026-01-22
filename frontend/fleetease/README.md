@@ -1,15 +1,25 @@
-## Nainstalujte všechny závislosti:
- npm install
+# Frontend
 
-## Spuštění aplikace
-Pro spuštění aplikace v vývojovém režimu použijte:
- npm start
+This folder contains the frontend part of the project, built using **React**.
 
-Aplikace bude dostupná na adrese (http://localhost:3000).
+## Project context
+- The project was originally designed as a **team project for 6 people**
+- The final implementation was completed by **4 team members**
+- I am the **author of the core application architecture**
+- I assisted other team members with development, Git usage, bug fixing, and unfinished features
+- AI tools were used during development by me and other team members
 
-## Produkční nasazení
-Pro vytvoření produkční verze použijte:
+## Tech stack
+- React
+- React Router
+- Axios
+- Tailwind CSS
+- Supabase
+- React Toastify
 
- npm run build
+## Running the frontend
 
-Tím se vytvoří složka `build` s optimalizovanými soubory připravenými k nasazení.
+```bash
+cd frontend
+npm install
+npm start
